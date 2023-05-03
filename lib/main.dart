@@ -9,5 +9,5 @@ void main() => runApp(MaterialApp(
   theme: ThemeData(
     primaryColor: Colors.black,
   ),
-  home: const Notifications(), // rename Login to Join or Welcome to open other views
+  home: const Welcome(), // rename Login to Join or Welcome to open other views
 ));

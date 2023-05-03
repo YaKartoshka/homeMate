@@ -1,14 +1,14 @@
-#Mon May 01 02:55:57 ALMT 2023
+#Thu May 04 01:05:45 ALMT 2023
 path.4=6/classes.dex
 path.3=1/classes.dex
 path.2=0/classes.dex
 path.1=0/classes.dex
 path.0=classes.dex
-base.4=C\:\\Users\\Erasyl\\AndroidStudioProjects\\homeMate\\build\\app\\intermediates\\dex\\debug\\mergeProjectDexDebug\\6\\classes.dex
-base.3=C\:\\Users\\Erasyl\\AndroidStudioProjects\\homeMate\\build\\app\\intermediates\\dex\\debug\\mergeProjectDexDebug\\1\\classes.dex
-base.2=C\:\\Users\\Erasyl\\AndroidStudioProjects\\homeMate\\build\\app\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
-base.1=C\:\\Users\\Erasyl\\AndroidStudioProjects\\homeMate\\build\\app\\intermediates\\dex\\debug\\mergeLibDexDebug\\0\\classes.dex
-base.0=C\:\\Users\\Erasyl\\AndroidStudioProjects\\homeMate\\build\\app\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
+base.4=C\:\\Users\\User\\Documents\\GitHub\\homeMate\\build\\app\\intermediates\\dex\\debug\\mergeProjectDexDebug\\6\\classes.dex
+base.3=C\:\\Users\\User\\Documents\\GitHub\\homeMate\\build\\app\\intermediates\\dex\\debug\\mergeProjectDexDebug\\1\\classes.dex
+base.2=C\:\\Users\\User\\Documents\\GitHub\\homeMate\\build\\app\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
+base.1=C\:\\Users\\User\\Documents\\GitHub\\homeMate\\build\\app\\intermediates\\dex\\debug\\mergeLibDexDebug\\0\\classes.dex
+base.0=C\:\\Users\\User\\Documents\\GitHub\\homeMate\\build\\app\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 renamed.3=classes4.dex
 renamed.2=classes3.dex
 renamed.1=classes2.dex

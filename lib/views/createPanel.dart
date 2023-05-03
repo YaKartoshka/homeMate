@@ -45,7 +45,7 @@ class _JoinState extends State<CreatePanel> {
             )),
             const SizedBox(
               width: 0,
-              height: 30,
+              height: 15,
             ),
             const Row(
               
@@ -75,7 +75,7 @@ class _JoinState extends State<CreatePanel> {
               borderRadius: BorderRadius.circular(30.0),
              
             ),
-            margin: const EdgeInsets.all(50),
+            margin: const EdgeInsets.all(10),
             width: 320,
             height: 490,
             child:    Column(

@@ -117,7 +117,7 @@ class _JoinState extends State<Join> {
                             child:TextFormField(  
                             decoration: const InputDecoration(  
                           
-                              hintText: 'Enter your name',  
+                              hintText: 'Enter your email',  
                               labelText: 'Email',  
                               
                             )

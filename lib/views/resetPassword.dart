@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:home_mate/views/resetPassword.dart';
 import 'package:home_mate/views/welcome.dart';
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class Reset extends StatefulWidget {
+  const Reset({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<Reset> createState() => _ResetState();
 }
 
-class _LoginState extends State<Login> {
+class _ResetState extends State<Reset> {
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -86,7 +85,7 @@ class _LoginState extends State<Login> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                   const Text("Login", style: TextStyle(
+                   const Text("Reset a password", style: TextStyle(
                         fontSize: 25,
                         fontFamily: 'Poppins',
                       ),
@@ -111,44 +110,7 @@ class _LoginState extends State<Login> {
                           )
    
                           ),
-                          const SizedBox(height: 30,),
-                          SizedBox(
-                            width: 250,
-                            child:TextFormField(  
-                            decoration: const InputDecoration(  
-                          
-                              hintText: 'Enter your password',  
-                              labelText: 'Password',  
-                              
-                            )
-                          )
-                          ),
-                          const SizedBox(height: 10,),
-                          GestureDetector(
-      onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => Reset()),
-    );
-  },
-  child: const Text(
-    'Forget a password?',
-    style: TextStyle(
-      
-      fontSize: 16,
-      fontFamily: 'Poppins',
-      color: Color.fromARGB(255, 69, 5, 173),
-      shadows: <Shadow>[
-        Shadow(
-          offset: Offset(0, 10.0),
-          blurRadius: 10.0,
-          color: Color.fromARGB(70, 0, 0, 0),
-        ),
-      ],
-    ),
-  ),
-),
-                          const SizedBox(height: 60,),
+                          const SizedBox(height: 35,),
                           SizedBox(
                             width: 250,
                             child:  Row(
@@ -160,7 +122,7 @@ class _LoginState extends State<Login> {
                                       backgroundColor: Color.fromARGB(255, 94, 91, 255),
                                       fixedSize: Size(170, 50),
 
-                                  ), child: const Text("Login", style: TextStyle(
+                                  ), child: const Text("Reset", style: TextStyle(
                                     fontSize: 20,
                                  
                                   ),),

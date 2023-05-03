@@ -2,6 +2,12 @@
   "configVersion": 2,
   "packages": [
     {
+      "name": "_flutterfire_internals",
+      "rootUri": "file:///C:/Users/Erasyl/AppData/Local/Pub/Cache/hosted/pub.dev/_flutterfire_internals-1.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
       "name": "animated_text_kit",
       "rootUri": "file:///C:/Users/Erasyl/AppData/Local/Pub/Cache/hosted/pub.dev/animated_text_kit-4.2.2",
       "packageUri": "lib/",
@@ -30,6 +36,24 @@
       "rootUri": "file:///C:/Users/Erasyl/AppData/Local/Pub/Cache/hosted/pub.dev/clock-1.1.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "cloud_firestore",
+      "rootUri": "file:///C:/Users/Erasyl/AppData/Local/Pub/Cache/hosted/pub.dev/cloud_firestore-4.5.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "cloud_firestore_platform_interface",
+      "rootUri": "file:///C:/Users/Erasyl/AppData/Local/Pub/Cache/hosted/pub.dev/cloud_firestore_platform_interface-5.12.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "cloud_firestore_web",
+      "rootUri": "file:///C:/Users/Erasyl/AppData/Local/Pub/Cache/hosted/pub.dev/cloud_firestore_web-3.4.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
     },
     {
       "name": "collection",
@@ -188,7 +212,7 @@
       "languageVersion": "2.19"
     }
   ],
-  "generated": "2023-05-03T20:51:24.073288Z",
+  "generated": "2023-05-03T22:26:06.373550Z",
   "generator": "pub",
   "generatorVersion": "3.0.0-411.0.dev"
 }

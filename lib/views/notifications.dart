@@ -9,6 +9,7 @@ class Notifications extends StatefulWidget {
 
 class _NotificationsState extends State<Notifications> {
   int _selectedIndex = 0;
+  
    void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -32,7 +33,7 @@ class _NotificationsState extends State<Notifications> {
         decoration: const BoxDecoration(
        
         ),
-        child:   Column(
+        child: Column(
           
           children: [
             const SizedBox(height: 30,),
@@ -76,27 +77,30 @@ class _NotificationsState extends State<Notifications> {
                   ]),
               ),
               GestureDetector (
-                onTap: () {}, // Handle your callback
-                child: Container(
-                padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                height: 70,
-              
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  color: const Color.fromARGB(255, 255, 255, 255),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [ 
-                    const Icon(
-                      Icons.holiday_village
-                    ),
-                    const Text("Let's eat", style: TextStyle(
-                      
-                    ),),
-                    IconButton(onPressed: (){}, icon: const Icon(Icons.abc), iconSize: 30,)
-                  ]),
+                onTap: () {
+                 
+                }, // Handle your callback
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 100),
+                  padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                  margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  height: 70,
+                
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: const Color.fromARGB(255, 255, 255, 255),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [ 
+                      const Icon(
+                        Icons.holiday_village
+                      ),
+                      const Text("Let's eat", style: TextStyle(
+                        
+                      ),),
+                      IconButton(onPressed: (){}, icon: const Icon(Icons.abc), iconSize: 30,)
+                    ]),
                 ),
               ),
               GestureDetector (

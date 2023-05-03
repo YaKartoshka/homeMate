@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:home_mate/views/createPanel.dart';
 import 'package:home_mate/views/join.dart';
 import 'package:home_mate/views/login.dart';
-
+import 'package:animated_text_kit/animated_text_kit.dart';
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
 
@@ -11,6 +11,14 @@ class Welcome extends StatefulWidget {
 }
 
 class _WelcomeState extends State<Welcome> {
+  static const colorizeColors = [
+  Colors.white,
+  Colors.purple,
+  Color.fromARGB(255, 197, 75, 219),
+   Colors.white
+];
+
+
   @override
   Widget build(BuildContext context) {
     final ButtonStyle style =
@@ -37,25 +45,50 @@ class _WelcomeState extends State<Welcome> {
               width: 0,
               height: 100,
             ),
-            const Row(
+            Row(
               
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("HomeMate", style: TextStyle(
-                  fontSize: 60,
-                  fontFamily: 'Poppins',
-                  color: Colors.white,
-                  shadows: <Shadow>[
-                    Shadow(
-                      offset: Offset(0, 10.0),
-                      blurRadius: 10.0,
-                      color: Color.fromARGB(70, 0, 0, 0)
-                    ),
+                // Text("HomeMate", style: TextStyle(
+                //   fontSize: 60,
+                //   fontFamily: 'Poppins',
+                //   color: Colors.white,
+                //   shadows: <Shadow>[
+                //     Shadow(
+                //       offset: Offset(0, 10.0),
+                //       blurRadius: 10.0,
+                //       color: Color.fromARGB(70, 0, 0, 0)
+                //     ),
                   
-                  ],
+                //   ],
 
-                ),)
-               
+                // ),
+                // ),
+                AnimatedTextKit(
+                  isRepeatingAnimation: true,
+                  repeatForever: true,
+                  animatedTexts: [
+                     ColorizeAnimatedText(
+                      'Home Mate',
+                      speed: const Duration(milliseconds:700 ),
+                      textStyle:  const TextStyle(
+                        fontSize: 60,
+                        fontFamily: 'Poppins',
+                        color: Colors.white,
+                        shadows: <Shadow>[
+                          Shadow(
+                            offset: Offset(0, 10.0),
+                            blurRadius: 10.0,
+                            color: Color.fromARGB(70, 0, 0, 0)
+                          ),
+                        
+                        ],
+                        ),
+                      colors: colorizeColors,
+                    ),
+                  ],
+                ),
+                              
               ]
             ),
            const GradientText("or",  style: TextStyle(
@@ -70,8 +103,8 @@ class _WelcomeState extends State<Welcome> {
                   ]
                 ),  gradient: LinearGradient(colors: [
                   Color.fromARGB(200, 251, 23, 242),
-                  Color.fromARGB(220, 253, 112, 247),
-                  Color.fromARGB(255, 255, 255, 255),
+                  Color.fromARGB(220, 248, 67, 239),
+                  Color.fromARGB(255, 159, 147, 147),
                 
                 ], transform: GradientRotation(36),
                 ),
@@ -91,7 +124,7 @@ class _WelcomeState extends State<Welcome> {
                 ),  gradient: LinearGradient(colors: [
                   Color.fromARGB(200, 251, 23, 242),
                   Color.fromARGB(220, 253, 112, 247),
-                  Color.fromARGB(255, 255, 255, 255),
+                  Color.fromARGB(255, 148, 81, 132),
                 
                 ], transform: GradientRotation(36),
                 )

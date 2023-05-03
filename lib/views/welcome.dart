@@ -1,17 +1,20 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:home_mate/views/createPanel.dart';
 import 'package:home_mate/views/join.dart';
 import 'package:home_mate/views/login.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-
+import 'dart:developer' as developer;
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
-
+  
   @override
   State<Welcome> createState() => _WelcomeState();
 }
 
 class _WelcomeState extends State<Welcome> {
+  FirebaseFirestore db=FirebaseFirestore.instance;
+  
   static const colorizeColors = [
     Colors.white,
     Colors.purple,

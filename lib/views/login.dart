@@ -1,15 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:home_mate/views/resetPassword.dart';
 import 'package:home_mate/views/welcome.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'notifications.dart';
+
+
+
 
 class Login extends StatefulWidget {
   const Login({super.key});
 
   @override
   State<Login> createState() => _LoginState();
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return const Notifications();
+        } else {
+          return const Welcome();
+        }
+      },
+    );
+  }
 }
 
 class _LoginState extends State<Login> {
+
+
+  
+
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+
+    super.dispose();
+  }
+
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -32,7 +67,7 @@ class _LoginState extends State<Login> {
           ),
         ),
         child:  Column(
-          children: [ GestureDetector( onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Welcome()),); },
+          children: [ GestureDetector( onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => const Welcome()),); },
               child: const Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -102,8 +137,9 @@ class _LoginState extends State<Login> {
                             width: 250,
                             
                             child:TextFormField(  
+                              controller: emailController,
                             decoration: const InputDecoration(  
-                          
+                            
                               hintText: 'Enter your email',  
                               labelText: 'Email',  
                               
@@ -115,6 +151,7 @@ class _LoginState extends State<Login> {
                           SizedBox(
                             width: 250,
                             child:TextFormField(  
+                              controller: passwordController,
                             decoration: const InputDecoration(  
                           
                               hintText: 'Enter your password',  
@@ -128,7 +165,7 @@ class _LoginState extends State<Login> {
       onTap: () {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Reset()),
+      MaterialPageRoute(builder: (context) => const Reset()),
     );
   },
   child: const Text(
@@ -156,14 +193,15 @@ class _LoginState extends State<Login> {
                               children: [
                                 Center(
                                   
-                                  child: ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color.fromARGB(255, 94, 91, 255),
-                                      fixedSize: Size(170, 50),
+                                  child: ElevatedButton(onPressed: signIn, style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color.fromARGB(255, 94, 91, 255),
+                                      fixedSize: const Size(170, 50),
 
                                   ), child: const Text("Login", style: TextStyle(
                                     fontSize: 20,
                                  
                                   ),),
+                                  
                                   ),
                                 )
                               ],
@@ -195,7 +233,41 @@ class _LoginState extends State<Login> {
    );
     
   }
+    void signIn() async {
+
+  try {
+    await Firebase.initializeApp();
+    UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+    );
+    User? user = userCredential.user;
+    if (user != null) {
+      // Navigate to the Notifications page
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Notifications()));
+    }
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'user-not-found') {
+      showDialog(context: context, builder: (BuildContext context) {
+        return const AlertDialog(
+          title: Text('Basic dialog title'),
+          content: Text('No user found for that email.')
+              );
+              }
+      );
+    } else if (e.code == 'wrong-password') {
+      showDialog(context: context, builder: (BuildContext context) {
+        return const AlertDialog(
+          title: Text('Basic dialog title'),
+          content: Text('Wrong password provided for that user')
+              );
+              }
+      );
+    }
+  }
 }
+}
+
 
 class GradientText extends StatelessWidget {
   const GradientText(

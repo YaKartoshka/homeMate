@@ -67,7 +67,9 @@ class _LoginState extends State<Login> {
           ),
         ),
         child:  Column(
-          children: [ GestureDetector( onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => const Welcome()),); },
+          children: [ GestureDetector( onTap: () {
+            Navigator.pop(context);
+            },
               child: const Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -163,10 +165,7 @@ class _LoginState extends State<Login> {
                           const SizedBox(height: 10,),
                           GestureDetector(
       onTap: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const Reset()),
-    );
+    Navigator.pushNamed(context, '/reset_password');
   },
   child: const Text(
     'Forget a password?',
@@ -244,7 +243,7 @@ class _LoginState extends State<Login> {
     User? user = userCredential.user;
     if (user != null) {
       // Navigate to the Notifications page
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Notifications()));
+      Navigator.pushNamed(context, '/notifications');
     }
   } on FirebaseAuthException catch (e) {
     if (e.code == 'user-not-found') {

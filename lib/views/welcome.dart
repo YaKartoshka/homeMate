@@ -114,11 +114,7 @@ class _WelcomeState extends State<Welcome> {
               ),
               ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const CreatePanel()),
-                    );
+                    Navigator.pushNamed(context, '/create_panel');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -146,10 +142,7 @@ class _WelcomeState extends State<Welcome> {
               ),
               ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const Join()),
-                    );
+                     Navigator.pushNamed(context, '/join');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -177,10 +170,7 @@ class _WelcomeState extends State<Welcome> {
               ),
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Login()),
-                  );
+                   Navigator.pushNamed(context, '/login');
                 },
                 child: const Text(
                   'Already have an account?',

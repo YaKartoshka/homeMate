@@ -31,7 +31,9 @@ class _JoinState extends State<Join> {
           ),
         ),
         child:  Column(
-          children: [ GestureDetector( onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Welcome()),); },
+          children: [ GestureDetector( onTap: () {
+            Navigator.pop(context); 
+            },
               child: const Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [

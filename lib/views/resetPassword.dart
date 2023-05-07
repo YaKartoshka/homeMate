@@ -31,7 +31,9 @@ class _ResetState extends State<Reset> {
           ),
         ),
         child:  Column(
-          children: [ GestureDetector( onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Welcome()),); },
+          children: [ GestureDetector( onTap: () {
+            Navigator.pop(context);
+             },
               child: const Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [

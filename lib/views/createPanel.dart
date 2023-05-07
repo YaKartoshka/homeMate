@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:home_mate/views/notifications.dart';
 import 'package:home_mate/views/welcome.dart';
 
 class CreatePanel extends StatefulWidget {
@@ -28,6 +29,7 @@ class _JoinState extends State<CreatePanel> {
     db.collection("dashboards").add(data).then((documentSnapshot) =>
         print("Added Data with ID: ${documentSnapshot.id}"));
           
+           
   }
   @override
   Widget build(BuildContext context) {
@@ -52,10 +54,7 @@ class _JoinState extends State<CreatePanel> {
             child: Column(children: [
               GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Welcome()),
-                    );
+                    Navigator.pop(context);
                   },
                   child: const Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -173,6 +172,7 @@ class _JoinState extends State<CreatePanel> {
                                           child: ElevatedButton(
                                             onPressed: () {
                                               createPanel();
+                                               Navigator.pushNamed(context, '/notifications');
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:

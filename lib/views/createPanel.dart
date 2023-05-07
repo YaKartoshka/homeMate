@@ -19,55 +19,63 @@ class _JoinState extends State<CreatePanel> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  void createPanel() async {
-    final String dashboard_id = _dashboard_id_field.text;
-    final String email = _email_field.text;
-    final String password = _password_field.text;
+void createPanel() async {
+  final String dashboard_id = _dashboard_id_field.text;
+  final String email = _email_field.text;
+  final String password = _password_field.text;
+  final String repeatedPassword = _repeated_password_field.text;
 
-    // Validate email format
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(email)) {
-      _showErrorDialog("Invalid email", "Please enter a valid email address.");
-      return;
-    }
+  // Check if passwords match
+  if (password != repeatedPassword) {
+    _showErrorDialog("Passwords don't match", "Please make sure both passwords are the same.");
+    return;
+  }
 
-    // Send email verification
-    try {
-      UserCredential userCredential = await _auth
-          .createUserWithEmailAndPassword(email: email, password: password);
-      await userCredential.user?.sendEmailVerification();
-      final data = {"dashboard_id": '$dashboard_id', "email": '$email'};
-      var created_dashboard = db.collection("dashboards").add(data).then((documentSnapshot) =>
-          db.collection('dashboards').doc(documentSnapshot.id).update(
-            {
-              "id": documentSnapshot.id
-            }
-          )
-          );
-    
-      Navigator.pushNamed(context, '/login');
-      _showSuccessDialog(
-          "Verification email sent",
-          "A verification email has been sent to $email. "
-              "Please check your inbox and follow the instructions "
-              "in the email to verify your account.",
-          '/login');
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        _showErrorDialog("Weak password",
-            "The password provided is too weak. Please choose a stronger password and try again.");
-      } else if (e.code == 'email-already-in-use') {
-        _showErrorDialog("Account already exists",
-            "An account already exists for $email. Please sign in or use a different email address.");
-      } else {
-        _showErrorDialog("Error", "An error occurred: ${e.toString()}");
-      }
-    } catch (e) {
+  // Validate email format
+  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+  if (!emailRegex.hasMatch(email)) {
+    _showErrorDialog("Invalid email", "Please enter a valid email address.");
+    return;
+  }
+
+  // Send email verification
+  try {
+    UserCredential userCredential = await _auth
+        .createUserWithEmailAndPassword(email: email, password: password);
+    await userCredential.user?.sendEmailVerification();
+    final data = {"dashboard_id": '$dashboard_id', "email": '$email'};
+    var created_dashboard = db.collection("dashboards").add(data).then((documentSnapshot) =>
+        db.collection('dashboards').doc(documentSnapshot.id).update(
+          {
+            "id": documentSnapshot.id
+          }
+        )
+    );
+  
+    Navigator.pushNamed(context, '/login');
+    _showSuccessDialog(
+        "Verification email sent",
+        "A verification email has been sent to $email. "
+            "Please check your inbox and follow the instructions "
+            "in the email to verify your account.",
+        '/login');
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'weak-password') {
+      _showErrorDialog("Weak password",
+          "The password provided is too weak. Please choose a stronger password and try again.");
+    } else if (e.code == 'email-already-in-use') {
+      _showErrorDialog("Account already exists",
+          "An account already exists for $email. Please sign in or use a different email address.");
+    } else {
       _showErrorDialog("Error", "An error occurred: ${e.toString()}");
     }
-
-    // Save data to Firestore
+  } catch (e) {
+    _showErrorDialog("Error", "An error occurred: ${e.toString()}");
   }
+
+  // Save data to Firestore
+}
+
 
   void _showErrorDialog(String title, String message) {
     showDialog(

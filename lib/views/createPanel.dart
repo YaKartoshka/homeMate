@@ -20,10 +20,10 @@ class _JoinState extends State<CreatePanel> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
 void createPanel() async {
-  final String dashboard_id = _dashboard_id_field.text;
-  final String email = _email_field.text;
-  final String password = _password_field.text;
-  final String repeatedPassword = _repeated_password_field.text;
+  final String dashboard_id = _dashboard_id_field.text.trim();
+  final String email = _email_field.text.trim();
+  final String password = _password_field.text.trim();
+  final String repeatedPassword = _repeated_password_field.text.trim();
 
   // Check if passwords match
   if (password != repeatedPassword) {

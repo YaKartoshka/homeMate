@@ -50,8 +50,8 @@ class _NotificationsState extends State<Notifications> {
 
   void createNotification(){
     setState(() {
-      String? newTitle=_title_controller.text;
-      String? newDescription= _description_controller.text;
+      String? newTitle=_title_controller.text.trim();
+      String? newDescription= _description_controller.text.trim();
       notifications.add(Notification(newTitle,newDescription ));
      
     });

@@ -216,8 +216,8 @@ class _LoginState extends State<Login> {
       await Firebase.initializeApp();
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
       );
       User? user = userCredential.user;
       if (user != null) {

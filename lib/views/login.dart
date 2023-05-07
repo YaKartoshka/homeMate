@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -30,7 +31,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
+  FirebaseFirestore db = FirebaseFirestore.instance;
   @override
   void dispose() {
     emailController.dispose();
@@ -42,7 +43,6 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-
     final ButtonStyle style =
         ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
     return Scaffold(
@@ -222,7 +222,16 @@ class _LoginState extends State<Login> {
       User? user = userCredential.user;
       if (user != null) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString('userId', '12345');
+        db.collection("dashboards").where("email", isEqualTo: emailController.text).get().then(
+          (querySnapshot) {
+            for (var docSnapshot in querySnapshot.docs) {
+              prefs.setString('dashboard_id', docSnapshot.id);
+              Navigator.pushNamed(context, '/notifications');
+            }
+          },
+          onError: (e) => Navigator.pop(context)
+          
+        );
         Navigator.pushNamed(context, '/notifications');
       }
     } on FirebaseAuthException catch (e) {

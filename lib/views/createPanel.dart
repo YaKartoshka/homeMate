@@ -11,7 +11,7 @@ class CreatePanel extends StatefulWidget {
 
 class _JoinState extends State<CreatePanel> {
   FirebaseFirestore db = FirebaseFirestore.instance;
-  final _dashboard_id_field = TextEditingController();
+  final _dashboard_name_field = TextEditingController();
   final _email_field = TextEditingController();
   final _password_field = TextEditingController();
   final _repeated_password_field = TextEditingController();
@@ -20,10 +20,12 @@ class _JoinState extends State<CreatePanel> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
 void createPanel() async {
-  final String dashboard_id = _dashboard_id_field.text.trim();
+
+  final String dashboard_name = _dashboard_name_field.text.trim();
   final String email = _email_field.text.trim();
   final String password = _password_field.text.trim();
   final String repeatedPassword = _repeated_password_field.text.trim();
+
 
   // Check if passwords match
   if (password != repeatedPassword) {
@@ -43,7 +45,7 @@ void createPanel() async {
     UserCredential userCredential = await _auth
         .createUserWithEmailAndPassword(email: email, password: password);
     await userCredential.user?.sendEmailVerification();
-    final data = {"dashboard_id": '$dashboard_id', "email": '$email'};
+    final data = {"dashboard_name": '$dashboard_name', "email": '$email'};
     var created_dashboard = db.collection("dashboards").add(data).then((documentSnapshot) =>
         db.collection('dashboards').doc(documentSnapshot.id).update(
           {
@@ -209,7 +211,7 @@ void createPanel() async {
                                 SizedBox(
                                     width: 250,
                                     child: TextFormField(
-                                        controller: _dashboard_id_field,
+                                        controller: _dashboard_name_field,
                                         decoration: const InputDecoration(
                                           hintText: 'Enter your Dashboard Name',
                                           labelText: 'Dashboard Name',

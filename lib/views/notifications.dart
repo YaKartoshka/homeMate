@@ -43,8 +43,8 @@ class _NotificationsState extends State<Notifications> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      String? userId = prefs?.getString('userId');
-      log(userId!);
+      String? dashboard_id = prefs?.getString('dashboard_id');
+      log(dashboard_id!);
     });
   }
 

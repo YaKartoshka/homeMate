@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:home_mate/views/resetPassword.dart';
-import 'package:home_mate/views/welcome.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'notifications.dart';
+import 'package:home_mate/views/notifications.dart';
+import 'package:home_mate/views/welcome.dart';
+
 
 
 

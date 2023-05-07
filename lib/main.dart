@@ -25,12 +25,12 @@ void main() async {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => Welcome(),
-        '/join':(context) => Join(),
-        '/login':(context) => Login(),
-        '/create_panel':(context) => CreatePanel(),
-        '/notifications':(context) => Notifications(),
-        'reset_password': (context)=> Reset()
+        '/': (context) => const Welcome(),
+        '/join':(context) => const Join(),
+        '/login':(context) => const Login(),
+        '/create_panel':(context) => const CreatePanel(),
+        '/notifications':(context) => const Notifications(),
+        '/reset_password': (context)=> const Reset()
         },
          
       // rename Login to Join or Welcome to open other views

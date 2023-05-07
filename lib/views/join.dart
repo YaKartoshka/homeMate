@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:home_mate/views/welcome.dart';
 
 class Join extends StatefulWidget {
   const Join({super.key});

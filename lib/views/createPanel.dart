@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:home_mate/views/notifications.dart';
-import 'package:home_mate/views/welcome.dart';
 
 class CreatePanel extends StatefulWidget {
   const CreatePanel({super.key});
@@ -11,26 +10,107 @@ class CreatePanel extends StatefulWidget {
 }
 
 class _JoinState extends State<CreatePanel> {
-  FirebaseFirestore db=FirebaseFirestore.instance;
+  FirebaseFirestore db = FirebaseFirestore.instance;
   final _dashboard_id_field = TextEditingController();
   final _email_field = TextEditingController();
   final _password_field = TextEditingController();
   final _repeated_password_field = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  void createPanel(){
-     String dashboard_id = _dashboard_id_field.text;
-     String email = _email_field.text;
-     String password = _password_field.text;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-   
-    final data = {"dashboard_id": '${dashboard_id}', "email": '${email}',"password":'${password}'};
+  void createPanel() async {
+    final String dashboard_id = _dashboard_id_field.text;
+    final String email = _email_field.text;
+    final String password = _password_field.text;
 
-    db.collection("dashboards").add(data).then((documentSnapshot) =>
-        print("Added Data with ID: ${documentSnapshot.id}"));
-          
-           
+    // Validate email format
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(email)) {
+      _showErrorDialog("Invalid email", "Please enter a valid email address.");
+      return;
+    }
+
+    // Send email verification
+    try {
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
+      await userCredential.user?.sendEmailVerification();
+      final data = {"dashboard_id": '$dashboard_id', "email": '$email'};
+      var created_dashboard = db.collection("dashboards").add(data).then((documentSnapshot) =>
+          db.collection('dashboards').doc(documentSnapshot.id).update(
+            {
+              "id": documentSnapshot.id
+            }
+          )
+          );
+    
+      Navigator.pushNamed(context, '/login');
+      _showSuccessDialog(
+          "Verification email sent",
+          "A verification email has been sent to $email. "
+              "Please check your inbox and follow the instructions "
+              "in the email to verify your account.",
+          '/login');
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        _showErrorDialog("Weak password",
+            "The password provided is too weak. Please choose a stronger password and try again.");
+      } else if (e.code == 'email-already-in-use') {
+        _showErrorDialog("Account already exists",
+            "An account already exists for $email. Please sign in or use a different email address.");
+      } else {
+        _showErrorDialog("Error", "An error occurred: ${e.toString()}");
+      }
+    } catch (e) {
+      _showErrorDialog("Error", "An error occurred: ${e.toString()}");
+    }
+
+    // Save data to Firestore
   }
+
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showSuccessDialog(String title, String message, String routeName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Navigate to notifications page
+                Navigator.pushNamed(context, '/login');
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final ButtonStyle style =
@@ -121,44 +201,44 @@ class _JoinState extends State<CreatePanel> {
                                 SizedBox(
                                     width: 250,
                                     child: TextFormField(
-                                      controller: _dashboard_id_field,
+                                        controller: _dashboard_id_field,
                                         decoration: const InputDecoration(
-                                      hintText: 'Enter your Dashboard Name',
-                                      labelText: 'Dashboard Name',
-                                    ))),
+                                          hintText: 'Enter your Dashboard Name',
+                                          labelText: 'Dashboard Name',
+                                        ))),
                                 const SizedBox(
                                   height: 10,
                                 ),
                                 SizedBox(
                                     width: 250,
                                     child: TextFormField(
-                                      controller: _email_field,
+                                        controller: _email_field,
                                         decoration: const InputDecoration(
-                                      hintText: 'Enter your email',
-                                      labelText: 'Email',
-                                    ))),
+                                          hintText: 'Enter your email',
+                                          labelText: 'Email',
+                                        ))),
                                 const SizedBox(
                                   height: 10,
                                 ),
                                 SizedBox(
                                     width: 250,
                                     child: TextFormField(
-                                      controller: _password_field,
+                                        controller: _password_field,
                                         decoration: const InputDecoration(
-                                      hintText: 'Enter your password',
-                                      labelText: 'Password',
-                                    ))),
+                                          hintText: 'Enter your password',
+                                          labelText: 'Password',
+                                        ))),
                                 const SizedBox(
                                   height: 25,
                                 ),
                                 SizedBox(
                                     width: 250,
                                     child: TextFormField(
-                                      controller: _repeated_password_field,
+                                        controller: _repeated_password_field,
                                         decoration: const InputDecoration(
-                                      hintText: 'Enter your password',
-                                      labelText: 'Repeat a password',
-                                    ))),
+                                          hintText: 'Enter your password',
+                                          labelText: 'Repeat a password',
+                                        ))),
                                 const SizedBox(
                                   height: 45,
                                 ),
@@ -172,7 +252,6 @@ class _JoinState extends State<CreatePanel> {
                                           child: ElevatedButton(
                                             onPressed: () {
                                               createPanel();
-                                               Navigator.pushNamed(context, '/notifications');
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:

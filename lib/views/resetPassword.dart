@@ -1,5 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:home_mate/views/welcome.dart';
 
 class Reset extends StatefulWidget {
   const Reset({super.key});
@@ -9,7 +9,9 @@ class Reset extends StatefulWidget {
 }
 
 class _ResetState extends State<Reset> {
-  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _emailController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     final ButtonStyle style =
@@ -102,14 +104,22 @@ class _ResetState extends State<Reset> {
                           SizedBox(
                             width: 250,
                             
-                            child:TextFormField(  
-                            decoration: const InputDecoration(  
-                          
-                              hintText: 'Enter your email',  
-                              labelText: 'Email',  
-                              
-                            )
-                          )
+                            child:TextFormField(
+                                    controller: _emailController,
+                                    decoration: const InputDecoration(
+                                      hintText: 'Enter your email',
+                                      labelText: 'Email',
+                                    ),
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return 'Please enter your email';
+                                      } else if (!value.contains('@')) {
+                                        return 'Please enter a valid email';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+
    
                           ),
                           const SizedBox(height: 35,),
@@ -120,15 +130,40 @@ class _ResetState extends State<Reset> {
                               children: [
                                 Center(
                                   
-                                  child: ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color.fromARGB(255, 94, 91, 255),
-                                      fixedSize: Size(170, 50),
+                                  child: ElevatedButton(
+                                          onPressed: () {
+                                            if (_formKey.currentState!.validate()) {
+                                              showDialog(
+                                                context: context,
+                                                builder: (_) => AlertDialog(
+                                                  title: const Text("Password reset request sent!"),
+                                                  content: const Text(
+                                                      "Please check your email and follow the instructions to reset your password."),
+                                                  actions: [
+                                                    TextButton(
+                                                      child: const Text('OK'),
+                                                      onPressed: () {
+                                                        Navigator.of(context).pop();
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                              FirebaseAuth.instance.sendPasswordResetEmail(email: _emailController.text);
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color.fromARGB(255, 94, 91, 255),
+                                            fixedSize: const Size(170, 50),
+                                          ),
+                                          child: const Text(
+                                            'Reset',
+                                            style: TextStyle(fontSize: 20),
+                                          ),
+                                        ),
 
-                                  ), child: const Text("Reset", style: TextStyle(
-                                    fontSize: 20,
-                                 
-                                  ),),
-                                  ),
+
                                 )
                               ],
                          )

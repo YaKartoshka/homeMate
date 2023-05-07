@@ -1,8 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:home_mate/views/createPanel.dart';
-import 'package:home_mate/views/join.dart';
-import 'package:home_mate/views/login.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'dart:developer' as developer;
 class Welcome extends StatefulWidget {

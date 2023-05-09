@@ -85,6 +85,9 @@ flutter:
       fonts:
         - asset: fonts/Poppins-Regular.ttf
           weight: 400
+    - family: JoseficSans
+      fonts:
+        - asset: fonts/JosefinSans-Medium.ttf
  
   #
   # For details regarding fonts from package dependencies,

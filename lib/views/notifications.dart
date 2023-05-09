@@ -3,57 +3,49 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class Notifications extends StatefulWidget {
   const Notifications({super.key});
-  
+
   @override
-  State<Notifications> createState() => _NotificationsState();
+  State<Notifications> createState() => _Notifications_State();
 }
 
-class Notification{
+class Notification {
   String? title;
   String? description;
 
   Notification(this.title, this.description);
 }
 
-class _NotificationsState extends State<Notifications> {
-  int _selectedIndex = 0;
+class _Notifications_State extends State<Notifications> {
+  int _selectedIndex = 3;
   SharedPreferences? prefs;
   final _title_controller = TextEditingController();
   final _description_controller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  
- 
+
   List<Notification> notifications = [
     Notification('Let\' s eat', "Dinner"),
     Notification('Go to gym', "Dinner"),
   ];
-  
+
   Future<void> _initPrefs() async {
-      prefs = await SharedPreferences.getInstance();
+    prefs = await SharedPreferences.getInstance();
   }
+
   @override
   void initState() {
     super.initState();
     _initPrefs();
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-      String? dashboard_id = prefs?.getString('dashboard_id');
-      log(dashboard_id!);
-    });
-  }
+  
 
-  void createNotification(){
+  void createNotification() {
     setState(() {
-      String? newTitle=_title_controller.text.trim();
-      String? newDescription= _description_controller.text.trim();
-      notifications.add(Notification(newTitle,newDescription ));
-     
+      String? newTitle = _title_controller.text;
+      String? newDescription = _description_controller.text;
+      notifications.add(Notification(newTitle, newDescription));
     });
   }
 
@@ -87,45 +79,42 @@ class _NotificationsState extends State<Notifications> {
             ],
           ),
           SizedBox(
-            height: 500,
-            child: Expanded(
-              child: ListView.builder(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 5),
-              itemCount: notifications.length, 
-              itemBuilder: (BuildContext context, int index) { 
-                return GestureDetector(
-                  onTap: () {}, // Handle your callback
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 100),
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                    margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    height: 70,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: const Color.fromARGB(255, 255, 255, 255),
-                    ),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Icon(Icons.holiday_village),
-                          Text(
-                            "${notifications[index].title}",
-                            style: TextStyle(),
-                          ),
-                          IconButton(
-                            onPressed: () {},
-                            icon: const Icon(Icons.edit),
-                            iconSize: 30,
-                          )
-                        ]),
-                  ),
-                );
-               },
-              
-                
-           
-            ),)
-          )
+              height: 500,
+              child: Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 5),
+                  itemCount: notifications.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return GestureDetector(
+                      onTap: () {}, // Handle your callback
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 100),
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                        margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                        height: 70,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                        ),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Icon(Icons.holiday_village),
+                              Text(
+                                "${notifications[index].title}",
+                                style: TextStyle(),
+                              ),
+                              IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.edit),
+                                iconSize: 30,
+                              )
+                            ]),
+                      ),
+                    );
+                  },
+                ),
+              ))
         ]),
       ),
       floatingActionButton: FloatingActionButton(
@@ -199,40 +188,6 @@ class _NotificationsState extends State<Notifications> {
           color: Color.fromARGB(255, 104, 57, 223),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.checkroom),
-            label: 'Wardrobe',
-            backgroundColor: Color.fromARGB(255, 104, 57, 223),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.wb_sunny),
-            label: 'Weather',
-            backgroundColor: Color.fromARGB(255, 104, 57, 223),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.event),
-            label: 'Notes',
-            backgroundColor: Color.fromARGB(255, 104, 57, 223),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notifications',
-            backgroundColor: Color.fromARGB(255, 104, 57, 223),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-            backgroundColor: Color.fromARGB(255, 104, 57, 223),
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: const Color.fromARGB(255, 225, 220, 220),
-        onTap: _onItemTapped,
-      ),
     );
   }
-
 }

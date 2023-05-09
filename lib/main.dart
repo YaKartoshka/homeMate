@@ -4,10 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:home_mate/views/createPanel.dart';
+import 'package:home_mate/views/main_view.dart';
 import 'package:home_mate/views/resetPassword.dart';
+import 'package:home_mate/views/wardrobe.dart';
+import 'package:home_mate/views/weather.dart';
 import 'package:home_mate/views/welcome.dart';
 import 'package:home_mate/views/join.dart';
 import 'package:home_mate/views/login.dart';
+import 'package:home_mate/views/settings.dart';
 import 'package:home_mate/views/notifications.dart';
 
 void main() async {
@@ -30,9 +34,14 @@ void main() async {
         '/login':(context) => const Login(),
         '/create_panel':(context) => const CreatePanel(),
         '/notifications':(context) => const Notifications(),
-        '/reset_password': (context)=> const Reset()
+        '/reset_password': (context)=> const Reset(),
+        '/main_view':(context) => const Main_View(),
+        '/settings': (context) => const SettingsView(),
+        '/weather': (context) => const Weather(),
+        '/wardrobe': (context) => const Wardrobe()
         },
          
       // rename Login to Join or Welcome to open other views
-      ));
+      )
+      );
 }

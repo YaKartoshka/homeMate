@@ -46,7 +46,7 @@ class _WeatherState extends State<Weather> {
         child: Column(
           children: [
             const SizedBox(
-              height: 20,
+              height: 15,
             ),
             const Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -55,11 +55,11 @@ class _WeatherState extends State<Weather> {
                 Text(
                   "Weather",
                   style: TextStyle(
-                      fontSize: 40, fontFamily: 'Poppins', color: Colors.white),
+                      fontSize: 30, fontFamily: 'Poppins', color: Colors.white, fontWeight: FontWeight.w500),
                 )
               ],
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 30),
             const Padding(
               padding: EdgeInsets.fromLTRB(30, 10, 30, 10),
               child: Row(children: [
@@ -160,57 +160,62 @@ class _WeatherState extends State<Weather> {
                             child: Column(
                               children: [
                                 Container(
-                                  constraints: const BoxConstraints(
-                                    minWidth: 100
-                                  ),
+                                    constraints:
+                                        const BoxConstraints(minWidth: 100),
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
                                         color: weather_data[index].date ==
                                                 'Today'
-                                            ? const Color.fromRGBO(244, 244, 244, 1)
+                                            ? const Color.fromRGBO(
+                                                244, 244, 244, 1)
                                             : const Color.fromRGBO(
                                                 255, 255, 255, 0.4)),
                                     child: Padding(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                                      padding: const EdgeInsets.fromLTRB(
+                                          15, 5, 15, 5),
                                       child: Text(
                                         '${weather_data[index].date}',
                                         style: const TextStyle(
                                             fontSize: 20,
                                             fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.bold),
+                                            fontWeight: FontWeight.w600),
                                       ),
                                     )),
-                                    
                                 Container(
-                                  margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                                  constraints: const BoxConstraints(
-                                    minWidth: 100
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: const Color.fromRGBO(244, 244, 244, 0.4), width: 5)
-                                  ),
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                                    constraints:
+                                        const BoxConstraints(minWidth: 100),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: const Color.fromRGBO(
+                                                244, 244, 244, 0.4),
+                                            width: 5)),
                                     child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                  child: Column(
-                                    children: [
-                                      Text('${weather_data[index].temperature}', style: const TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontSize: 20
-                                      ),),
-                                      const SizedBox(height: 15),
-                                      const Icon(Icons.sunny, size: 40),
-                                      const SizedBox(height: 10),
-                                      Text("${weather_data[index].wind}",style: const TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontSize: 20
-                              
-                                      ),),
-                                      const SizedBox(height: 5),
-                                    ],
-                                  ),
-                                ))
+                                      padding:
+                                          const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            '${weather_data[index].temperature}',
+                                            style: const TextStyle(
+                                                fontFamily: 'Poppins',
+                                                fontSize: 20),
+                                          ),
+                                          const SizedBox(height: 15),
+                                          const Icon(Icons.sunny, size: 40),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            "${weather_data[index].wind}",
+                                            style: const TextStyle(
+                                                fontFamily: 'Poppins',
+                                                fontSize: 20),
+                                          ),
+                                          const SizedBox(height: 5),
+                                        ],
+                                      ),
+                                    ))
                               ],
                             ),
                           ));

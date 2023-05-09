@@ -39,8 +39,6 @@ class _Notifications_State extends State<Notifications> {
     _initPrefs();
   }
 
-  
-
   void createNotification() {
     setState(() {
       String? newTitle = _title_controller.text;
@@ -80,40 +78,45 @@ class _Notifications_State extends State<Notifications> {
           ),
           SizedBox(
               height: 500,
-              child: Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 5),
-                  itemCount: notifications.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      onTap: () {}, // Handle your callback
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 100),
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                        margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                        height: 70,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                        ),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Icon(Icons.holiday_village),
-                              Text(
-                                "${notifications[index].title}",
-                                style: TextStyle(),
-                              ),
-                              IconButton(
-                                onPressed: () {},
-                                icon: const Icon(Icons.edit),
-                                iconSize: 30,
-                              )
-                            ]),
-                      ),
-                    );
-                  },
-                ),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 5),
+                      itemCount: notifications.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return GestureDetector(
+                          onTap: () {}, // Handle your callback
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 100),
+                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                            margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                            height: 70,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              color: const Color.fromARGB(255, 255, 255, 255),
+                            ),
+                            child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Icon(Icons.holiday_village),
+                                  Text(
+                                    "${notifications[index].title}",
+                                    style: TextStyle(),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {},
+                                    icon: const Icon(Icons.edit),
+                                    iconSize: 30,
+                                  )
+                                ]),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                ],
               ))
         ]),
       ),

@@ -34,11 +34,12 @@ class _SettingsViewState extends State<SettingsView> {
       body: Container(
         child: Column(
           children: [
+            SizedBox(height: 15),
             const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Padding(
-                  padding: EdgeInsets.fromLTRB(20, 27, 40, 0),
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                   child: Text(
                     "Settings",
                     style: TextStyle(

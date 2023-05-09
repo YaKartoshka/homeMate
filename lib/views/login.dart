@@ -226,13 +226,13 @@ class _LoginState extends State<Login> {
           (querySnapshot) {
             for (var docSnapshot in querySnapshot.docs) {
               prefs.setString('dashboard_id', docSnapshot.id);
-              Navigator.pushNamed(context, '/notifications');
+             
             }
           },
           onError: (e) => Navigator.pop(context)
           
         );
-        Navigator.pushNamed(context, '/notifications');
+        Navigator.pushReplacementNamed(context, '/main_view');
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {

@@ -167,7 +167,7 @@ class _WelcomeState extends State<Welcome> {
               ),
               GestureDetector(
                 onTap: () {
-                   Navigator.pushNamed(context, '/main_view');
+                   Navigator.pushNamed(context, '/login');
                 },
                 child: const Text(
                   'Already have an account?',

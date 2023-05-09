@@ -1,53 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'main_view.dart';
+class NoteListView extends StatefulWidget {
+  const NoteListView({super.key});
 
-class Notes extends StatefulWidget {
   @override
-  State<Notes> createState() => _NotesState();
+  State<NoteListView> createState() => _NoteListViewState();
 }
 
-class Note {
+class NoteList{
   String? title;
-
-  Note(this.title);
+  List? content;
+  NoteList(this.title, this.content);
 }
 
-class _NotesState extends State<Notes> {
-  SharedPreferences? prefs;
-  final _title_controller = TextEditingController();
-  final _description_controller = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-
-  List<Note> notes = [
-    Note("Products"),
-    Note("Debts"),
+class _NoteListViewState extends State<NoteListView> {
+  List<NoteList> noteLists = [
+    NoteList("Products", ["Egg","Bread"]),
   ];
 
-  Future<void> _initPrefs() async {
-    prefs = await SharedPreferences.getInstance();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _initPrefs();
-  }
-
-  void createNotification() {
-    setState(() {
-      String? newTitle = _title_controller.text;
-      notes.add(Note(newTitle));
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    final ButtonStyle style =
-        ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
-    final adaptive_size = MediaQuery.of(context).size;
-
+    final adaptive_size=MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 149, 152, 229),
       body: Container(
@@ -61,7 +35,7 @@ class _NotesState extends State<Notes> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                "Notes",
+                "Products",
                 style: TextStyle(
                     fontSize: 40, fontFamily: 'Poppins', color: Colors.white),
               )
@@ -75,12 +49,10 @@ class _NotesState extends State<Notes> {
                   Expanded(
                     child: ListView.builder(
                       padding: const EdgeInsets.fromLTRB(8, 8, 8, 5),
-                      itemCount: notes.length,
+                      itemCount: noteLists.length,
                       itemBuilder: (BuildContext context, int index) {
                         return GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed((context), '/note_list_view');
-                          }, // Handle your callback
+                         // Handle your callback
                           child: AnimatedContainer(
                               duration: const Duration(milliseconds: 100),
                               padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
@@ -110,7 +82,7 @@ class _NotesState extends State<Notes> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            '${notes[index].title}',
+                                            '${noteLists[index].title}',
                                             style: TextStyle(
                                               fontSize: 30,
                                             ),
@@ -172,70 +144,7 @@ class _NotesState extends State<Notes> {
                 ],
               ))
         ]),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showDialog<String>(
-          context: context,
-          builder: (BuildContext context) => AlertDialog(
-            shadowColor: const Color.fromARGB(255, 104, 57, 223),
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(30))),
-            scrollable: true,
-            title: const Text('New note'),
-            content: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Form(
-                child: Column(
-                  children: <Widget>[
-                    TextFormField(
-                      controller: _title_controller,
-                      decoration: const InputDecoration(
-                        labelText: 'Title',
-                        hintText: 'Type a title',
-                        icon: Icon(Icons.title_outlined,
-                            color: Color.fromARGB(255, 104, 57, 223)),
-                      ),
-                    ),
-                    const SizedBox(height: 25),
-                    Row(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            createNotification();
-                            _description_controller.clear();
-                            _title_controller.clear();
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(255, 104, 57, 223),
-                          ),
-                          child: const Text('Create'),
-                        ),
-                        const SizedBox(width: 10),
-                        TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(
-                                color: Color.fromARGB(255, 104, 57, 223),
-                              ),
-                            ))
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        backgroundColor: Colors.white,
-        child: const Icon(
-          Icons.add,
-          color: Color.fromARGB(255, 104, 57, 223),
-        ),
-      ),
+    ),
     );
   }
 }

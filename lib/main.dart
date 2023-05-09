@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:home_mate/views/createPanel.dart';
 import 'package:home_mate/views/main_view.dart';
+import 'package:home_mate/views/note_list_view.dart';
 import 'package:home_mate/views/resetPassword.dart';
 import 'package:home_mate/views/wardrobe.dart';
 import 'package:home_mate/views/weather.dart';
@@ -38,7 +39,8 @@ void main() async {
         '/main_view':(context) => const Main_View(),
         '/settings': (context) => const SettingsView(),
         '/weather': (context) => const Weather(),
-        '/wardrobe': (context) => const Wardrobe()
+        '/wardrobe': (context) => const Wardrobe(),
+        '/note_list_view': (context) => const NoteListView()
         },
          
       // rename Login to Join or Welcome to open other views

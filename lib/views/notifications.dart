@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,37 +15,57 @@ class Notification {
   String? title;
   String? description;
 
-  Notification(this.title, this.description);
+  Notification({required this.title, required this.description});
+  factory Notification.fromMap(Map<String, dynamic> map) {
+    return Notification(title: map['title'], description: map['description']);
+  }
 }
 
 class _Notifications_State extends State<Notifications> {
+  FirebaseFirestore db = FirebaseFirestore.instance;
   int _selectedIndex = 3;
   SharedPreferences? prefs;
   final _title_controller = TextEditingController();
   final _description_controller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
-  List<Notification> notifications = [
-    Notification('Let\' s eat', "Dinner"),
-    Notification('Go to gym', "Dinner"),
-  ];
-
-  Future<void> _initPrefs() async {
-    prefs = await SharedPreferences.getInstance();
-  }
+  String _dashboard_id = '';
+  late Future<List<Notification>> _notificationsFuture;
 
   @override
   void initState() {
     super.initState();
-    _initPrefs();
+    _notificationsFuture=getNotifications();
   }
 
   void createNotification() {
+    String? newTitle = _title_controller.text;
+    String? newDescription = _description_controller.text;
+    // notifications.add(Notification(newTitle, newDescription));
+
+    db
+        .collection('dashboards')
+        .doc(_dashboard_id)
+        .collection('notifications')
+        .add({'title': newTitle, 'description': newDescription});
     setState(() {
-      String? newTitle = _title_controller.text;
-      String? newDescription = _description_controller.text;
-      notifications.add(Notification(newTitle, newDescription));
+      _notificationsFuture = getNotifications();
+   
     });
+  }
+
+  Future<List<Notification>> getNotifications() async {
+    prefs = await SharedPreferences.getInstance();
+    _dashboard_id = prefs!.getString("dashboard_id")!;
+    final snapshot = await FirebaseFirestore.instance
+        .collection('dashboards')
+        .doc(_dashboard_id)
+        .collection('notifications')
+        .get();
+
+    final notifications =
+        snapshot.docs.map((doc) => Notification.fromMap(doc.data())).toList();
+    log('${notifications}');
+    return notifications;
   }
 
   @override
@@ -81,41 +102,55 @@ class _Notifications_State extends State<Notifications> {
               child: Column(
                 children: [
                   Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(8, 8, 8, 5),
-                      itemCount: notifications.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return GestureDetector(
-                          onTap: () {}, // Handle your callback
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 100),
-                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                            margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                            height: 70,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30),
-                              color: const Color.fromARGB(255, 255, 255, 255),
-                            ),
-                            child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Icon(Icons.holiday_village),
-                                  Text(
-                                    "${notifications[index].title}",
-                                    style: TextStyle(),
-                                  ),
-                                  IconButton(
-                                    onPressed: () {},
-                                    icon: const Icon(Icons.edit),
-                                    iconSize: 30,
-                                  )
-                                ]),
-                          ),
-                        );
-                      },
-                    ),
-                  )
+                      child: FutureBuilder<List<Notification>>(
+                          future: _notificationsFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return ListView.builder(
+                                padding: const EdgeInsets.fromLTRB(8, 8, 8, 5),
+                                itemCount: snapshot.data!.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final notifications = snapshot.data![index];
+                                  return GestureDetector(
+                                    onTap: () {}, // Handle your callback
+                                    child: AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 100),
+                                      padding: const EdgeInsets.fromLTRB(
+                                          20, 0, 20, 0),
+                                      margin: const EdgeInsets.fromLTRB(
+                                          0, 10, 0, 10),
+                                      height: 70,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(30),
+                                        color: const Color.fromARGB(
+                                            255, 255, 255, 255),
+                                      ),
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            const Icon(Icons.holiday_village),
+                                            Text(
+                                              "${notifications.title}",
+                                              style: TextStyle(),
+                                            ),
+                                            IconButton(
+                                              onPressed: () {},
+                                              icon: const Icon(Icons.edit),
+                                              iconSize: 30,
+                                            )
+                                          ]),
+                                    ),
+                                  );
+                                },
+                              );
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            } else {
+                              return Center(child: CircularProgressIndicator());
+                            }
+                          }))
                 ],
               ))
         ]),

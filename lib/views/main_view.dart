@@ -25,6 +25,7 @@ class _Main_ViewState extends State<Main_View> {
   int _selectedIndex = 2;
   bool _weather_state = false;
 
+
   Widget _buildBody() {
     switch (_selectedIndex) {
       case 0:

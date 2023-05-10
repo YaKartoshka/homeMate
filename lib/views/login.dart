@@ -46,6 +46,7 @@ class _LoginState extends State<Login> {
     final ButtonStyle style =
         ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: const Color.fromARGB(255, 149, 152, 229),
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(MediaQuery.of(context).padding.top),
@@ -222,16 +223,15 @@ class _LoginState extends State<Login> {
       User? user = userCredential.user;
       if (user != null) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        db.collection("dashboards").where("email", isEqualTo: emailController.text).get().then(
-          (querySnapshot) {
-            for (var docSnapshot in querySnapshot.docs) {
-              prefs.setString('dashboard_id', docSnapshot.id);
-             
-            }
-          },
-          onError: (e) => Navigator.pop(context)
-          
-        );
+        db
+            .collection("dashboards")
+            .where("email", isEqualTo: emailController.text)
+            .get()
+            .then((querySnapshot) {
+          for (var docSnapshot in querySnapshot.docs) {
+            prefs.setString('dashboard_id', docSnapshot.id);
+          }
+        }, onError: (e) => Navigator.pop(context));
         Navigator.pushReplacementNamed(context, '/main_view');
       }
     } on FirebaseAuthException catch (e) {

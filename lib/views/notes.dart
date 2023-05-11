@@ -13,10 +13,10 @@ class Notes extends StatefulWidget {
 
 class Note {
   String? title;
-
-  Note({required this.title});
+  String? noteId;
+  Note({required this.title, required this.noteId});
   factory Note.fromMap(Map<String, dynamic> map) {
-    return Note(title: map['title']);
+    return Note(title: map['title'], noteId: map['noteId']);
   }
 }
 
@@ -34,29 +34,36 @@ class _NotesState extends State<Notes> {
   @override
   void initState() {
     super.initState();
-    _notesFuture=getNotes();
+    _notesFuture = getNotes();
   }
 
-
- 
   Future<void> createNote() async {
     // log(_dashboard_id);
     // s
     String? newTitle = _title_controller.text;
-    
-    db
+
+    var newNote = db
         .collection('dashboards')
         .doc(_dashboard_id)
         .collection('notes')
-        .add({'title': newTitle});
-        setState(() {
-          _notesFuture=getNotes();
+        .add({'title': newTitle}).then((documentSnapshot) => {
+              db
+                  .collection('dashboards')
+                  .doc(_dashboard_id)
+                  .collection('notes')
+                  .doc(documentSnapshot.id)
+                  .update({
+                'noteId': documentSnapshot.id,
+              })
+            });
 
-        });
+    setState(() {
+      _notesFuture = getNotes();
+    });
   }
 
   Future<List<Note>> getNotes() async {
-     prefs = await SharedPreferences.getInstance();
+    prefs = await SharedPreferences.getInstance();
     _dashboard_id = prefs!.getString("dashboard_id")!;
     final snapshot = await FirebaseFirestore.instance
         .collection('dashboards')
@@ -96,13 +103,14 @@ class _NotesState extends State<Notes> {
           ),
           SizedBox(
               width: MediaQuery.of(context).size.width - 50,
-              height: adaptiveSize.height-200,
+              height: adaptiveSize.height - 200,
               child: Column(
                 children: [
                   Expanded(
                       child: FutureBuilder<List<Note>>(
                           future: _notesFuture,
-                          builder: (BuildContext context, AsyncSnapshot<List<Note>> snapshot) {
+                          builder: (BuildContext context,
+                              AsyncSnapshot<List<Note>> snapshot) {
                             if (snapshot.hasData) {
                               return ListView.builder(
                                 padding: const EdgeInsets.fromLTRB(8, 8, 8, 5),
@@ -111,8 +119,12 @@ class _NotesState extends State<Notes> {
                                   final notes = snapshot.data![index];
                                   return GestureDetector(
                                     onTap: () {
+                                     
                                       Navigator.pushNamed(
-                                          (context), '/note_list_view');
+                                        (context),
+                                        '/note_list_view',
+                                        arguments: notes
+                                      );
                                     }, // Handle your callback
                                     child: AnimatedContainer(
                                         duration:
@@ -125,8 +137,7 @@ class _NotesState extends State<Notes> {
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(30),
-                                          color: const Color.fromARGB(
-                                              230, 244, 244, 244),
+                                          color: Color.fromARGB(255, 250, 250, 250),
                                           boxShadow: [
                                             BoxShadow(
                                               color: Color.fromARGB(

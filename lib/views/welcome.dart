@@ -24,6 +24,7 @@ class _WelcomeState extends State<Welcome> {
     final ButtonStyle style =
         ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: const Color.fromARGB(255, 149, 152, 229),
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(MediaQuery.of(context).padding.top),

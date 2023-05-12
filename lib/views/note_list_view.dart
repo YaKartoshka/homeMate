@@ -13,8 +13,8 @@ class NoteListView extends StatefulWidget {
 class NoteItem {
   String? title;
   String? noteItemId;
-  bool? isChecked;
-  NoteItem(this.title, this.noteItemId, this.isChecked);
+  bool? isCompleted;
+  NoteItem(this.title, this.noteItemId, this.isCompleted);
 }
 
 class _NoteListViewState extends State<NoteListView> {
@@ -82,7 +82,7 @@ class _NoteListViewState extends State<NoteListView> {
                   ),
                 ),
                 Container(
-                  height: 500,
+                  height: adaptive_size.height - 350,
                   child: ListView.builder(
                       itemCount: noteItems.length,
                       itemBuilder: (BuildContext context, int index) {
@@ -92,10 +92,10 @@ class _NoteListViewState extends State<NoteListView> {
                             Transform.scale(
                               scale: 1.2,
                               child: Checkbox(
-                                value: noteItems[index].isChecked,
+                                value: noteItems[index].isCompleted,
                                 onChanged: (bool? value) {
                                   setState(() {
-                                    noteItems[index].isChecked = value!;
+                                    noteItems[index].isCompleted = value!;
                                   });
                                 },
                                 activeColor: Colors.blue,
@@ -117,6 +117,7 @@ class _NoteListViewState extends State<NoteListView> {
                                 child: IconButton(
                                   onPressed: () {},
                                   icon: Icon(
+                                    color: Color.fromARGB(255, 207, 54, 43),
                                     Icons.delete,
                                     size: 30,
                                   ),
@@ -137,24 +138,31 @@ class _NoteListViewState extends State<NoteListView> {
                         );
                       }),
                 ),
+                SizedBox(height: 10),
+                ElevatedButton(onPressed: () {}, child: Text('Add Item'), style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 104, 57, 223),
+                  fixedSize: Size(200, 30)
+                ),),
+                SizedBox(height: 10),
               ],
             ),
           ),
           SizedBox(height: 15),
           SizedBox(
-            width: adaptive_size.width - 50,
-            child: Column(children: [
-              Text('80%',style: TextStyle(
-                fontSize: 25,
-                color: Colors.white
-              ),),
-              LinearProgressIndicator(
-              value: 0.7,
-              color: Color.fromARGB(255, 104, 57, 223),
-              minHeight: 15,
-            ),
-            ],)
-          )
+              width: adaptive_size.width - 50,
+              child: Column(
+                children: [
+                  Text(
+                    '80%',
+                    style: TextStyle(fontSize: 25, color: Colors.white),
+                  ),
+                  LinearProgressIndicator(
+                    value: 0.7,
+                    color: Color.fromARGB(255, 104, 57, 223),
+                    minHeight: 15,
+                  ),
+                ],
+              ))
         ]),
       ),
     );

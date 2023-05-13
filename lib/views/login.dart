@@ -32,6 +32,9 @@ class _LoginState extends State<Login> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   FirebaseFirestore db = FirebaseFirestore.instance;
+
+ bool isLoading = false;
+
   @override
   void dispose() {
     emailController.dispose();
@@ -182,8 +185,8 @@ class _LoginState extends State<Login> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Center(
-                                          child: ElevatedButton(
-                                            onPressed: signIn,
+                                          child: isLoading ? const CircularProgressIndicator() : ElevatedButton(
+                                            onPressed: isLoading ? null : signIn,
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
                                                   const Color.fromARGB(
@@ -213,6 +216,10 @@ class _LoginState extends State<Login> {
   }
 
   void signIn() async {
+  setState(() {
+      isLoading = true;
+    });
+
     try {
       await Firebase.initializeApp();
       UserCredential userCredential =
@@ -252,6 +259,11 @@ class _LoginState extends State<Login> {
                   content: Text('Wrong password provided for that user'));
             });
       }
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+      setState(() {});
     }
   }
 }

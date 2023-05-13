@@ -18,8 +18,15 @@ class _JoinState extends State<CreatePanel> {
   final _formKey = GlobalKey<FormState>();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool isLoading = false;
 
   void createPanel() async {
+
+     if (isLoading) return; 
+    setState(() { 
+      isLoading = true; 
+    }); 
+
     final String dashboard_name = _dashboard_name_field.text.trim();
     final String email = _email_field.text.trim();
     final String password = _password_field.text.trim();
@@ -29,6 +36,9 @@ class _JoinState extends State<CreatePanel> {
     if (password != repeatedPassword) {
       _showErrorDialog("Passwords don't match",
           "Please make sure both passwords are the same.");
+          setState(() { 
+        isLoading = false; 
+      }); 
       return;
     }
 
@@ -36,10 +46,18 @@ class _JoinState extends State<CreatePanel> {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(email)) {
       _showErrorDialog("Invalid email", "Please enter a valid email address.");
+      setState(() { 
+        isLoading = false; 
+      }); 
       return;
     }
 
     // Send email verification
+
+  setState(() {
+  isLoading = true; // Add this variable to the state class to track loading state
+});
+
     try {
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
@@ -51,6 +69,10 @@ class _JoinState extends State<CreatePanel> {
               .doc(documentSnapshot.id)
               .update({"id": documentSnapshot.id}));
 
+
+       setState(() {
+    isLoading = false;
+  });
       Navigator.pushNamed(context, '/login');
       _showSuccessDialog(
           "Verification email sent",
@@ -59,6 +81,10 @@ class _JoinState extends State<CreatePanel> {
               "in the email to verify your account.",
           '/login');
     } on FirebaseAuthException catch (e) {
+      setState(() {
+    isLoading = false;
+  });
+
       if (e.code == 'weak-password') {
         _showErrorDialog("Weak password",
             "The password provided is too weak. Please choose a stronger password and try again.");
@@ -256,10 +282,8 @@ class _JoinState extends State<CreatePanel> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Center(
-                                          child: ElevatedButton(
-                                            onPressed: () {
-                                              createPanel();
-                                            },
+                                          child: isLoading ? const CircularProgressIndicator() : ElevatedButton(
+                                            onPressed: isLoading ? null : createPanel,
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
                                                   const Color.fromARGB(

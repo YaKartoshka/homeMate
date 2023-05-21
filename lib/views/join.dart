@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Join extends StatefulWidget {
   const Join({super.key});
@@ -19,6 +20,7 @@ class _JoinState extends State<Join> {
   bool isLoading = false;
 
   void _joinDashboard() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     final isValid = _formKey.currentState!.validate();
     if (!isValid || isLoading) {
       return;
@@ -64,8 +66,11 @@ class _JoinState extends State<Join> {
       await membersRef.doc(user.uid).set({
         'email': email,
         'password': password,
-        'createdAt': FieldValue.serverTimestamp(),
+        'userId': user.uid,
+        'dashboard_id': dashboardId,
+        'role': 'client'
       });
+      prefs.setString('dashboard_id', dashboardId);
 
       // Show success message and clear form
       ScaffoldMessenger.of(context).showSnackBar(
@@ -74,6 +79,7 @@ class _JoinState extends State<Join> {
         ),
       );
       _formKey.currentState!.reset();
+      
        Navigator.pushReplacementNamed(context, '/main_view');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {

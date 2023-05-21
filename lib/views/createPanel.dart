@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CreatePanel extends StatefulWidget {
   const CreatePanel({super.key});
@@ -21,12 +22,11 @@ class _JoinState extends State<CreatePanel> {
   bool isLoading = false;
 
   void createPanel() async {
-
-     if (isLoading) return; 
-    setState(() { 
-      isLoading = true; 
-    }); 
-
+    if (isLoading) return;
+    setState(() {
+      isLoading = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     final String dashboard_name = _dashboard_name_field.text.trim();
     final String email = _email_field.text.trim();
     final String password = _password_field.text.trim();
@@ -36,9 +36,9 @@ class _JoinState extends State<CreatePanel> {
     if (password != repeatedPassword) {
       _showErrorDialog("Passwords don't match",
           "Please make sure both passwords are the same.");
-          setState(() { 
-        isLoading = false; 
-      }); 
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
@@ -46,44 +46,43 @@ class _JoinState extends State<CreatePanel> {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(email)) {
       _showErrorDialog("Invalid email", "Please enter a valid email address.");
-      setState(() { 
-        isLoading = false; 
-      }); 
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
     // Send email verification
 
-  setState(() {
-  isLoading = true; // Add this variable to the state class to track loading state
-});
+    setState(() {
+      isLoading =
+          true; // Add this variable to the state class to track loading state
+    });
 
     try {
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
       await userCredential.user?.sendEmailVerification();
-      final data = {"dashboard_name": '$dashboard_name', "email": '$email'};
-      var created_dashboard = db.collection("dashboards").add(data).then(
-          (documentSnapshot) => db
-              .collection('dashboards')
-              .doc(documentSnapshot.id)
-              .update({"id": documentSnapshot.id}));
-
-
-       setState(() {
-    isLoading = false;
-  });
-      Navigator.pushNamed(context, '/login');
-      _showSuccessDialog(
-          "Verification email sent",
-          "A verification email has been sent to $email. "
-              "Please check your inbox and follow the instructions "
-              "in the email to verify your account.",
-          '/login');
+      
+      var dashboardsCollection = db.collection("dashboards");
+      var created_dashboard= await dashboardsCollection.doc();
+      final data = {"dashboard_name": '$dashboard_name', "email": '$email', "dashboard_id": created_dashboard.id};
+      await created_dashboard.set(data);
+      var created_user= await dashboardsCollection.doc(created_dashboard.id).collection("members").doc();
+      final userData = {"userId": created_dashboard.id, "email": email, "role": "admin", "dashboard_id": created_dashboard.id };
+      await dashboardsCollection.doc(created_dashboard.id).collection("members").add(userData);
+      
+      setState(() {
+        isLoading = false;
+      });
+      prefs.setString(
+        'dashboard_id', created_dashboard.id
+      );
+      Navigator.pushNamed(context, '/main_view');
     } on FirebaseAuthException catch (e) {
       setState(() {
-    isLoading = false;
-  });
+        isLoading = false;
+      });
 
       if (e.code == 'weak-password') {
         _showErrorDialog("Weak password",
@@ -282,21 +281,27 @@ class _JoinState extends State<CreatePanel> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Center(
-                                          child: isLoading ? const CircularProgressIndicator() : ElevatedButton(
-                                            onPressed: isLoading ? null : createPanel,
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  const Color.fromARGB(
-                                                      255, 94, 91, 255),
-                                              fixedSize: const Size(170, 50),
-                                            ),
-                                            child: const Text(
-                                              "Create",
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                              ),
-                                            ),
-                                          ),
+                                          child: isLoading
+                                              ? const CircularProgressIndicator()
+                                              : ElevatedButton(
+                                                  onPressed: isLoading
+                                                      ? null
+                                                      : createPanel,
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        const Color.fromARGB(
+                                                            255, 94, 91, 255),
+                                                    fixedSize:
+                                                        const Size(170, 50),
+                                                  ),
+                                                  child: const Text(
+                                                    "Create",
+                                                    style: TextStyle(
+                                                      fontSize: 20,
+                                                    ),
+                                                  ),
+                                                ),
                                         )
                                       ],
                                     )),

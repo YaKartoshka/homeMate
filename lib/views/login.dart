@@ -1,9 +1,11 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:home_mate/views/welcome.dart';
-
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'notifications.dart';
 
@@ -32,7 +34,10 @@ class _LoginState extends State<Login> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   FirebaseFirestore db = FirebaseFirestore.instance;
-
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+  clientId: '184211977144-bebfudln36n5f5d8bpu56gtprpemolnp.apps.googleusercontent.com',
+  scopes: ['email'],
+);
  bool isLoading = false;
 
   @override
@@ -200,9 +205,14 @@ class _LoginState extends State<Login> {
                                               ),
                                             ),
                                           ),
-                                        )
+                                        ),
+                                       
                                       ],
                                     )),
+                                    //  ElevatedButton(
+                                    //     onPressed: signInWithGoogle,
+                                    //     child: Text('Sign in with Google'),
+                                    //   ),
                               ],
                             ),
                           )
@@ -214,6 +224,33 @@ class _LoginState extends State<Login> {
               ),
             ])));
   }
+
+// Future<UserCredential?> signInWithGoogle() async {
+//     // Trigger the Google authentication flow
+//     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+//     if (googleUser != null) {
+//       // Obtain the Google authentication details
+//       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+//       // Create a new credential with the Google ID token and access token
+//       final OAuthCredential credential = GoogleAuthProvider.credential(
+//         accessToken: googleAuth.accessToken,
+//         idToken: googleAuth.idToken,
+//       );
+
+//       // Sign in to Firebase with the Google credentials
+//       try {
+//         final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+//         return userCredential;
+//       } catch (e) {
+//         print('Error signing in with Google: $e');
+//         return null;
+//       }
+//     }
+
+//     return null;
+//   }
 
   void signIn() async {
   setState(() {
@@ -230,16 +267,34 @@ class _LoginState extends State<Login> {
       User? user = userCredential.user;
       if (user != null) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        db
-            .collection("dashboards")
-            .where("email", isEqualTo: emailController.text)
-            .get()
-            .then((querySnapshot) {
-          for (var docSnapshot in querySnapshot.docs) {
-            prefs.setString('dashboard_id', docSnapshot.id);
+      var dashboards=db.collection('dashboards').get().then((querySnapshot) {
+        for(var doc in querySnapshot.docs){
+          db.collection("dashboards").doc(doc.id).collection('members').where("email", isEqualTo: emailController.text.trim()).get().then((memberQuerySnapshot){
+          for (var memberDocSnapshot in memberQuerySnapshot.docs) {
+            prefs.setString('dashboard_id', memberDocSnapshot.data()['dashboard_id']);
+            Navigator.pushReplacementNamed(context, '/main_view');
           }
-        }, onError: (e) => Navigator.pop(context));
-        Navigator.pushReplacementNamed(context, '/main_view');
+          }
+          );
+        }
+      }
+      
+      
+      );
+    
+
+
+        // db
+        //     .collection("dashboards")
+        //     .where("email", isEqualTo: emailController.text)
+        //     .get()
+        //     .then((querySnapshot) {
+        //   for (var docSnapshot in querySnapshot.docs) {
+        //     prefs.setString('dashboard_id', docSnapshot.id);
+        //     Navigator.pushReplacementNamed(context, '/main_view');
+        //   }
+        // }, onError: (e) => Navigator.pop(context));
+        
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {

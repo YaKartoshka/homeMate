@@ -40,7 +40,6 @@ void main() async {
         '/settings': (context) => const SettingsView(),
         '/weather': (context) => const Weather(),
         '/wardrobe': (context) => const Wardrobe(),
-        '/note_list_view': (context) => const NoteListView()
         },
          
       // rename Login to Join or Welcome to open other views

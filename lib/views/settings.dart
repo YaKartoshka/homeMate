@@ -1,4 +1,8 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -7,20 +11,67 @@ class SettingsView extends StatefulWidget {
   State<SettingsView> createState() => _SettingsViewState();
 }
 
+class User {
+  String? email;
+  String? userId;
+  User({required this.email, required this.userId});
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(email: map['email'], userId: map['userId']);
+  }
+}
+
 class _SettingsViewState extends State<SettingsView> {
+  FirebaseFirestore db = FirebaseFirestore.instance;
+  String _dashboard_id = '';
+  String _dashboard_name = '';
+  SharedPreferences? prefs;
+  late Future<List<User>> _membersFuture;
   final dashboard_id_input = TextEditingController();
   final dashboard_name_input = TextEditingController();
   bool theme = true;
   @override
   void initState() {
-    dashboard_id_input.text = "test_id";
-    dashboard_name_input.text = "test_name";
     super.initState();
+    getSettings();
+    _membersFuture = getMembers();
   }
 
   void resetDashboardId() {}
 
+  Future<List<User>> getMembers() async {
+    prefs = await SharedPreferences.getInstance();
+    _dashboard_id = prefs!.getString("dashboard_id")!;
+
+    final snapshot = await db
+        .collection('dashboards')
+        .doc(_dashboard_id)
+        .collection('members')
+        .get();
+
+    final members =
+        snapshot.docs.map((doc) => User.fromMap(doc.data())).toList();
+    log('$members');
+    return members;
+  }
+
+  void getSettings() async {
+    SharedPreferences? prefs = await SharedPreferences.getInstance();
+    _dashboard_id = prefs.getString("dashboard_id")!;
+    db.collection("dashboards").doc(_dashboard_id).get().then(
+      (DocumentSnapshot doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        log('$data');
+        setState(() {
+          dashboard_id_input.text = data['dashboard_id'];
+          dashboard_name_input.text = data['dashboard_name'];
+        });
+      },
+      onError: (e) => print("Error getting document: $e"),
+    );
+  }
+
   void saveSettings() {}
+  
   Widget build(BuildContext context) {
     final adaptiveSize = MediaQuery.of(context).size;
     return Scaffold(
@@ -60,11 +111,10 @@ class _SettingsViewState extends State<SettingsView> {
                 children: [
                   Container(
                       decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(color: Colors.black, width: 2),
-                        
-                          ),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                         child: Column(children: [
@@ -103,7 +153,8 @@ class _SettingsViewState extends State<SettingsView> {
                                         ),
                                       )),
                                   Padding(
-                                    padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                                    padding:
+                                        const EdgeInsets.fromLTRB(20, 0, 0, 0),
                                     child: IconButton(
                                         onPressed: resetDashboardId,
                                         icon: const Icon(
@@ -152,85 +203,93 @@ class _SettingsViewState extends State<SettingsView> {
                                   )
                                 ],
                               ),
-                              const Row(
-                                children: [
-                                  Padding(
+                              const Row(children: [
+                                Padding(
                                     padding: EdgeInsets.fromLTRB(10, 10, 0, 10),
                                     child: Text(
                                       "Users",
                                       style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w500),
-                                    )
-                                  )
-                                ]
-                              ),
-                              Row(
-                                children: [
-                                  Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 16),
-                                      child: SizedBox(
-                                        width: adaptiveSize.width - 200,
-                                        child: TextFormField(
-                                          controller: dashboard_id_input,
-                                          readOnly: true,
-                                          decoration: const InputDecoration(
-                                              border: OutlineInputBorder(),
-                                              labelText: 'User Name',
-                                              labelStyle:
-                                                  TextStyle(fontSize: 15)),
-                                        ),
-                                      )),
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                                    child: IconButton(
-                                        onPressed: resetDashboardId,
-                                        icon: const Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                          size: 30,
-                                        )),
-                                  )
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 16),
-                                      child: SizedBox(
-                                        width: adaptiveSize.width - 200,
-                                        child: TextFormField(
-                                          controller: dashboard_id_input,
-                                          readOnly: true,
-                                          decoration: const InputDecoration(
-                                              border: OutlineInputBorder(),
-                                              labelText: 'User Name',
-                                              labelStyle:
-                                                  TextStyle(fontSize: 15)),
-                                        ),
-                                      )),
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                                    child: IconButton(
-                                        onPressed: resetDashboardId,
-                                        icon: const Icon(
-                                          Icons.delete,
-                                          size: 30,
-                                          color: Colors.red,
-                                        )),
-                                  )
-                                ],
-                              ),
+                                    ))
+                              ]),
+                              Container(
+                                
+                                  width: adaptiveSize.width - 50,
+                                  height: adaptiveSize.height / 6,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                          flex: 1,
+                                          child: FutureBuilder<List<User>>(
+                                              future: _membersFuture,
+                                              builder: (BuildContext context,
+                                                  AsyncSnapshot<List<User>>
+                                                      snapshot) {
+                                                if (snapshot.hasData) {
+                                                  return ListView.builder(
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(8, 8, 8, 5),
+                                                    itemCount:
+                                                        snapshot.data!.length,
+                                                    itemBuilder:
+                                                        (BuildContext context,
+                                                            int index) {
+                                                      final members =
+                                                          snapshot.data![index];
+                                                      return Container(
+                                                        margin: EdgeInsets.fromLTRB(0, 7, 0, 7),
+                                                        padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                                                        decoration: BoxDecoration(
+                                                          border: Border.all(color: Colors.black, width: 2),
+
+
+                                                        ),
+                                                        child: Row(
+                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          children: [
+                                                          Text(
+                                                              '${members.email}'),
+                                                          IconButton(
+                                                          onPressed: () {
+                                                           
+                                                            
+                                        
+                                                          },
+                                                          icon: const Icon(
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    207,
+                                                                    54,
+                                                                    43),
+                                                            Icons.delete,
+                                                            size: 30,
+                                                          ),
+                                                        ),
+                                                        ]),
+                                                      );
+                                                    },
+                                                  );
+                                                } else if (snapshot.hasError) {
+                                                  return Text(
+                                                      'Error: ${snapshot.error}');
+                                                } else {
+                                                  return const Center(
+                                                      child:
+                                                          CircularProgressIndicator());
+                                                }
+                                              }))
+                                    ],
+                                  )),
                               const SizedBox(height: 20),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   ElevatedButton(
                                       style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              const Color.fromARGB(255, 104, 57, 223),
+                                          backgroundColor: const Color.fromARGB(
+                                              255, 104, 57, 223),
                                           fixedSize: const Size(200, 50)),
                                       onPressed: saveSettings,
                                       child: const Text(

@@ -1,10 +1,13 @@
 import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:home_mate/views/notes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NoteListView extends StatefulWidget {
-  const NoteListView({super.key});
+  final Note arguments;
+  const NoteListView({super.key, required this.arguments});
 
   @override
   State<NoteListView> createState() => _NoteListViewState();
@@ -14,32 +17,146 @@ class NoteItem {
   String? title;
   String? noteItemId;
   bool? isCompleted;
-  NoteItem(this.title, this.noteItemId, this.isCompleted);
+  NoteItem(
+      {required this.title,
+      required this.noteItemId,
+      required this.isCompleted});
+  factory NoteItem.fromMap(Map<String, dynamic> map) {
+    return NoteItem(
+        title: map['title'],
+        noteItemId: map['noteItemId'],
+        isCompleted: map['isCompleted']);
+  }
 }
 
 class _NoteListViewState extends State<NoteListView> {
-  final List<NoteItem> noteItems = [
-    NoteItem('Item 1', '214', true),
-    NoteItem('Item 2', '546', false),
-    NoteItem('Item 3', '243', true),
-    NoteItem('Item 1', '214', true),
-    NoteItem('Item 2', '546', false),
-    NoteItem('Item 3', '243', true),
-    NoteItem('Item 1', '214', true),
-    NoteItem('Item 2', '546', false),
-    NoteItem('Item 3', '243', true),
-  ];
-  bool isChecked = false;
+  String _progressBarPercentage = '';
+  var _progressBar = 0.0;
+  late Future<List<NoteItem>> _noteItemsFuture;
+  FirebaseFirestore db = FirebaseFirestore.instance;
+  SharedPreferences? prefs;
+  final _title_controller = TextEditingController();
+  final _description_controller = TextEditingController();
+  String _dashboard_id = '';
+  String note_id = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _noteItemsFuture = getNoteItems();
+    getProgress();
+  }
+
+  Future<List<NoteItem>> getNoteItems() async {
+    prefs = await SharedPreferences.getInstance();
+    _dashboard_id = prefs!.getString("dashboard_id")!;
+    note_id = widget.arguments.noteId!;
+
+    final snapshot = await db
+        .collection('dashboards')
+        .doc(_dashboard_id)
+        .collection('notes')
+        .doc(note_id)
+        .collection('note_items')
+        .get();
+
+    final noteItems =
+        snapshot.docs.map((doc) => NoteItem.fromMap(doc.data())).toList();
+
+    return noteItems;
+  }
+
+  Future<void> createNoteItem() async {
+    note_id = widget.arguments.noteId!;
+    String? newTitle = _title_controller.text;
+    var noteItemsCollection = db
+        .collection('dashboards')
+        .doc(_dashboard_id)
+        .collection('notes')
+        .doc(note_id)
+        .collection('note_items');
+
+    var newNote = noteItemsCollection
+        .add({'title': newTitle, 'isCompleted': false}).then(
+            (documentSnapshot) => {
+                  noteItemsCollection.doc(documentSnapshot.id).update({
+                    'noteItemId': documentSnapshot.id,
+                  }).then((value) => 
+                   setState(() {
+                  _noteItemsFuture = getNoteItems();
+                  getProgress();
+                })
+                  )
+                  
+                });
+
+   
+  }
+
+  Future<void> deleteNoteItem(noteItemId) async {
+    db
+        .collection('dashboards')
+        .doc(_dashboard_id)
+        .collection('notes')
+        .doc(note_id)
+        .collection('note_items')
+        .doc(noteItemId)
+        .delete()
+        .then(
+          (doc) => log("Document deleted"),
+          onError: (e) => log("Error updating document $e"),
+        );
+
+    setState(() {
+      _noteItemsFuture = getNoteItems();
+      getProgress();
+    });
+  }
+
+  getProgress() async {
+    prefs = await SharedPreferences.getInstance();
+    _dashboard_id = prefs!.getString("dashboard_id")!;
+    note_id = widget.arguments.noteId!;
+
+    final snapshot = await db
+        .collection('dashboards')
+        .doc(_dashboard_id)
+        .collection('notes')
+        .doc(note_id)
+        .collection('note_items')
+        .get();
+
+    final noteItems =
+        snapshot.docs.map((doc) => NoteItem.fromMap(doc.data())).toList();
+    var max = noteItems.length;
+    var completed = noteItems.where((element) => element.isCompleted == true);
+    var percentage = (completed.length / max);
+    setState(() {
+      log("$percentage");
+      _progressBarPercentage =
+          percentage.isNaN ? "0%" : '${(percentage * 100).ceil().toString()}%';
+      _progressBar = percentage.isNaN ? 0 : percentage;
+    });
+  }
+
+  void changeStatus(noteItemId, noteItemStatus){
+    db.collection('dashboards').doc(_dashboard_id).
+    collection('notes').doc(note_id).collection("note_items")
+    .doc(noteItemId).update({'isCompleted': !noteItemStatus});
+
+    setState(() {
+      _noteItemsFuture = getNoteItems();
+    });
+  }
   @override
   Widget build(BuildContext context) {
     final adaptive_size = MediaQuery.of(context).size;
-    final note = ModalRoute.of(context)!.settings.arguments as Note;
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Color.fromRGBO(149, 152, 229, 1),
+      backgroundColor: const Color.fromRGBO(149, 152, 229, 1),
       body: Container(
         decoration: const BoxDecoration(),
-        child: Column(children: [
+        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
           const SizedBox(
             height: 30,
           ),
@@ -63,7 +180,7 @@ class _NoteListViewState extends State<NoteListView> {
             ],
           ),
           Container(
-            margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
+            margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
             width: adaptive_size.width - 50,
             decoration: BoxDecoration(
               color: Colors.white,
@@ -71,94 +188,256 @@ class _NoteListViewState extends State<NoteListView> {
             ),
             child: Column(
               children: [
-                SizedBox(
+                const SizedBox(
                   height: 15,
                 ),
                 Text(
-                  "${note.title}",
-                  style: TextStyle(
+                  "${widget.arguments.title}",
+                  style: const TextStyle(
                     fontSize: 35,
                     fontFamily: 'Poppins',
                   ),
                 ),
-                Container(
-                  height: adaptive_size.height - 350,
-                  child: ListView.builder(
-                      itemCount: noteItems.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Transform.scale(
-                              scale: 1.2,
-                              child: Checkbox(
-                                value: noteItems[index].isCompleted,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    noteItems[index].isCompleted = value!;
-                                  });
-                                },
-                                activeColor: Colors.blue,
-                                checkColor: Colors.white,
-                                visualDensity: VisualDensity(
-                                    vertical: 3.0, horizontal: 3.0),
-                              ),
-                            ),
-                            Text(
-                              '${noteItems[index].title}',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                            Flex(direction: Axis.horizontal, children: [
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                child: IconButton(
-                                  onPressed: () {},
-                                  icon: Icon(
-                                    color: Color.fromARGB(255, 207, 54, 43),
-                                    Icons.delete,
-                                    size: 30,
+                SizedBox(
+                    width: adaptive_size.width - 20,
+                    height: adaptive_size.height - 300,
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 1,
+                            child: FutureBuilder<List<NoteItem>>(
+                                future: _noteItemsFuture,
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<List<NoteItem>> snapshot) {
+                                  if (snapshot.hasData) {
+                                    return ListView.builder(
+                                      padding:
+                                          const EdgeInsets.fromLTRB(8, 8, 8, 5),
+                                      itemCount: snapshot.data!.length,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        final noteItems = snapshot.data![index];
+                                        return GestureDetector(
+                                            onTap:
+                                                () {}, // Handle your callback
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Transform.scale(
+                                                  scale: 1.2,
+                                                  child: Checkbox(
+                                                    value:
+                                                        noteItems.isCompleted,
+                                                    onChanged: (bool? value) {
+                                                      changeStatus(noteItems.noteItemId, noteItems.isCompleted);
+                                                      // setState(() {
+                                                      //   noteItems.isCompleted =
+                                                      //       value!;
+                                                      // });
+                                                    },
+                                                    activeColor: Colors.blue,
+                                                    checkColor: Colors.white,
+                                                    visualDensity:
+                                                        const VisualDensity(
+                                                            vertical: 3.0,
+                                                            horizontal: 3.0),
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '${noteItems.title}',
+                                                  style: const TextStyle(
+                                                    fontSize: 20,
+                                                    fontFamily: 'Poppins',
+                                                  ),
+                                                ),
+                                                Flex(
+                                                    direction: Axis.horizontal,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .fromLTRB(
+                                                                0, 0, 10, 0),
+                                                        child: IconButton(
+                                                          onPressed: () {
+                                                            showDialog<String>(
+                                                              context: context,
+                                                              builder: (BuildContext
+                                                                      context) =>
+                                                                  AlertDialog(
+                                                                shadowColor:
+                                                                    const Color
+                                                                            .fromARGB(
+                                                                        255,
+                                                                        104,
+                                                                        57,
+                                                                        223),
+                                                                shape: const RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.all(
+                                                                            Radius.circular(20))),
+                                                                scrollable:
+                                                                    true,
+                                                                title:
+                                                                    const Text(
+                                                                  'Are you sure?',
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .center,
+                                                                ),
+                                                                content:
+                                                                    Padding(
+                                                                        padding:
+                                                                            const EdgeInsets.all(
+                                                                                8.0),
+                                                                        child:
+                                                                            Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.spaceAround,
+                                                                          children: [
+                                                                            ElevatedButton(
+                                                                                onPressed: () {
+                                                                                  Navigator.pop(context);
+                                                                                },
+                                                                                style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.red, shadowColor: Colors.red, fixedSize: const Size(80, 40)),
+                                                                                child: const Text("Don't")),
+                                                                            ElevatedButton(
+                                                                                onPressed: () {
+                                                                                  deleteNoteItem(noteItems.noteItemId);
+                                                                                  Navigator.pop(context);
+                                                                                },
+                                                                                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, fixedSize: const Size(80, 40)),
+                                                                                child: const Text("Delete"))
+                                                                          ],
+                                                                        )),
+                                                              ),
+                                                            );
+                                                          },
+                                                          icon: const Icon(
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    207,
+                                                                    54,
+                                                                    43),
+                                                            Icons.delete,
+                                                            size: 30,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .fromLTRB(
+                                                                0, 0, 10, 0),
+                                                        child: IconButton(
+                                                          onPressed: () {},
+                                                          icon: const Icon(
+                                                            Icons.edit,
+                                                            size: 30,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ])
+                                              ],
+                                            ));
+                                      },
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Text('Error: ${snapshot.error}');
+                                  } else {
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  }
+                                }))
+                      ],
+                    )),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    showDialog<String>(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(
+                        shadowColor: const Color.fromARGB(255, 104, 57, 223),
+                        shape: const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(30))),
+                        scrollable: true,
+                        title: const Text('New note'),
+                        content: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Form(
+                            child: Column(
+                              children: <Widget>[
+                                TextFormField(
+                                  controller: _title_controller,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Title',
+                                    hintText: 'Type a title',
+                                    icon: Icon(Icons.title_outlined,
+                                        color:
+                                            Color.fromARGB(255, 104, 57, 223)),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                child: IconButton(
-                                  onPressed: () {},
-                                  icon: Icon(
-                                    Icons.edit,
-                                    size: 30,
-                                  ),
-                                ),
-                              ),
-                            ])
-                          ],
-                        );
-                      }),
+                                const SizedBox(height: 25),
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        createNoteItem();
+                                        _title_controller.clear();
+                                        Navigator.pop(context);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color.fromARGB(
+                                            255, 104, 57, 223),
+                                      ),
+                                      child: const Text('Create'),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                            color: Color.fromARGB(
+                                                255, 104, 57, 223),
+                                          ),
+                                        ))
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text('Add Item'),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 104, 57, 223),
+                      fixedSize: const Size(200, 30)),
                 ),
-                SizedBox(height: 10),
-                ElevatedButton(onPressed: () {}, child: Text('Add Item'), style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 104, 57, 223),
-                  fixedSize: Size(200, 30)
-                ),),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
               ],
             ),
           ),
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
           SizedBox(
               width: adaptive_size.width - 50,
               child: Column(
                 children: [
                   Text(
-                    '80%',
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    _progressBarPercentage,
+                    style: const TextStyle(fontSize: 25, color: Colors.white),
                   ),
                   LinearProgressIndicator(
-                    value: 0.7,
-                    color: Color.fromARGB(255, 104, 57, 223),
+                    value: _progressBar,
+                    color: const Color.fromARGB(255, 104, 57, 223),
                     minHeight: 15,
                   ),
                 ],

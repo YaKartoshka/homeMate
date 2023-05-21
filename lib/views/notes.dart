@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:home_mate/views/note_list_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'main_view.dart';
@@ -22,12 +23,11 @@ class Note {
 
 class _NotesState extends State<Notes> {
   FirebaseFirestore db = FirebaseFirestore.instance;
-  SharedPreferences? prefs;
+  
   final _title_controller = TextEditingController();
   final _description_controller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final CollectionReference dashboardsCollection =
-      FirebaseFirestore.instance.collection('dashboards');
+
   String _dashboard_id = '';
   late Future<List<Note>> _notesFuture;
 
@@ -63,8 +63,8 @@ class _NotesState extends State<Notes> {
   }
 
   Future<List<Note>> getNotes() async {
-    prefs = await SharedPreferences.getInstance();
-    _dashboard_id = prefs!.getString("dashboard_id")!;
+    SharedPreferences? prefs = await SharedPreferences.getInstance();
+    _dashboard_id = prefs.getString("dashboard_id")!;
     final snapshot = await FirebaseFirestore.instance
         .collection('dashboards')
         .doc(_dashboard_id)
@@ -83,6 +83,7 @@ class _NotesState extends State<Notes> {
     final adaptiveSize = MediaQuery.of(context).size;
 
     return Scaffold(
+  
       backgroundColor: const Color.fromARGB(255, 149, 152, 229),
       body: Container(
         decoration: const BoxDecoration(),
@@ -119,12 +120,14 @@ class _NotesState extends State<Notes> {
                                   final notes = snapshot.data![index];
                                   return GestureDetector(
                                     onTap: () {
-                                     
-                                      Navigator.pushNamed(
-                                        (context),
-                                        '/note_list_view',
-                                        arguments: notes
-                                      );
+                                      Navigator.push(
+                                          (context),
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  NoteListView(
+                                                      arguments: Note(
+                                                          noteId: notes.noteId,
+                                                          title: notes.title))));
                                     }, // Handle your callback
                                     child: AnimatedContainer(
                                         duration:
@@ -137,7 +140,8 @@ class _NotesState extends State<Notes> {
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(30),
-                                          color: Color.fromARGB(255, 250, 250, 250),
+                                          color: Color.fromARGB(
+                                              255, 250, 250, 250),
                                           boxShadow: [
                                             BoxShadow(
                                               color: Color.fromARGB(

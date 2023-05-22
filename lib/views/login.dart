@@ -272,6 +272,8 @@ class _LoginState extends State<Login> {
           db.collection("dashboards").doc(doc.id).collection('members').where("email", isEqualTo: emailController.text.trim()).get().then((memberQuerySnapshot){
           for (var memberDocSnapshot in memberQuerySnapshot.docs) {
             prefs.setString('dashboard_id', memberDocSnapshot.data()['dashboard_id']);
+            prefs.setString('userId', memberDocSnapshot.data()['userId']);
+            prefs.setString('role', memberDocSnapshot.data()['role']);
             Navigator.pushReplacementNamed(context, '/main_view');
           }
           }

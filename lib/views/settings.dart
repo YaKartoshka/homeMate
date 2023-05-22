@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,15 +15,19 @@ class SettingsView extends StatefulWidget {
 class User {
   String? email;
   String? userId;
-  User({required this.email, required this.userId});
+  String? role;
+  User({required this.email, required this.userId, required this.role});
   factory User.fromMap(Map<String, dynamic> map) {
-    return User(email: map['email'], userId: map['userId']);
+    return User(email: map['email'], userId: map['userId'], role: map['role']);
   }
 }
 
 class _SettingsViewState extends State<SettingsView> {
   FirebaseFirestore db = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   String _dashboard_id = '';
+  String _userId = '';
+  String _role = '';
   String _dashboard_name = '';
   SharedPreferences? prefs;
   late Future<List<User>> _membersFuture;
@@ -38,6 +43,23 @@ class _SettingsViewState extends State<SettingsView> {
 
   void resetDashboardId() {}
 
+  void deleteUser(memberId) async {
+   
+    // await db.collection("dashboards").doc(_dashboard_id).collection("members").doc(memberId).delete();
+    try {
+      await _auth
+          .userChanges()
+          .firstWhere((user) => user!.uid == memberId).then((user) async {
+            log('${user}');
+            await user?.delete();
+          },);
+         
+      log('User deleted successfully.');
+    } catch (e) {
+      log('Error deleting user: $e');
+    }
+  }
+
   Future<List<User>> getMembers() async {
     prefs = await SharedPreferences.getInstance();
     _dashboard_id = prefs!.getString("dashboard_id")!;
@@ -50,28 +72,29 @@ class _SettingsViewState extends State<SettingsView> {
 
     final members =
         snapshot.docs.map((doc) => User.fromMap(doc.data())).toList();
-    log('$members');
     return members;
   }
 
   void getSettings() async {
     SharedPreferences? prefs = await SharedPreferences.getInstance();
     _dashboard_id = prefs.getString("dashboard_id")!;
+    _userId = prefs.getString('userId')!;
+    _role = prefs.getString('role')!;
     db.collection("dashboards").doc(_dashboard_id).get().then(
       (DocumentSnapshot doc) {
         final data = doc.data() as Map<String, dynamic>;
-        log('$data');
+        log('$_userId');
         setState(() {
           dashboard_id_input.text = data['dashboard_id'];
           dashboard_name_input.text = data['dashboard_name'];
         });
       },
-      onError: (e) => print("Error getting document: $e"),
+      onError: (e) => log("Error getting document: $e"),
     );
   }
 
   void saveSettings() {}
-  
+
   Widget build(BuildContext context) {
     final adaptiveSize = MediaQuery.of(context).size;
     return Scaffold(
@@ -214,7 +237,6 @@ class _SettingsViewState extends State<SettingsView> {
                                     ))
                               ]),
                               Container(
-                                
                                   width: adaptiveSize.width - 50,
                                   height: adaptiveSize.height / 6,
                                   child: Row(
@@ -238,36 +260,59 @@ class _SettingsViewState extends State<SettingsView> {
                                                       final members =
                                                           snapshot.data![index];
                                                       return Container(
-                                                        margin: EdgeInsets.fromLTRB(0, 7, 0, 7),
-                                                        padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                                                        decoration: BoxDecoration(
-                                                          border: Border.all(color: Colors.black, width: 2),
-
-
+                                                        margin:
+                                                            EdgeInsets.fromLTRB(
+                                                                0, 7, 0, 7),
+                                                        padding:
+                                                            EdgeInsets.fromLTRB(
+                                                                20, 0, 20, 0),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          border: Border.all(
+                                                              color:
+                                                                  Colors.black,
+                                                              width: 2),
                                                         ),
                                                         child: Row(
-                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                          children: [
-                                                          Text(
-                                                              '${members.email}'),
-                                                          IconButton(
-                                                          onPressed: () {
-                                                           
-                                                            
-                                        
-                                                          },
-                                                          icon: const Icon(
-                                                            color:
-                                                                Color.fromARGB(
-                                                                    255,
-                                                                    207,
-                                                                    54,
-                                                                    43),
-                                                            Icons.delete,
-                                                            size: 30,
-                                                          ),
-                                                        ),
-                                                        ]),
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              Container(
+                                                                margin: EdgeInsets
+                                                                    .fromLTRB(
+                                                                        0,
+                                                                        15,
+                                                                        0,
+                                                                        15),
+                                                                child: Text(
+                                                                    '${members.email}'),
+                                                              ),
+                                                              if (_role ==
+                                                                      'admin' &&
+                                                                  members.userId !=
+                                                                      _userId)
+                                                                IconButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    deleteUser(
+                                                                        members
+                                                                            .userId);
+                                                                  },
+                                                                  icon:
+                                                                      const Icon(
+                                                                    color: Color
+                                                                        .fromARGB(
+                                                                            255,
+                                                                            207,
+                                                                            54,
+                                                                            43),
+                                                                    Icons
+                                                                        .delete,
+                                                                    size: 30,
+                                                                  ),
+                                                                ),
+                                                            ]),
                                                       );
                                                     },
                                                   );

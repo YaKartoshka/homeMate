@@ -68,10 +68,11 @@ class _JoinState extends State<Join> {
         'password': password,
         'userId': user.uid,
         'dashboard_id': dashboardId,
-        'role': 'client'
+        'role': 'member'
       });
       prefs.setString('dashboard_id', dashboardId);
-
+      prefs.setString('userId', user.uid);
+      prefs.setString('role', 'member');
       // Show success message and clear form
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

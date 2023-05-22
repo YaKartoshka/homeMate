@@ -62,14 +62,14 @@ class _JoinState extends State<CreatePanel> {
     try {
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
-      await userCredential.user?.sendEmailVerification();
-      
+     
+      final user = userCredential.user!;
       var dashboardsCollection = db.collection("dashboards");
       var created_dashboard= await dashboardsCollection.doc();
       final data = {"dashboard_name": '$dashboard_name', "email": '$email', "dashboard_id": created_dashboard.id};
       await created_dashboard.set(data);
       var created_user= await dashboardsCollection.doc(created_dashboard.id).collection("members").doc();
-      final userData = {"userId": created_dashboard.id, "email": email, "role": "admin", "dashboard_id": created_dashboard.id };
+      final userData = {"userId": user.uid, "email": email, "role": "admin", "dashboard_id": created_dashboard.id };
       await dashboardsCollection.doc(created_dashboard.id).collection("members").add(userData);
       
       setState(() {
@@ -78,6 +78,8 @@ class _JoinState extends State<CreatePanel> {
       prefs.setString(
         'dashboard_id', created_dashboard.id
       );
+      prefs.setString('userId', user.uid);
+      prefs.setString('role', 'admin');
       Navigator.pushNamed(context, '/main_view');
     } on FirebaseAuthException catch (e) {
       setState(() {

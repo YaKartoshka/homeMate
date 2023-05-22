@@ -91,6 +91,7 @@ class _NoteListViewState extends State<NoteListView> {
 
   Future<void> editNoteItem(noteItemId) async {
     String? newTitle = _new_title_controller.text;
+    log(newTitle);
     db
         .collection('dashboards')
         .doc(_dashboard_id)
@@ -164,6 +165,7 @@ class _NoteListViewState extends State<NoteListView> {
 
     setState(() {
       _noteItemsFuture = getNoteItems();
+      getProgress();
     });
   }
 
@@ -384,7 +386,7 @@ class _NoteListViewState extends State<NoteListView> {
                                                                       children: <Widget>[
                                                                         TextFormField(
                                                                           controller:
-                                                                              _title_controller,
+                                                                              _new_title_controller,
                                                                           decoration:
                                                                               const InputDecoration(
                                                                             labelText:
@@ -403,8 +405,9 @@ class _NoteListViewState extends State<NoteListView> {
                                                                             ElevatedButton(
                                                                               onPressed: () {
                                                                                 editNoteItem(noteItems.noteItemId);
-                                                                                _new_title_controller.clear();
+                                                
                                                                                 Navigator.pop(context);
+                                                                                _new_title_controller.clear(); 
                                                                               },
                                                                               style: ElevatedButton.styleFrom(
                                                                                 backgroundColor: const Color.fromARGB(255, 104, 57, 223),

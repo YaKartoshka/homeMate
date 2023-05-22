@@ -25,24 +25,23 @@ void main() async {
           messagingSenderId: '963528077159',
           projectId: 'home-mate-33d2b'));
   runApp(MaterialApp(
-      theme: ThemeData(
-        primaryColor: Colors.black,
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const Welcome(),
-        '/join':(context) => const Join(),
-        '/login':(context) => const Login(),
-        '/create_panel':(context) => const CreatePanel(),
-        '/notifications':(context) => const Notifications(),
-        '/reset_password': (context)=> const Reset(),
-        '/main_view':(context) => const Main_View(),
-        '/settings': (context) => const SettingsView(),
-        '/weather': (context) => const Weather(),
-        '/wardrobe': (context) => const Wardrobe(),
-        },
-         
-      // rename Login to Join or Welcome to open other views
-      )
-      );
+    theme: ThemeData(
+      primaryColor: Colors.black,
+    ),
+    initialRoute: '/',
+    routes: {
+      '/': (context) => const Welcome(),
+      '/join': (context) => const Join(),
+      '/login': (context) => const Login(),
+      '/create_panel': (context) => const CreatePanel(),
+      '/notifications': (context) => const Notifications(),
+      '/reset_password': (context) => const Reset(),
+      '/main_view': (context) => const Main_View(),
+      '/settings': (context) => const SettingsView(),
+      '/weather': (context) => const Weather(),
+      '/wardrobe': (context) => const Wardrobe(),
+    },
+
+    // rename Login to Join or Welcome to open other views
+  ));
 }

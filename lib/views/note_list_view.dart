@@ -36,6 +36,7 @@ class _NoteListViewState extends State<NoteListView> {
   FirebaseFirestore db = FirebaseFirestore.instance;
   SharedPreferences? prefs;
   final _title_controller = TextEditingController();
+  final _new_title_controller = TextEditingController();
   final _description_controller = TextEditingController();
   String _dashboard_id = '';
   String note_id = '';
@@ -81,16 +82,28 @@ class _NoteListViewState extends State<NoteListView> {
             (documentSnapshot) => {
                   noteItemsCollection.doc(documentSnapshot.id).update({
                     'noteItemId': documentSnapshot.id,
-                  }).then((value) => 
-                   setState(() {
-                  _noteItemsFuture = getNoteItems();
-                  getProgress();
-                })
-                  )
-                  
+                  }).then((value) => setState(() {
+                        _noteItemsFuture = getNoteItems();
+                        getProgress();
+                      }))
                 });
+  }
 
-   
+  Future<void> editNoteItem(noteItemId) async {
+    String? newTitle = _new_title_controller.text;
+    db
+        .collection('dashboards')
+        .doc(_dashboard_id)
+        .collection('notes')
+        .doc(note_id)
+        .collection('note_items')
+        .doc(noteItemId).update({
+          "title": newTitle
+        }).then((value) => 
+        setState(() {
+          _noteItemsFuture = getNoteItems();
+        })
+        );
   }
 
   Future<void> deleteNoteItem(noteItemId) async {
@@ -139,15 +152,21 @@ class _NoteListViewState extends State<NoteListView> {
     });
   }
 
-  void changeStatus(noteItemId, noteItemStatus){
-    db.collection('dashboards').doc(_dashboard_id).
-    collection('notes').doc(note_id).collection("note_items")
-    .doc(noteItemId).update({'isCompleted': !noteItemStatus});
+  void changeStatus(noteItemId, noteItemStatus) {
+    db
+        .collection('dashboards')
+        .doc(_dashboard_id)
+        .collection('notes')
+        .doc(note_id)
+        .collection("note_items")
+        .doc(noteItemId)
+        .update({'isCompleted': !noteItemStatus});
 
     setState(() {
       _noteItemsFuture = getNoteItems();
     });
   }
+
   @override
   Widget build(BuildContext context) {
     final adaptive_size = MediaQuery.of(context).size;
@@ -231,11 +250,10 @@ class _NoteListViewState extends State<NoteListView> {
                                                     value:
                                                         noteItems.isCompleted,
                                                     onChanged: (bool? value) {
-                                                      changeStatus(noteItems.noteItemId, noteItems.isCompleted);
-                                                      // setState(() {
-                                                      //   noteItems.isCompleted =
-                                                      //       value!;
-                                                      // });
+                                                      changeStatus(
+                                                          noteItems.noteItemId,
+                                                          noteItems
+                                                              .isCompleted);
                                                     },
                                                     activeColor: Colors.blue,
                                                     checkColor: Colors.white,
@@ -301,8 +319,8 @@ class _NoteListViewState extends State<NoteListView> {
                                                                                 onPressed: () {
                                                                                   Navigator.pop(context);
                                                                                 },
-                                                                                style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.red, shadowColor: Colors.red, fixedSize: const Size(80, 40)),
-                                                                                child: const Text("Don't")),
+                                                                                style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.purple, shadowColor: Colors.red, fixedSize: const Size(80, 40)),
+                                                                                child: const Text("Cancel")),
                                                                             ElevatedButton(
                                                                                 onPressed: () {
                                                                                   deleteNoteItem(noteItems.noteItemId);
@@ -333,7 +351,86 @@ class _NoteListViewState extends State<NoteListView> {
                                                                     .fromLTRB(
                                                                 0, 0, 10, 0),
                                                         child: IconButton(
-                                                          onPressed: () {},
+                                                          onPressed: () {
+                                                            showDialog<String>(
+                                                              context: context,
+                                                              builder: (BuildContext
+                                                                      context) =>
+                                                                  AlertDialog(
+                                                                shadowColor:
+                                                                    const Color
+                                                                            .fromARGB(
+                                                                        255,
+                                                                        104,
+                                                                        57,
+                                                                        223),
+                                                                shape: const RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.all(
+                                                                            Radius.circular(30))),
+                                                                scrollable:
+                                                                    true,
+                                                                title: const Text(
+                                                                    'Edit'),
+                                                                content:
+                                                                    Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          8.0),
+                                                                  child: Form(
+                                                                    child:
+                                                                        Column(
+                                                                      children: <Widget>[
+                                                                        TextFormField(
+                                                                          controller:
+                                                                              _title_controller,
+                                                                          decoration:
+                                                                              const InputDecoration(
+                                                                            labelText:
+                                                                                'New title',
+                                                                            hintText:
+                                                                                'Type a title',
+                                                                            icon:
+                                                                                Icon(Icons.title_outlined, color: Color.fromARGB(255, 104, 57, 223)),
+                                                                          ),
+                                                                        ),
+                                                                        const SizedBox(
+                                                                            height:
+                                                                                25),
+                                                                        Row(
+                                                                          children: [
+                                                                            ElevatedButton(
+                                                                              onPressed: () {
+                                                                                editNoteItem(noteItems.noteItemId);
+                                                                                _new_title_controller.clear();
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                              style: ElevatedButton.styleFrom(
+                                                                                backgroundColor: const Color.fromARGB(255, 104, 57, 223),
+                                                                              ),
+                                                                              child: const Text('Save'),
+                                                                            ),
+                                                                            const SizedBox(width: 10),
+                                                                            TextButton(
+                                                                                onPressed: () {
+                                                                                  Navigator.pop(context);
+                                                                                },
+                                                                                child: const Text(
+                                                                                  'Cancel',
+                                                                                  style: TextStyle(
+                                                                                    color: Color.fromARGB(255, 104, 57, 223),
+                                                                                  ),
+                                                                                ))
+                                                                          ],
+                                                                        )
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
                                                           icon: const Icon(
                                                             Icons.edit,
                                                             size: 30,
@@ -365,7 +462,7 @@ class _NoteListViewState extends State<NoteListView> {
                             borderRadius:
                                 BorderRadius.all(Radius.circular(30))),
                         scrollable: true,
-                        title: const Text('New note'),
+                        title: const Text('New note item'),
                         content: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Form(

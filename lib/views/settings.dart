@@ -127,7 +127,7 @@ class _SettingsViewState extends State<SettingsView> {
             const SizedBox(height: 20),
             Container(
               decoration: BoxDecoration(
-                  color: Colors.red, borderRadius: BorderRadius.circular(30)),
+                   borderRadius: BorderRadius.circular(30)),
               width: adaptiveSize.width - 50,
               height: adaptiveSize.height - 200,
               child: ListView(
@@ -175,10 +175,13 @@ class _SettingsViewState extends State<SettingsView> {
                                                   TextStyle(fontSize: 15)),
                                         ),
                                       )),
+                                  if (_role =='admin')    
                                   Padding(
                                     padding:
                                         const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                                    child: IconButton(
+                                    child: 
+                                    
+                                    IconButton(
                                         onPressed: resetDashboardId,
                                         icon: const Icon(
                                           Icons.sync,
@@ -328,9 +331,11 @@ class _SettingsViewState extends State<SettingsView> {
                                     ],
                                   )),
                               const SizedBox(height: 20),
+                              if (_role =='admin')
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
+                                  
                                   ElevatedButton(
                                       style: ElevatedButton.styleFrom(
                                           backgroundColor: const Color.fromARGB(

@@ -34,11 +34,18 @@ class _LoginState extends State<Login> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   FirebaseFirestore db = FirebaseFirestore.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-  clientId: '184211977144-bebfudln36n5f5d8bpu56gtprpemolnp.apps.googleusercontent.com',
-  scopes: ['email'],
-);
- bool isLoading = false;
+  GoogleSignInAccount? _currentUser;
+  bool _isAuthorized = false; // has granted permissions?
+  String _contactText = '';
+//   final GoogleSignIn _googleSignIn = GoogleSignIn(
+//   serverClientId: '963528077159-5rntvf2c7b8sftdd7pu6he57mvsp4oid.apps.googleusercontent.com',
+//   scopes: ['email'],
+// );
+  bool isLoading = false;
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -112,7 +119,7 @@ class _LoginState extends State<Login> {
                   ),
                   margin: const EdgeInsets.all(50),
                   width: 320,
-                  height: 400,
+                  height: 450,
                   child: Column(
                     children: [
                       const SizedBox(
@@ -190,29 +197,49 @@ class _LoginState extends State<Login> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Center(
-                                          child: isLoading ? const CircularProgressIndicator() : ElevatedButton(
-                                            onPressed: isLoading ? null : signIn,
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  const Color.fromARGB(
-                                                      255, 94, 91, 255),
-                                              fixedSize: const Size(170, 50),
-                                            ),
-                                            child: const Text(
-                                              "Login",
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                              ),
-                                            ),
-                                          ),
+                                          child: isLoading
+                                              ? const CircularProgressIndicator()
+                                              : ElevatedButton(
+                                                  onPressed:
+                                                      isLoading ? null : signIn,
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        const Color.fromARGB(
+                                                            255, 94, 91, 255),
+                                                    fixedSize:
+                                                        const Size(170, 50),
+                                                  ),
+                                                  child: const Text(
+                                                    "Login",
+                                                    style: TextStyle(
+                                                      fontSize: 20,
+                                                    ),
+                                                  ),
+                                                ),
                                         ),
-                                       
                                       ],
                                     )),
-                                    //  ElevatedButton(
-                                    //     onPressed: signInWithGoogle,
-                                    //     child: Text('Sign in with Google'),
-                                    //   ),
+                                Container(
+                                    margin: EdgeInsets.only(top: 10),
+                                    width: 250,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Center(
+                                          child: isLoading
+                                              ? const CircularProgressIndicator()
+                                              : ElevatedButton(
+                                                  onPressed: () {
+                                                    _handleGoogleSignIn();
+                                                  },
+                                                  child: Text(
+                                                      'Sign in with Google'),
+                                                ),
+                                        ),
+                                      ],
+                                    )),
                               ],
                             ),
                           )
@@ -225,35 +252,64 @@ class _LoginState extends State<Login> {
             ])));
   }
 
-// Future<UserCredential?> signInWithGoogle() async {
-//     // Trigger the Google authentication flow
-//     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+  Future<UserCredential?> _handleGoogleSignIn() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser!.authentication;
 
-//     if (googleUser != null) {
-//       // Obtain the Google authentication details
-//       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
 
-//       // Create a new credential with the Google ID token and access token
-//       final OAuthCredential credential = GoogleAuthProvider.credential(
-//         accessToken: googleAuth.accessToken,
-//         idToken: googleAuth.idToken,
-//       );
+      final UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+      final User? user = userCredential.user;
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (user != null) {
+        // User is signed in
+        log('Logged in user: ${user.email}');
+        var dashboards =
+            db.collection('dashboards').get().then((querySnapshot) {
+          for (var doc in querySnapshot.docs) {
+            db
+                .collection("dashboards")
+                .doc(doc.id)
+                .collection('members')
+                .where("email", isEqualTo: user.email)
+                .get()
+                .then((memberQuerySnapshot) {
+              if (memberQuerySnapshot.docs.isEmpty) {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return const AlertDialog(
+                          title: Text('Not found'),
+                          content: Text('No user found for that email.'));
+                    });
+              } else {
+                for (var memberDocSnapshot in memberQuerySnapshot.docs) {
+                  prefs.setString(
+                      'dashboard_id', memberDocSnapshot.data()['dashboard_id']);
+                  prefs.setString('userId', memberDocSnapshot.data()['userId']);
+                  prefs.setString('role', memberDocSnapshot.data()['role']);
+                  Navigator.pushReplacementNamed(context, '/main_view');
+                }
+              }
+            });
+          }
+        });
+      }
+    } catch (e) {
+      log('Error signing in with Google: $e');
+    }
 
-//       // Sign in to Firebase with the Google credentials
-//       try {
-//         final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-//         return userCredential;
-//       } catch (e) {
-//         print('Error signing in with Google: $e');
-//         return null;
-//       }
-//     }
-
-//     return null;
-//   }
+    return null;
+  }
 
   void signIn() async {
-  setState(() {
+    setState(() {
       isLoading = true;
     });
 
@@ -267,24 +323,26 @@ class _LoginState extends State<Login> {
       User? user = userCredential.user;
       if (user != null) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-      var dashboards=db.collection('dashboards').get().then((querySnapshot) {
-        for(var doc in querySnapshot.docs){
-          db.collection("dashboards").doc(doc.id).collection('members').where("email", isEqualTo: emailController.text.trim()).get().then((memberQuerySnapshot){
-          for (var memberDocSnapshot in memberQuerySnapshot.docs) {
-            prefs.setString('dashboard_id', memberDocSnapshot.data()['dashboard_id']);
-            prefs.setString('userId', memberDocSnapshot.data()['userId']);
-            prefs.setString('role', memberDocSnapshot.data()['role']);
-            Navigator.pushReplacementNamed(context, '/main_view');
+        var dashboards =
+            db.collection('dashboards').get().then((querySnapshot) {
+          for (var doc in querySnapshot.docs) {
+            db
+                .collection("dashboards")
+                .doc(doc.id)
+                .collection('members')
+                .where("email", isEqualTo: emailController.text.trim())
+                .get()
+                .then((memberQuerySnapshot) {
+              for (var memberDocSnapshot in memberQuerySnapshot.docs) {
+                prefs.setString(
+                    'dashboard_id', memberDocSnapshot.data()['dashboard_id']);
+                prefs.setString('userId', memberDocSnapshot.data()['userId']);
+                prefs.setString('role', memberDocSnapshot.data()['role']);
+                Navigator.pushReplacementNamed(context, '/main_view');
+              }
+            });
           }
-          }
-          );
-        }
-      }
-      
-      
-      );
-    
-
+        });
 
         // db
         //     .collection("dashboards")
@@ -296,7 +354,6 @@ class _LoginState extends State<Login> {
         //     Navigator.pushReplacementNamed(context, '/main_view');
         //   }
         // }, onError: (e) => Navigator.pop(context));
-        
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -304,7 +361,7 @@ class _LoginState extends State<Login> {
             context: context,
             builder: (BuildContext context) {
               return const AlertDialog(
-                  title: Text('Basic dialog title'),
+                  title: Text('Not found'),
                   content: Text('No user found for that email.'));
             });
       } else if (e.code == 'wrong-password') {
@@ -312,7 +369,7 @@ class _LoginState extends State<Login> {
             context: context,
             builder: (BuildContext context) {
               return const AlertDialog(
-                  title: Text('Basic dialog title'),
+                  title: Text('Wrong'),
                   content: Text('Wrong password provided for that user'));
             });
       }

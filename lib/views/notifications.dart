@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,6 +25,7 @@ class Notification {
 
 class _Notifications_State extends State<Notifications> {
   FirebaseFirestore db = FirebaseFirestore.instance;
+
   int _selectedIndex = 3;
   SharedPreferences? prefs;
   final _title_controller = TextEditingController();
@@ -34,7 +37,36 @@ class _Notifications_State extends State<Notifications> {
   @override
   void initState() {
     super.initState();
-    _notificationsFuture=getNotifications();
+    _notificationsFuture = getNotifications();
+  }
+
+  void sendNotification() async {
+    Map<String, dynamic> notification = {
+      'to': 'drtxz_07Rn-Q_9h5I4f3d_:APA91bHvXavclyaHCxY9wzdNU3IzFBJln_sCrr0TPPugwig5ZMAlqs1GcAxIhW82ZlaZv2s7KDA0VqmqGBXfpCmwmzhitHNpvcHRLl9XW4D5gTr6GCKRC_ucSPr9-_Z2akZIjO5js9t8',
+      'notification': {
+        'title': _title_controller.text,
+        'body': _description_controller.text,
+      },
+    };
+
+    try {
+  final response = await http.post(
+    Uri.parse('https://fcm.googleapis.com/fcm/send'),
+    headers: <String, String>{
+      'Content-Type': 'application/json',
+      'Authorization': 'key=AAAA4Fa_r2c:APA91bG3gn2hvEGUrgHZ_o3qZxhrJfSFIkaDNjZSgFdTJ8OlCrCflaD4gxvVasLoYjCsS3wJa2eDOaCrt0PG1LSfprCF8DHJzojCbwE8c9ypwJdUF9FHrCvArMnQrvIWoA-ABRxM2nwZ',
+    },
+    body: jsonEncode(notification),
+  );
+
+  if (response.statusCode == 200) {
+    print('Notification sent successfully');
+  } else {
+    print('Failed to send notification. Error: ${response.body}');
+  }
+} catch (e) {
+  print('Error sending notification: $e');
+}
   }
 
   void createNotification() {
@@ -49,7 +81,6 @@ class _Notifications_State extends State<Notifications> {
         .add({'title': newTitle, 'description': newDescription});
     setState(() {
       _notificationsFuture = getNotifications();
-   
     });
   }
 
@@ -112,7 +143,9 @@ class _Notifications_State extends State<Notifications> {
                                 itemBuilder: (BuildContext context, int index) {
                                   final notifications = snapshot.data![index];
                                   return GestureDetector(
-                                    onTap: () {}, // Handle your callback
+                                    onTap: () {
+                                      sendNotification();
+                                    }, // Handle your callback
                                     child: AnimatedContainer(
                                       duration:
                                           const Duration(milliseconds: 100),

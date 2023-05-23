@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,10 +13,10 @@ class Join extends StatefulWidget {
 
 class _JoinState extends State<Join> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   final TextEditingController _dashboardIdController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  var fcmToken='';
 
   bool isLoading = false;
 
@@ -29,7 +30,7 @@ class _JoinState extends State<Join> {
     setState(() { // new
       isLoading = true;
     });
-
+    fcmToken = (await FirebaseMessaging.instance.getToken())!;
     final dashboardId = _dashboardIdController.text;
     final email = _emailController.text;
     final password = _passwordController.text;
@@ -68,7 +69,8 @@ class _JoinState extends State<Join> {
         'password': password,
         'userId': user.uid,
         'dashboard_id': dashboardId,
-        'role': 'member'
+        'role': 'member',
+        'fcmToken': fcmToken
       });
       prefs.setString('dashboard_id', dashboardId);
       prefs.setString('userId', user.uid);

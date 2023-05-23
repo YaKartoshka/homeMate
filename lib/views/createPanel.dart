@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -12,6 +15,7 @@ class CreatePanel extends StatefulWidget {
 
 class _JoinState extends State<CreatePanel> {
   FirebaseFirestore db = FirebaseFirestore.instance;
+  var fcmToken='';
   final _dashboard_name_field = TextEditingController();
   final _email_field = TextEditingController();
   final _password_field = TextEditingController();
@@ -26,6 +30,7 @@ class _JoinState extends State<CreatePanel> {
     setState(() {
       isLoading = true;
     });
+    fcmToken = (await FirebaseMessaging.instance.getToken())!;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String dashboard_name = _dashboard_name_field.text.trim();
     final String email = _email_field.text.trim();
@@ -69,7 +74,7 @@ class _JoinState extends State<CreatePanel> {
       final data = {"dashboard_name": '$dashboard_name', "email": '$email', "dashboard_id": created_dashboard.id};
       await created_dashboard.set(data);
       var created_user= await dashboardsCollection.doc(created_dashboard.id).collection("members").doc();
-      final userData = {"userId": user.uid, "email": email, "role": "admin", "dashboard_id": created_dashboard.id };
+      final userData = {"userId": user.uid, "email": email, "role": "admin", "dashboard_id": created_dashboard.id, "fcmToken": fcmToken };
       await dashboardsCollection.doc(created_dashboard.id).collection("members").add(userData);
       
       setState(() {

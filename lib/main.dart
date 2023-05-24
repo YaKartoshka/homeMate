@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:home_mate/views/createPanel.dart';
 import 'package:home_mate/views/main_view.dart';
 import 'package:home_mate/views/note_list_view.dart';
@@ -24,6 +25,7 @@ void main() async {
           appId: '1:963528077159:android:e55bfdea6292790bcb09c2',
           messagingSenderId: '963528077159',
           projectId: 'home-mate-33d2b'));
+ 
   runApp(MaterialApp(
     theme: ThemeData(
       primaryColor: Colors.black,

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:home_mate/views/welcome.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -117,7 +118,7 @@ class _LoginState extends State<Login> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30.0),
                   ),
-                  margin: const EdgeInsets.all(50),
+                  margin: const EdgeInsets.fromLTRB(50, 20, 50, 50),
                   width: 320,
                   height: 450,
                   child: Column(
@@ -188,7 +189,7 @@ class _LoginState extends State<Login> {
                                   ),
                                 ),
                                 const SizedBox(
-                                  height: 60,
+                                  height: 30,
                                 ),
                                 SizedBox(
                                     width: 250,
@@ -225,7 +226,7 @@ class _LoginState extends State<Login> {
                                     width: 250,
                                     child: Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                          MainAxisAlignment.spaceAround,
                                       children: [
                                         Center(
                                           child: isLoading
@@ -234,9 +235,19 @@ class _LoginState extends State<Login> {
                                                   onPressed: () {
                                                     _handleGoogleSignIn();
                                                   },
-                                                  child: Text(
-                                                      'Sign in with Google'),
+                                                  child: Text('Google'),
                                                 ),
+                                        ),
+                                        SizedBox(height: 10),
+                                        Center(
+                                          child: isLoading
+                                              ? const CircularProgressIndicator()
+                                              : ElevatedButton(
+                                                onPressed: () {
+                                                  signInWithGitHub();
+                                                },
+                                                child: Text("GitHub"),
+                                              ),
                                         ),
                                       ],
                                     )),
@@ -269,9 +280,7 @@ class _LoginState extends State<Login> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (user != null) {
         // User is signed in
-        log('Logged in user: ${user.email}');
-        var dashboards =
-            db.collection('dashboards').get().then((querySnapshot) {
+        db.collection('dashboards').get().then((querySnapshot) {
           for (var doc in querySnapshot.docs) {
             db
                 .collection("dashboards")
@@ -280,21 +289,21 @@ class _LoginState extends State<Login> {
                 .where("email", isEqualTo: user.email)
                 .get()
                 .then((memberQuerySnapshot) {
-              if (memberQuerySnapshot.docs.isEmpty) {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return const AlertDialog(
-                          title: Text('Not found'),
-                          content: Text('No user found for that email.'));
-                    });
-              } else {
-                for (var memberDocSnapshot in memberQuerySnapshot.docs) {
+              for (var memberDocSnapshot in memberQuerySnapshot.docs) {
+                if (memberDocSnapshot.exists) {
                   prefs.setString(
                       'dashboard_id', memberDocSnapshot.data()['dashboard_id']);
                   prefs.setString('userId', memberDocSnapshot.data()['userId']);
                   prefs.setString('role', memberDocSnapshot.data()['role']);
                   Navigator.pushReplacementNamed(context, '/main_view');
+                } else {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return const AlertDialog(
+                            title: Text('Not found'),
+                            content: Text('No user found for that email.'));
+                      });
                 }
               }
             });
@@ -306,6 +315,50 @@ class _LoginState extends State<Login> {
     }
 
     return null;
+  }
+
+   void signInWithGitHub() async {
+     
+    try {
+      GithubAuthProvider githubProvider = GithubAuthProvider();
+      final res = await FirebaseAuth.instance.signInWithProvider(githubProvider);
+      final user = res.user!.providerData[0];
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (user.email != null) {
+       
+        db.collection('dashboards').get().then((querySnapshot) {
+          for (var doc in querySnapshot.docs) {
+            db
+                .collection("dashboards")
+                .doc(doc.id)
+                .collection('members')
+                .where("email", isEqualTo: user.email)
+                .get()
+                .then((memberQuerySnapshot) {
+              for (var memberDocSnapshot in memberQuerySnapshot.docs) {
+                if (memberDocSnapshot.exists) {
+                  prefs.setString(
+                      'dashboard_id', memberDocSnapshot.data()['dashboard_id']);
+                  prefs.setString('userId', memberDocSnapshot.data()['userId']);
+                  prefs.setString('role', memberDocSnapshot.data()['role']);
+                  Navigator.pushReplacementNamed(context, '/main_view');
+                } else {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return const AlertDialog(
+                            title: Text('Not found'),
+                            content: Text('No user found for that email.'));
+                      });
+                }
+              }
+            });
+          }
+        });
+      }
+    } catch (e) {
+      log('Error signing in with Github: $e');
+    }
   }
 
   void signIn() async {
@@ -343,17 +396,6 @@ class _LoginState extends State<Login> {
             });
           }
         });
-
-        // db
-        //     .collection("dashboards")
-        //     .where("email", isEqualTo: emailController.text)
-        //     .get()
-        //     .then((querySnapshot) {
-        //   for (var docSnapshot in querySnapshot.docs) {
-        //     prefs.setString('dashboard_id', docSnapshot.id);
-        //     Navigator.pushReplacementNamed(context, '/main_view');
-        //   }
-        // }, onError: (e) => Navigator.pop(context));
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {

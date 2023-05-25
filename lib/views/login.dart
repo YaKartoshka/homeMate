@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:home_mate/views/welcome.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -94,7 +95,7 @@ class _LoginState extends State<Login> {
                       ])),
               const SizedBox(
                 width: 0,
-                height: 30,
+                height: 20,
               ),
               const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Text(
@@ -249,6 +250,18 @@ class _LoginState extends State<Login> {
                                                 child: Text("GitHub"),
                                               ),
                                         ),
+                                        SizedBox(height: 10),
+                                        Center(
+                                          child: isLoading
+                                              ? const CircularProgressIndicator()
+                                              : ElevatedButton(
+                                                onPressed: () {
+                                                  guestmode();
+                                              
+                                                },
+                                                child: Text("Guest"),
+                                              ),
+                                        ),
                                       ],
                                     )),
                               ],
@@ -317,6 +330,41 @@ class _LoginState extends State<Login> {
     return null;
   }
 
+  void guestmode() async {
+    setState(() {
+      isLoading = true;
+    });
+    final guest_email="guest";
+      await Firebase.initializeApp();
+    
+     
+      
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        var dashboards =
+            db.collection('dashboards').get().then((querySnapshot) {
+          for (var doc in querySnapshot.docs) {
+            db
+                .collection("dashboards")
+                .doc(doc.id)
+                .collection('members')
+                .where("email", isEqualTo: guest_email)
+                .get()
+                .then((memberQuerySnapshot) {
+              for (var memberDocSnapshot in memberQuerySnapshot.docs) {
+                prefs.setString(
+                    'dashboard_id', memberDocSnapshot.data()['dashboard_id']);
+                prefs.setString('userId', memberDocSnapshot.data()['userId']);
+                prefs.setString('role', memberDocSnapshot.data()['role']);
+                Navigator.pushReplacementNamed(context, '/main_view');
+              }
+            });
+          }
+        });
+      }
+  
+
+
+  
    void signInWithGitHub() async {
      
     try {
@@ -368,12 +416,16 @@ class _LoginState extends State<Login> {
 
     try {
       await Firebase.initializeApp();
+      final pass_salt=await FlutterBcrypt.salt();
+      final hash_pass=await FlutterBcrypt.hashPw(password: passwordController.text.trim(), salt: pass_salt);
+      log(hash_pass);
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+        password: hash_pass,
       );
       User? user = userCredential.user;
+  
       if (user != null) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         var dashboards =

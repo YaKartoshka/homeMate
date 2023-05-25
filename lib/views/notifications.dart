@@ -26,6 +26,7 @@ class Notification {
 
 class _Notifications_State extends State<Notifications> {
   FirebaseFirestore db = FirebaseFirestore.instance;
+  String _role = '';
 
   int _selectedIndex = 3;
   SharedPreferences? prefs;
@@ -42,6 +43,7 @@ class _Notifications_State extends State<Notifications> {
   }
 
   void sendNotification() async {
+      if(_role!='guest') {
     Map<String, dynamic> notification = {
       'to': 'dff7stFcQ1-7ONi34cGTLt:APA91bHblOOJiOtuKlymP67bfTeuKKd06THJ6mo42MDQQNgJKgnTI2em5dX5Kd2vtQyfLNny2Yqlx0EknSXZDEQleWkOIzZpJa_ptRIIjvWsh5mpBxKrixnYoW7AHz48w7Y_2KfyFdhO',
       'notification': {
@@ -69,12 +71,13 @@ class _Notifications_State extends State<Notifications> {
   print('Error sending notification: $e');
 }
   }
+  }
 
   void createNotification() {
     String? newTitle = _title_controller.text;
     String? newDescription = _description_controller.text;
     // notifications.add(Notification(newTitle, newDescription));
-
+      if(_role!='guest') {
     db
         .collection('dashboards')
         .doc(_dashboard_id)
@@ -84,10 +87,12 @@ class _Notifications_State extends State<Notifications> {
       _notificationsFuture = getNotifications();
     });
   }
+  }
 
   Future<List<Notification>> getNotifications() async {
-    prefs = await SharedPreferences.getInstance();
+    SharedPreferences? prefs = await SharedPreferences.getInstance();
     _dashboard_id = prefs!.getString("dashboard_id")!;
+    _role=prefs.getString("role")!;
     final snapshot = await FirebaseFirestore.instance
         .collection('dashboards')
         .doc(_dashboard_id)
@@ -168,6 +173,7 @@ class _Notifications_State extends State<Notifications> {
                                             Text(
                                               "${notifications.title}",
                                               style: TextStyle(),
+                                              
                                             ),
                                             IconButton(
                                               onPressed: () {},

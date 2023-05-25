@@ -23,7 +23,7 @@ class Note {
 
 class _NotesState extends State<Notes> {
   FirebaseFirestore db = FirebaseFirestore.instance;
-
+  String _role='';
   final _title_controller = TextEditingController();
   final _new_title_controller = TextEditingController();
   final _description_controller = TextEditingController();
@@ -97,6 +97,7 @@ class _NotesState extends State<Notes> {
   Future<List<Note>> getNotes() async {
     SharedPreferences? prefs = await SharedPreferences.getInstance();
     _dashboard_id = prefs.getString("dashboard_id")!;
+    _role=prefs.getString("role")!;
     final snapshot = await FirebaseFirestore.instance
         .collection('dashboards')
         .doc(_dashboard_id)
@@ -113,7 +114,7 @@ class _NotesState extends State<Notes> {
     final ButtonStyle style =
         ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
     final adaptiveSize = MediaQuery.of(context).size;
-
+   
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 149, 152, 229),
       body: Container(
@@ -202,6 +203,7 @@ class _NotesState extends State<Notes> {
                                                         fontSize: 30,
                                                       ),
                                                     ),
+                                                    if(_role!='guest')
                                                     IconButton(
                                                       onPressed: () {
                                                         showDialog<String>(

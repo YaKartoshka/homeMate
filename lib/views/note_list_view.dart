@@ -30,6 +30,7 @@ class NoteItem {
 }
 
 class _NoteListViewState extends State<NoteListView> {
+  String _role = '';
   String _progressBarPercentage = '';
   var _progressBar = 0.0;
   late Future<List<NoteItem>> _noteItemsFuture;
@@ -49,8 +50,9 @@ class _NoteListViewState extends State<NoteListView> {
   }
 
   Future<List<NoteItem>> getNoteItems() async {
-    prefs = await SharedPreferences.getInstance();
+    SharedPreferences? prefs = await SharedPreferences.getInstance();
     _dashboard_id = prefs!.getString("dashboard_id")!;
+    _role=prefs.getString("role")!;
     note_id = widget.arguments.noteId!;
 
     final snapshot = await db
@@ -70,6 +72,7 @@ class _NoteListViewState extends State<NoteListView> {
   Future<void> createNoteItem() async {
     note_id = widget.arguments.noteId!;
     String? newTitle = _title_controller.text;
+    if (_role != 'guest') {
     var noteItemsCollection = db
         .collection('dashboards')
         .doc(_dashboard_id)
@@ -88,10 +91,12 @@ class _NoteListViewState extends State<NoteListView> {
                       }))
                 });
   }
+  }
 
   Future<void> editNoteItem(noteItemId) async {
     String? newTitle = _new_title_controller.text;
     log(newTitle);
+    if (_role != 'guest') {
     db
         .collection('dashboards')
         .doc(_dashboard_id)
@@ -106,8 +111,10 @@ class _NoteListViewState extends State<NoteListView> {
         })
         );
   }
+  }
 
   Future<void> deleteNoteItem(noteItemId) async {
+    if (_role != 'guest') {
     db
         .collection('dashboards')
         .doc(_dashboard_id)
@@ -125,6 +132,7 @@ class _NoteListViewState extends State<NoteListView> {
       _noteItemsFuture = getNoteItems();
       getProgress();
     });
+  }
   }
 
   getProgress() async {
@@ -267,11 +275,13 @@ class _NoteListViewState extends State<NoteListView> {
                                                 ),
                                                 Text(
                                                   '${noteItems.title}',
+                                                 
                                                   style: const TextStyle(
                                                     fontSize: 20,
                                                     fontFamily: 'Poppins',
                                                   ),
                                                 ),
+                                                 
                                                 Flex(
                                                     direction: Axis.horizontal,
                                                     children: [
@@ -280,6 +290,7 @@ class _NoteListViewState extends State<NoteListView> {
                                                             const EdgeInsets
                                                                     .fromLTRB(
                                                                 0, 0, 10, 0),
+                                                                
                                                         child: IconButton(
                                                           onPressed: () {
                                                             showDialog<String>(

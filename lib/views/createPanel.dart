@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 
 class CreatePanel extends StatefulWidget {
   const CreatePanel({super.key});
@@ -15,7 +16,7 @@ class CreatePanel extends StatefulWidget {
 
 class _JoinState extends State<CreatePanel> {
   FirebaseFirestore db = FirebaseFirestore.instance;
-  var fcmToken='';
+  var fcmToken = '';
   final _dashboard_name_field = TextEditingController();
   final _email_field = TextEditingController();
   final _password_field = TextEditingController();
@@ -34,11 +35,11 @@ class _JoinState extends State<CreatePanel> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String dashboard_name = _dashboard_name_field.text.trim();
     final String email = _email_field.text.trim();
-    final String password = _password_field.text.trim();
+    final String plainPassword = _password_field.text.trim();
     final String repeatedPassword = _repeated_password_field.text.trim();
 
     // Check if passwords match
-    if (password != repeatedPassword) {
+    if (plainPassword != repeatedPassword) {
       _showErrorDialog("Passwords don't match",
           "Please make sure both passwords are the same.");
       setState(() {
@@ -65,24 +66,46 @@ class _JoinState extends State<CreatePanel> {
     });
 
     try {
-      UserCredential userCredential = await _auth
-          .createUserWithEmailAndPassword(email: email, password: password);
-     
+      final pass_salt = await FlutterBcrypt.salt();
+      log('$pass_salt');
+      final hashedPassword = await FlutterBcrypt.hashPw(
+          password: plainPassword, salt: '${pass_salt}');
+
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+              email: email, password: hashedPassword);
+
       final user = userCredential.user!;
       var dashboardsCollection = db.collection("dashboards");
-      var created_dashboard= await dashboardsCollection.doc();
-      final data = {"dashboard_name": '$dashboard_name', "email": '$email', "dashboard_id": created_dashboard.id};
+      var created_dashboard = await dashboardsCollection.doc();
+      final data = {
+        "dashboard_name": '$dashboard_name',
+        "email": '$email',
+        "dashboard_id": created_dashboard.id
+      };
       await created_dashboard.set(data);
-      var created_user= await dashboardsCollection.doc(created_dashboard.id).collection("members").doc();
-      final userData = {"userId": user.uid, "email": email, "role": "admin", "dashboard_id": created_dashboard.id, "fcmToken": fcmToken };
-      await dashboardsCollection.doc(created_dashboard.id).collection("members").add(userData);
-      
+      var created_user = await dashboardsCollection
+          .doc(created_dashboard.id)
+          .collection("members")
+          .doc();
+
+      final userData = {
+        "userId": user.uid,
+        "email": email,
+        "role": "admin",
+        "dashboard_id": created_dashboard.id,
+        "fcmToken": fcmToken,
+        "password": hashedPassword
+      };
+      await dashboardsCollection
+          .doc(created_dashboard.id)
+          .collection("members")
+          .add(userData);
+
       setState(() {
         isLoading = false;
       });
-      prefs.setString(
-        'dashboard_id', created_dashboard.id
-      );
+      prefs.setString('dashboard_id', created_dashboard.id);
       prefs.setString('userId', user.uid);
       prefs.setString('role', 'admin');
       Navigator.pushNamed(context, '/main_view');

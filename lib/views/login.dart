@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bcrypt/flutter_bcrypt.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:home_mate/views/welcome.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -60,8 +60,7 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    final ButtonStyle style =
-        ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
+    final adaptiveSize = MediaQuery.of(context).size;
     return Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: const Color.fromARGB(255, 149, 152, 229),
@@ -120,8 +119,8 @@ class _LoginState extends State<Login> {
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   margin: const EdgeInsets.fromLTRB(50, 20, 50, 50),
-                  width: 320,
-                  height: 450,
+                  width: adaptiveSize.width-50,
+                  height: adaptiveSize.height/2 + 120,
                   child: Column(
                     children: [
                       const SizedBox(
@@ -193,7 +192,7 @@ class _LoginState extends State<Login> {
                                   height: 30,
                                 ),
                                 SizedBox(
-                                    width: 250,
+                                    width: adaptiveSize.width-150,
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -220,8 +219,14 @@ class _LoginState extends State<Login> {
                                                   ),
                                                 ),
                                         ),
+                                        
                                       ],
                                     )),
+                                    Container(
+                                      margin: EdgeInsets.only(top: 10),
+                                      width: 250,
+                                      child: Center(child: Text("or"),)
+                                    ),
                                 Container(
                                     margin: EdgeInsets.only(top: 10),
                                     width: 250,
@@ -236,7 +241,16 @@ class _LoginState extends State<Login> {
                                                   onPressed: () {
                                                     _handleGoogleSignIn();
                                                   },
-                                                  child: Text('Google'),
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Color.fromARGB(
+                                                                  255,
+                                                                  94,
+                                                                  91,
+                                                                  255)),
+                                                  child: Icon(
+                                                      FontAwesomeIcons.google),
                                                 ),
                                         ),
                                         SizedBox(height: 10),
@@ -244,26 +258,59 @@ class _LoginState extends State<Login> {
                                           child: isLoading
                                               ? const CircularProgressIndicator()
                                               : ElevatedButton(
-                                                onPressed: () {
-                                                  signInWithGitHub();
-                                                },
-                                                child: Text("GitHub"),
-                                              ),
+                                                  onPressed: () {
+                                                    signInWithGitHub();
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Color.fromARGB(
+                                                                  255,
+                                                                  94,
+                                                                  91,
+                                                                  255)),
+                                                  child: Icon(
+                                                      FontAwesomeIcons.github),
+                                                ),
                                         ),
                                         SizedBox(height: 10),
                                         Center(
                                           child: isLoading
                                               ? const CircularProgressIndicator()
                                               : ElevatedButton(
-                                                onPressed: () {
-                                                  guestmode();
-                                              
-                                                },
-                                                child: Text("Guest"),
-                                              ),
+                                                  onPressed: () {
+                                                    signInWithMicrosoft();
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Color.fromARGB(
+                                                                  255,
+                                                                  94,
+                                                                  91,
+                                                                  255)),
+                                                  child: Icon(FontAwesomeIcons
+                                                      .microsoft),
+                                                ),
                                         ),
                                       ],
                                     )),
+                                Container(
+                                  width: 250,
+                                  child: Center(
+                                    child: isLoading
+                                        ? const CircularProgressIndicator()
+                                        : ElevatedButton(
+                                            onPressed: () {
+                                              guestmode();
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor: Color.fromARGB(
+                                                    255, 94, 91, 255)),
+                                            child: Text("Guest"),
+                                          ),
+                                  ),
+                                )
                               ],
                             ),
                           )
@@ -334,46 +381,39 @@ class _LoginState extends State<Login> {
     setState(() {
       isLoading = true;
     });
-    final guest_email="guest";
-      await Firebase.initializeApp();
-    
-     
-      
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        var dashboards =
-            db.collection('dashboards').get().then((querySnapshot) {
-          for (var doc in querySnapshot.docs) {
-            db
-                .collection("dashboards")
-                .doc(doc.id)
-                .collection('members')
-                .where("email", isEqualTo: guest_email)
-                .get()
-                .then((memberQuerySnapshot) {
-              for (var memberDocSnapshot in memberQuerySnapshot.docs) {
-                prefs.setString(
-                    'dashboard_id', memberDocSnapshot.data()['dashboard_id']);
-                prefs.setString('userId', memberDocSnapshot.data()['userId']);
-                prefs.setString('role', memberDocSnapshot.data()['role']);
-                Navigator.pushReplacementNamed(context, '/main_view');
-              }
-            });
+    final guest_email = "guest";
+    await Firebase.initializeApp();
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var dashboards = db.collection('dashboards').get().then((querySnapshot) {
+      for (var doc in querySnapshot.docs) {
+        db
+            .collection("dashboards")
+            .doc(doc.id)
+            .collection('members')
+            .where("email", isEqualTo: guest_email)
+            .get()
+            .then((memberQuerySnapshot) {
+          for (var memberDocSnapshot in memberQuerySnapshot.docs) {
+            prefs.setString(
+                'dashboard_id', memberDocSnapshot.data()['dashboard_id']);
+            prefs.setString('userId', memberDocSnapshot.data()['userId']);
+            prefs.setString('role', memberDocSnapshot.data()['role']);
+            Navigator.pushReplacementNamed(context, '/main_view');
           }
         });
       }
-  
+    });
+  }
 
-
-  
-   void signInWithGitHub() async {
-     
+  void signInWithGitHub() async {
     try {
       GithubAuthProvider githubProvider = GithubAuthProvider();
-      final res = await FirebaseAuth.instance.signInWithProvider(githubProvider);
+      final res =
+          await FirebaseAuth.instance.signInWithProvider(githubProvider);
       final user = res.user!.providerData[0];
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (user.email != null) {
-       
         db.collection('dashboards').get().then((querySnapshot) {
           for (var doc in querySnapshot.docs) {
             db
@@ -409,6 +449,50 @@ class _LoginState extends State<Login> {
     }
   }
 
+  void signInWithMicrosoft() async {
+    try {
+      MicrosoftAuthProvider microsoftProvider = MicrosoftAuthProvider();    
+      final res =
+          await FirebaseAuth.instance.signInWithProvider(microsoftProvider);
+      final user = res.user!.providerData[0];
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      log('${user}');
+      if (user.email != null) {
+        db.collection('dashboards').get().then((querySnapshot) {
+          for (var doc in querySnapshot.docs) {
+            db
+                .collection("dashboards")
+                .doc(doc.id)
+                .collection('members')
+                .where("email", isEqualTo: user.email)
+                .get()
+                .then((memberQuerySnapshot) {
+              for (var memberDocSnapshot in memberQuerySnapshot.docs) {
+                if (memberDocSnapshot.exists) {
+                  prefs.setString(
+                      'dashboard_id', memberDocSnapshot.data()['dashboard_id']);
+                  prefs.setString('userId', memberDocSnapshot.data()['userId']);
+                  prefs.setString('role', memberDocSnapshot.data()['role']);
+                  Navigator.pushReplacementNamed(context, '/main_view');
+                } else {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return const AlertDialog(
+                            title: Text('Not found'),
+                            content: Text('No user found for that email.'));
+                      });
+                }
+              }
+            });
+          }
+        });
+      }
+    } catch (e) {
+      log('Error signing in with Microsoft: $e');
+    }
+  }
+
   void signIn() async {
     setState(() {
       isLoading = true;
@@ -416,8 +500,9 @@ class _LoginState extends State<Login> {
 
     try {
       await Firebase.initializeApp();
-      final pass_salt=await FlutterBcrypt.salt();
-      final hash_pass=await FlutterBcrypt.hashPw(password: passwordController.text.trim(), salt: pass_salt);
+      final pass_salt = await FlutterBcrypt.salt();
+      final hash_pass = await FlutterBcrypt.hashPw(
+          password: passwordController.text.trim(), salt: pass_salt);
       log(hash_pass);
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -425,7 +510,7 @@ class _LoginState extends State<Login> {
         password: hash_pass,
       );
       User? user = userCredential.user;
-  
+
       if (user != null) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         var dashboards =

@@ -328,7 +328,7 @@ class _LoginState extends State<Login> {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       final GoogleSignInAuthentication googleAuth =
           await googleUser!.authentication;
-
+      
       final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -373,8 +373,6 @@ class _LoginState extends State<Login> {
     } catch (e) {
       log('Error signing in with Google: $e');
     }
-
-    return null;
   }
 
   void guestmode() async {

@@ -15,9 +15,19 @@ import 'package:home_mate/views/join.dart';
 import 'package:home_mate/views/login.dart';
 import 'package:home_mate/views/settings.dart';
 import 'package:home_mate/views/notifications.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings(
+          '@mipmap/ic_launcher'); // Replace 'app_icon' with the name of your app's launcher icon
+  final InitializationSettings initializationSettings =
+      InitializationSettings(android: initializationSettingsAndroid);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   await Firebase.initializeApp(
       options: const FirebaseOptions(
@@ -25,6 +35,7 @@ void main() async {
           appId: '1:963528077159:android:e55bfdea6292790bcb09c2',
           messagingSenderId: '963528077159',
           projectId: 'home-mate-33d2b'));
+
   FirebaseMessagingService messagingService = FirebaseMessagingService();
   messagingService.initialize();
   runApp(MaterialApp(
@@ -51,7 +62,8 @@ void main() async {
 
 class FirebaseMessagingService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   Future<void> initialize() async {
     // Request permission for notifications (optional)
     await _firebaseMessaging.requestPermission(
@@ -64,6 +76,7 @@ class FirebaseMessagingService {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       // Handle foreground messages
       log('Received message: ${message.notification?.title}');
+      _showNotification(message.notification?.title, message.notification?.body);
     });
 
     // Handle when the app is in the background and opened from a notification
@@ -71,5 +84,26 @@ class FirebaseMessagingService {
       // Handle background messages
       log('Opened app from notification: ${message.notification?.title}');
     });
+  }
+
+  void _showNotification(title, body) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      '123456', 
+      'Home Mate', 
+      channelDescription:
+          "Notification", 
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.show(
+      1, // Notification ID
+      title,
+      body,
+      platformChannelSpecifics,
+    );
   }
 }

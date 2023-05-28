@@ -43,15 +43,20 @@ class _Notifications_State extends State<Notifications> {
   }
 
   void sendNotification(title, description) async {
+    log('1');
     if (_role != 'guest') {
-      db
-          .collection("dashboard")
+      log('2');
+      log(_dashboard_id);
+      await db
+          .collection("dashboards")
           .doc(_dashboard_id)
           .collection("members")
           .get()
           .then(
         (querySnapshot) async {
+           log('${querySnapshot.docs}');
           for (var docSnapshot in querySnapshot.docs) {
+             log('4');
             Map<String, dynamic> notification = {
               'to': docSnapshot.data()['fcmToken'],
               'notification': {

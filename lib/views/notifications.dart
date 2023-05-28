@@ -35,64 +35,75 @@ class _Notifications_State extends State<Notifications> {
   final _formKey = GlobalKey<FormState>();
   String _dashboard_id = '';
   late Future<List<Notification>> _notificationsFuture;
-  
+
   @override
   void initState() {
     super.initState();
     _notificationsFuture = getNotifications();
   }
 
-  void sendNotification() async {
-      if(_role!='guest') {
-    Map<String, dynamic> notification = {
-      'to': 'dff7stFcQ1-7ONi34cGTLt:APA91bHblOOJiOtuKlymP67bfTeuKKd06THJ6mo42MDQQNgJKgnTI2em5dX5Kd2vtQyfLNny2Yqlx0EknSXZDEQleWkOIzZpJa_ptRIIjvWsh5mpBxKrixnYoW7AHz48w7Y_2KfyFdhO',
-      'notification': {
-        'title': _title_controller.text,
-        'body': _description_controller.text,
-      },
-    };
+  void sendNotification(title, description) async {
+    if (_role != 'guest') {
+      db
+          .collection("dashboard")
+          .doc(_dashboard_id)
+          .collection("members")
+          .get()
+          .then(
+        (querySnapshot) async {
+          for (var docSnapshot in querySnapshot.docs) {
+            Map<String, dynamic> notification = {
+              'to': docSnapshot.data()['fcmToken'],
+              'notification': {
+                'title': '${title}',
+                'body': '${description}',
+              },
+            };
+            try {
+              final response = await http.post(
+                Uri.parse('https://fcm.googleapis.com/fcm/send'),
+                headers: <String, String>{
+                  'Content-Type': 'application/json',
+                  'Authorization':
+                      'key=AAAA4Fa_r2c:APA91bG3gn2hvEGUrgHZ_o3qZxhrJfSFIkaDNjZSgFdTJ8OlCrCflaD4gxvVasLoYjCsS3wJa2eDOaCrt0PG1LSfprCF8DHJzojCbwE8c9ypwJdUF9FHrCvArMnQrvIWoA-ABRxM2nwZ',
+                },
+                body: jsonEncode(notification),
+              );
 
-    try {
-  final response = await http.post(
-    Uri.parse('https://fcm.googleapis.com/fcm/send'),
-    headers: <String, String>{
-      'Content-Type': 'application/json',
-      'Authorization': 'key=AAAA4Fa_r2c:APA91bG3gn2hvEGUrgHZ_o3qZxhrJfSFIkaDNjZSgFdTJ8OlCrCflaD4gxvVasLoYjCsS3wJa2eDOaCrt0PG1LSfprCF8DHJzojCbwE8c9ypwJdUF9FHrCvArMnQrvIWoA-ABRxM2nwZ',
-    },
-    body: jsonEncode(notification),
-  );
-
-  if (response.statusCode == 200) {
-    print('Notification sent successfully');
-  } else {
-    print('Failed to send notification. Error: ${response.body}');
-  }
-} catch (e) {
-  print('Error sending notification: $e');
-}
-  }
+              if (response.statusCode == 200) {
+                log('Notification sent successfully');
+              } else {
+                log('Failed to send notification. Error: ${response.body}');
+              }
+            } catch (e) {
+              log('Error sending notification: $e');
+            }
+          }
+        },
+      );
+    }
   }
 
   void createNotification() {
     String? newTitle = _title_controller.text;
     String? newDescription = _description_controller.text;
-    // notifications.add(Notification(newTitle, newDescription));
-      if(_role!='guest') {
-    db
-        .collection('dashboards')
-        .doc(_dashboard_id)
-        .collection('notifications')
-        .add({'title': newTitle, 'description': newDescription});
-    setState(() {
-      _notificationsFuture = getNotifications();
-    });
-  }
+  
+    if (_role != 'guest') {
+      db
+          .collection('dashboards')
+          .doc(_dashboard_id)
+          .collection('notifications')
+          .add({'title': newTitle, 'description': newDescription});
+      setState(() {
+        _notificationsFuture = getNotifications();
+      });
+    }
   }
 
   Future<List<Notification>> getNotifications() async {
     SharedPreferences? prefs = await SharedPreferences.getInstance();
     _dashboard_id = prefs!.getString("dashboard_id")!;
-    _role=prefs.getString("role")!;
+    _role = prefs.getString("role")!;
     final snapshot = await FirebaseFirestore.instance
         .collection('dashboards')
         .doc(_dashboard_id)
@@ -150,7 +161,7 @@ class _Notifications_State extends State<Notifications> {
                                   final notifications = snapshot.data![index];
                                   return GestureDetector(
                                     onTap: () {
-                                      sendNotification();
+                                      sendNotification(notifications.title, notifications.description);
                                     }, // Handle your callback
                                     child: AnimatedContainer(
                                       duration:
@@ -173,7 +184,6 @@ class _Notifications_State extends State<Notifications> {
                                             Text(
                                               "${notifications.title}",
                                               style: TextStyle(),
-                                              
                                             ),
                                             IconButton(
                                               onPressed: () {},

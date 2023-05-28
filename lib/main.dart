@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:home_mate/views/createPanel.dart';
 import 'package:home_mate/views/main_view.dart';
@@ -24,6 +25,8 @@ void main() async {
           appId: '1:963528077159:android:e55bfdea6292790bcb09c2',
           messagingSenderId: '963528077159',
           projectId: 'home-mate-33d2b'));
+  FirebaseMessagingService messagingService = FirebaseMessagingService();
+  messagingService.initialize();
   runApp(MaterialApp(
     theme: ThemeData(
       primaryColor: Colors.black,
@@ -44,4 +47,29 @@ void main() async {
 
     // rename Login to Join or Welcome to open other views
   ));
+}
+
+class FirebaseMessagingService {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
+  Future<void> initialize() async {
+    // Request permission for notifications (optional)
+    await _firebaseMessaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    // Handle incoming messages
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      // Handle foreground messages
+      log('Received message: ${message.notification?.title}');
+    });
+
+    // Handle when the app is in the background and opened from a notification
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      // Handle background messages
+      log('Opened app from notification: ${message.notification?.title}');
+    });
+  }
 }

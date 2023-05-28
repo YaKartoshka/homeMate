@@ -65,13 +65,15 @@ class _JoinState extends State<Join> {
           .collection('dashboards')
           .doc(dashboardId)
           .collection('members');
+      final idToken= await user.getIdToken();
       await membersRef.doc(user.uid).set({
         'email': email,
         'password': password,
         'userId': user.uid,
         'dashboard_id': dashboardId,
         'role': 'member',
-        'fcmToken': fcmToken
+        'fcmToken': fcmToken,
+        'idToken': idToken
       });
       prefs.setString('dashboard_id', dashboardId);
       prefs.setString('userId', user.uid);

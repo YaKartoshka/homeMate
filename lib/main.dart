@@ -83,6 +83,8 @@ class FirebaseMessagingService {
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       // Handle background messages
       log('Opened app from notification: ${message.notification?.title}');
+       _showNotification(message.notification?.title, message.notification?.body);
+
     });
   }
 

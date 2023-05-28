@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -44,20 +46,35 @@ class _SettingsViewState extends State<SettingsView> {
   void resetDashboardId() {}
 
   void deleteUser(memberId) async {
-   
-    // await db.collection("dashboards").doc(_dashboard_id).collection("members").doc(memberId).delete();
-    try {
-      await _auth
-          .userChanges()
-          .firstWhere((user) => user!.uid == memberId).then((user) async {
-            log('${user}');
-            await user?.delete();
-          },);
-         
-      log('User deleted successfully.');
-    } catch (e) {
-      log('Error deleting user: $e');
-    }
+    final memberDoc = await db
+        .collection("dashboards")
+        .doc(_dashboard_id)
+        .collection("members")
+        .doc(memberId);
+
+    memberDoc.get().then(
+      (DocumentSnapshot doc) async {
+        final data = doc.data() as Map<String, dynamic>;
+        final url =
+            'https://identitytoolkit.googleapis.com/v1/accounts:delete?key=AIzaSyAXlJYSM2yNvcktWRF0JmgSShhqqMEyAD4';
+
+        final response = await http.post(
+          Uri.parse(url),
+          body: json.encode({
+            'idToken': data['idToken'],
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          log('User deleted successfully');
+          memberDoc.delete();
+          _membersFuture = getMembers();
+        } else {
+          print('Failed to delete user. Error: ${response.body}');
+        }
+      },
+      onError: (e) => print("Error getting document: $e"),
+    );
   }
 
   Future<List<User>> getMembers() async {
@@ -126,8 +143,8 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             const SizedBox(height: 20),
             Container(
-              decoration: BoxDecoration(
-                   borderRadius: BorderRadius.circular(30)),
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(30)),
               width: adaptiveSize.width - 50,
               height: adaptiveSize.height - 200,
               child: ListView(
@@ -175,19 +192,17 @@ class _SettingsViewState extends State<SettingsView> {
                                                   TextStyle(fontSize: 15)),
                                         ),
                                       )),
-                                  if (_role =='admin')    
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(20, 0, 0, 0),
-                                    child: 
-                                    
-                                    IconButton(
-                                        onPressed: resetDashboardId,
-                                        icon: const Icon(
-                                          Icons.sync,
-                                          size: 30,
-                                        )),
-                                  )
+                                  if (_role == 'admin')
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          20, 0, 0, 0),
+                                      child: IconButton(
+                                          onPressed: resetDashboardId,
+                                          icon: const Icon(
+                                            Icons.sync,
+                                            size: 30,
+                                          )),
+                                    )
                                 ],
                               ),
                               Row(
@@ -331,25 +346,25 @@ class _SettingsViewState extends State<SettingsView> {
                                     ],
                                   )),
                               const SizedBox(height: 20),
-                              if (_role =='admin')
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  
-                                  ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color.fromARGB(
-                                              255, 104, 57, 223),
-                                          fixedSize: const Size(200, 50)),
-                                      onPressed: saveSettings,
-                                      child: const Text(
-                                        "Save",
-                                        style: TextStyle(
-                                            fontSize: 24,
-                                            fontFamily: 'Poppins'),
-                                      ))
-                                ],
-                              ),
+                              if (_role == 'admin')
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                    255, 104, 57, 223),
+                                            fixedSize: const Size(200, 50)),
+                                        onPressed: saveSettings,
+                                        child: const Text(
+                                          "Save",
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              fontFamily: 'Poppins'),
+                                        ))
+                                  ],
+                                ),
                               const SizedBox(height: 20)
                             ],
                           ))

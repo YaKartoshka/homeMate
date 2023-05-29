@@ -119,8 +119,8 @@ class _LoginState extends State<Login> {
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   margin: const EdgeInsets.fromLTRB(50, 20, 50, 50),
-                  width: adaptiveSize.width-50,
-                  height: adaptiveSize.height/2 + 120,
+                  width: adaptiveSize.width - 50,
+                  height: adaptiveSize.height / 2 + 120,
                   child: Column(
                     children: [
                       const SizedBox(
@@ -192,7 +192,7 @@ class _LoginState extends State<Login> {
                                   height: 30,
                                 ),
                                 SizedBox(
-                                    width: adaptiveSize.width-150,
+                                    width: adaptiveSize.width - 150,
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -219,14 +219,14 @@ class _LoginState extends State<Login> {
                                                   ),
                                                 ),
                                         ),
-                                        
                                       ],
                                     )),
-                                    Container(
-                                      margin: EdgeInsets.only(top: 10),
-                                      width: 250,
-                                      child: Center(child: Text("or"),)
-                                    ),
+                                Container(
+                                    margin: EdgeInsets.only(top: 10),
+                                    width: 250,
+                                    child: Center(
+                                      child: Text("or"),
+                                    )),
                                 Container(
                                     margin: EdgeInsets.only(top: 10),
                                     width: 250,
@@ -328,7 +328,7 @@ class _LoginState extends State<Login> {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       final GoogleSignInAuthentication googleAuth =
           await googleUser!.authentication;
-      
+
       final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -449,7 +449,7 @@ class _LoginState extends State<Login> {
 
   void signInWithMicrosoft() async {
     try {
-      MicrosoftAuthProvider microsoftProvider = MicrosoftAuthProvider();    
+      MicrosoftAuthProvider microsoftProvider = MicrosoftAuthProvider();
       final res =
           await FirebaseAuth.instance.signInWithProvider(microsoftProvider);
       final user = res.user!.providerData[0];
@@ -498,7 +498,8 @@ class _LoginState extends State<Login> {
 
     try {
       await Firebase.initializeApp();
-      final pass_salt = await FlutterBcrypt.salt();
+      final pass_salt = "\$2b\$06\$.KIqkgeXOwwL1kDqbN/SSO";
+
       final hash_pass = await FlutterBcrypt.hashPw(
           password: passwordController.text.trim(), salt: pass_salt);
       log(hash_pass);

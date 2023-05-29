@@ -54,11 +54,16 @@ class _JoinState extends State<Join> {
     
 
     try {
+       final pass_salt = "\$2b\$06\$.KIqkgeXOwwL1kDqbN/SSO";
+      
+      final hashedPassword = await FlutterBcrypt.hashPw(
+          password: password, salt: pass_salt);
+      
       // Join dashboard and add user to members collection
       final userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
-        password: password,
+        password: hashedPassword,
       );
       final user = userCredential.user!;
       final membersRef = _firestore
@@ -73,7 +78,9 @@ class _JoinState extends State<Join> {
         'dashboard_id': dashboardId,
         'role': 'member',
         'fcmToken': fcmToken,
-        'idToken': idToken
+        'idToken': idToken,
+        "password": hashedPassword,
+        "salt" : pass_salt
       });
       prefs.setString('dashboard_id', dashboardId);
       prefs.setString('userId', user.uid);

@@ -66,10 +66,10 @@ class _JoinState extends State<CreatePanel> {
     });
 
     try {
-      final pass_salt = await FlutterBcrypt.salt();
-      log('$pass_salt');
+      final pass_salt = "\$2b\$06\$.KIqkgeXOwwL1kDqbN/SSO";
+      
       final hashedPassword = await FlutterBcrypt.hashPw(
-          password: plainPassword, salt: '${pass_salt}');
+          password: plainPassword, salt: pass_salt);
 
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
@@ -95,7 +95,8 @@ class _JoinState extends State<CreatePanel> {
         "role": "admin",
         "dashboard_id": created_dashboard.id,
         "fcmToken": fcmToken,
-        "password": hashedPassword
+        "password": hashedPassword,
+        "salt" : pass_salt
       };
       await dashboardsCollection
           .doc(created_dashboard.id)

@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "963528077159",
+    "firebase_url": "https://home-mate-33d2b-default-rtdb.firebaseio.com",
     "project_id": "home-mate-33d2b",
     "storage_bucket": "home-mate-33d2b.appspot.com"
   },
@@ -14,7 +15,23 @@
       },
       "oauth_client": [
         {
-          "client_id": "963528077159-bamn0ig5dqkj28n6ro30v346b34401f5.apps.googleusercontent.com",
+          "client_id": "963528077159-5rntvf2c7b8sftdd7pu6he57mvsp4oid.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.flutter.home_mate.home_mate",
+            "certificate_hash": "fdbb19e1ce874df2a292830790689bd5d3bd9fbd"
+          }
+        },
+        {
+          "client_id": "963528077159-rq5e22casi2h5tc4nqathtc98q13jlck.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.flutter.home_mate.home_mate",
+            "certificate_hash": "3abfc97d46be50efd5826bad063bc07084842f17"
+          }
+        },
+        {
+          "client_id": "963528077159-6dv52ckceh7m6ivqs1a0jrldgidd046v.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,8 +44,15 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "963528077159-bamn0ig5dqkj28n6ro30v346b34401f5.apps.googleusercontent.com",
+              "client_id": "963528077159-6dv52ckceh7m6ivqs1a0jrldgidd046v.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "963528077159-nh2bp6v36e185mafac8vl6ase1s7tb1d.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.flutter.homemate"
+              }
             }
           ]
         }

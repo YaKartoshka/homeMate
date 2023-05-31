@@ -91,10 +91,13 @@ class FirebaseMessagingService {
   void _showNotification(title, body) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
+          
       '123456', 
       'Home Mate', 
       channelDescription:
           "Notification", 
+      icon: 'ic_launcher',
+
       importance: Importance.max,
       priority: Priority.high,
     );

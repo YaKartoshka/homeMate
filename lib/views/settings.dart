@@ -30,7 +30,7 @@ class _SettingsViewState extends State<SettingsView> {
   String _dashboard_id = '';
   String _userId = '';
   String _role = '';
-  String _dashboard_name = '';
+
   SharedPreferences? prefs;
   late Future<List<User>> _membersFuture;
   final dashboard_id_input = TextEditingController();
@@ -68,7 +68,9 @@ class _SettingsViewState extends State<SettingsView> {
         if (response.statusCode == 200) {
           log('User deleted successfully');
           memberDoc.delete();
-          _membersFuture = getMembers();
+          setState(() {
+            _membersFuture = getMembers();
+          });
         } else {
           print('Failed to delete user. Error: ${response.body}');
         }

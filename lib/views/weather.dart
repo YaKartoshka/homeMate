@@ -1,5 +1,8 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:developer';
 
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 class Weather extends StatefulWidget {
   const Weather({super.key});
 
@@ -8,25 +11,62 @@ class Weather extends StatefulWidget {
 }
 
 class WeatherData {
-  String? temperature;
-  String? date;
-  String? wind;
-  WeatherData(this.temperature, this.date, this.wind);
+  String? title;
+  
+  WeatherData(this.title);
+}
+
+class WeatherService {
+  final String apiKey = '9d871ad2b9208dc3684541b72083256e';
+  var headers = {'Content-Type': 'application/json'};
+  Future<dynamic> getWeatherData(String city) async {
+    final uri = Uri.parse('https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric');
+    final response = await http.get(uri);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to fetch weather data');
+    }
+  }
 }
 
 class _WeatherState extends State<Weather> {
+    WeatherService _weatherService = WeatherService();
+  dynamic _weatherData;
+  
+  String _selectedCity = 'Astana'; // Set a default city
   List<WeatherData> weather_data = [
-    WeatherData("19°C", "Today", "5m/s"),
-    WeatherData("20°C", "Tomorrow", "8m/s"),
-    WeatherData("25°C", "11.05.23", "6m/s"),
-    WeatherData("25°C", "12.05.23", "4m/s"),
-    WeatherData("26°C", "13.05.23", "2m/s"),
-    WeatherData("30°C", "14.05.23", "6m/s"),
-    WeatherData("21°C", "15.05.23", "5m/s"),
+     WeatherData('Temperature'),
+    WeatherData("Wind"),
+    WeatherData("Humidity"),
+    WeatherData("Sky"),
+    WeatherData("Clouds"),
+   
   ];
+Future<void> _fetchWeatherData(String city) async {
+    try {
+      var weatherData = await _weatherService.getWeatherData(city);
+      setState(() {
+        _weatherData = weatherData;
+  
+      });
+    } catch (e) {
+      print('Error fetching weather data: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _fetchWeatherData(_selectedCity);
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     final adaptive_size = MediaQuery.of(context).size;
+   
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(MediaQuery.of(context).padding.top),
@@ -90,12 +130,12 @@ class _WeatherState extends State<Weather> {
                 )
               ]),
             ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(30, 10, 50, 10),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(30, 10, 50, 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
+                  const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -120,23 +160,25 @@ class _WeatherState extends State<Weather> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      _weatherData != null ?
                       Text(
-                        "15°C",
-                        style: TextStyle(
+                        '${_weatherData['main']['temp_min']}°C',
+                        style: const TextStyle(
                             fontSize: 30,
                             fontFamily: 'JoseficSans',
                             color: Colors.white),
-                      ),
-                      SizedBox(
+                      ) : const CircularProgressIndicator(),
+                      const SizedBox(
                         height: 15,
                       ),
+                      _weatherData != null ?
                       Text(
-                        '24°C',
-                        style: TextStyle(
+                        '${_weatherData['main']['temp_max']}°C',
+                        style: const TextStyle(
                             fontSize: 30,
                             fontFamily: 'JoseficSans',
                             color: Colors.white),
-                      )
+                      ) : const CircularProgressIndicator(),
                     ],
                   )
                 ],
@@ -150,31 +192,43 @@ class _WeatherState extends State<Weather> {
                   borderRadius: BorderRadius.circular(30)),
               child: Padding(
                   padding: const EdgeInsets.all(20),
-                  child: ListView.builder(
+                  child: 
+                  _weatherData != null ?
+                   ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: weather_data.length,
+                    itemCount: 5,
                     itemBuilder: (context, index) {
+                      
+                       var temperature = _weatherData['main']['temp'].toString();
+                       var wind=_weatherData['wind']['speed'].toString();
+                       var humidity = _weatherData['main']['humidity'].toString();
+                       var sky = _weatherData['weather'][0]['main'].toString();
+                       var clouds = _weatherData['clouds']['all'].toString();
+                        var weather_array=[
+                          '$temperature°C', '${wind}m/s', humidity, sky, '${clouds}%'
+                        ];
+                        
                       return Padding(
                           padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                           child: Container(
                             child: Column(
                               children: [
                                 Container(
+                                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                                     constraints:
                                         const BoxConstraints(minWidth: 100),
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10),
-                                        color: weather_data[index].date ==
+                                        color: weather_data[index].title ==
                                                 'Today'
                                             ? const Color.fromRGBO(
                                                 244, 244, 244, 1)
                                             : const Color.fromRGBO(
                                                 255, 255, 255, 0.4)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          15, 5, 15, 5),
+                                    child: Center(
+                                     heightFactor: 1.4,
                                       child: Text(
-                                        '${weather_data[index].date}',
+                                        '${weather_data[index].title}',
                                         style: const TextStyle(
                                             fontSize: 20,
                                             fontFamily: 'Poppins',
@@ -197,17 +251,12 @@ class _WeatherState extends State<Weather> {
                                           const EdgeInsets.fromLTRB(0, 0, 0, 0),
                                       child: Column(
                                         children: [
-                                          Text(
-                                            '${weather_data[index].temperature}',
-                                            style: const TextStyle(
-                                                fontFamily: 'Poppins',
-                                                fontSize: 20),
-                                          ),
+                                        
                                           const SizedBox(height: 15),
                                           const Icon(Icons.sunny, size: 40),
                                           const SizedBox(height: 10),
                                           Text(
-                                            "${weather_data[index].wind}",
+                                            '${weather_array[index]}',
                                             style: const TextStyle(
                                                 fontFamily: 'Poppins',
                                                 fontSize: 20),
@@ -220,7 +269,11 @@ class _WeatherState extends State<Weather> {
                             ),
                           ));
                     },
-                  )),
+                  ) : const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                  
+                  ),
             )
           ],
         ),

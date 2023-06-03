@@ -54,9 +54,9 @@ class _Notifications_State extends State<Notifications> {
           .get()
           .then(
         (querySnapshot) async {
-           log('${querySnapshot.docs}');
+          log('${querySnapshot.docs}');
           for (var docSnapshot in querySnapshot.docs) {
-             log('4');
+            log('4');
             Map<String, dynamic> notification = {
               'to': docSnapshot.data()['fcmToken'],
               'notification': {
@@ -92,7 +92,7 @@ class _Notifications_State extends State<Notifications> {
   void createNotification() {
     String? newTitle = _title_controller.text;
     String? newDescription = _description_controller.text;
-  
+
     if (_role != 'guest') {
       db
           .collection('dashboards')
@@ -127,28 +127,18 @@ class _Notifications_State extends State<Notifications> {
         ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 149, 152, 229),
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(MediaQuery.of(context).padding.top),
-        child: SizedBox(
-          height: MediaQuery.of(context).padding.top,
-        ),
+      appBar: AppBar(
+        title: Text("Notifications",
+            style: TextStyle(fontFamily: 'Poppins', fontSize: 24)),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        backgroundColor: Color.fromARGB(255, 149, 152, 229),
       ),
       body: Container(
         decoration: const BoxDecoration(),
         child: Column(children: [
           const SizedBox(
-            height: 30,
-          ),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                "Notifications",
-                style: TextStyle(
-                    fontSize: 40, fontFamily: 'Poppins', color: Colors.white),
-              )
-            ],
+            height: 10,
           ),
           SizedBox(
               height: 500,
@@ -166,7 +156,8 @@ class _Notifications_State extends State<Notifications> {
                                   final notifications = snapshot.data![index];
                                   return GestureDetector(
                                     onTap: () {
-                                      sendNotification(notifications.title, notifications.description);
+                                      sendNotification(notifications.title,
+                                          notifications.description);
                                     }, // Handle your callback
                                     child: AnimatedContainer(
                                       duration:

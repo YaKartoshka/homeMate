@@ -52,7 +52,7 @@ class _NoteListViewState extends State<NoteListView> {
   Future<List<NoteItem>> getNoteItems() async {
     SharedPreferences? prefs = await SharedPreferences.getInstance();
     _dashboard_id = prefs!.getString("dashboard_id")!;
-    _role=prefs.getString("role")!;
+    _role = prefs.getString("role")!;
     note_id = widget.arguments.noteId!;
 
     final snapshot = await db
@@ -73,66 +73,63 @@ class _NoteListViewState extends State<NoteListView> {
     note_id = widget.arguments.noteId!;
     String? newTitle = _title_controller.text;
     if (_role != 'guest') {
-    var noteItemsCollection = db
-        .collection('dashboards')
-        .doc(_dashboard_id)
-        .collection('notes')
-        .doc(note_id)
-        .collection('note_items');
+      var noteItemsCollection = db
+          .collection('dashboards')
+          .doc(_dashboard_id)
+          .collection('notes')
+          .doc(note_id)
+          .collection('note_items');
 
-    var newNote = noteItemsCollection
-        .add({'title': newTitle, 'isCompleted': false}).then(
-            (documentSnapshot) => {
-                  noteItemsCollection.doc(documentSnapshot.id).update({
-                    'noteItemId': documentSnapshot.id,
-                  }).then((value) => setState(() {
-                        _noteItemsFuture = getNoteItems();
-                        getProgress();
-                      }))
-                });
-  }
+      var newNote = noteItemsCollection
+          .add({'title': newTitle, 'isCompleted': false}).then(
+              (documentSnapshot) => {
+                    noteItemsCollection.doc(documentSnapshot.id).update({
+                      'noteItemId': documentSnapshot.id,
+                    }).then((value) => setState(() {
+                          _noteItemsFuture = getNoteItems();
+                          getProgress();
+                        }))
+                  });
+    }
   }
 
   Future<void> editNoteItem(noteItemId) async {
     String? newTitle = _new_title_controller.text;
     log(newTitle);
     if (_role != 'guest') {
-    db
-        .collection('dashboards')
-        .doc(_dashboard_id)
-        .collection('notes')
-        .doc(note_id)
-        .collection('note_items')
-        .doc(noteItemId).update({
-          "title": newTitle
-        }).then((value) => 
-        setState(() {
-          _noteItemsFuture = getNoteItems();
-        })
-        );
-  }
+      db
+          .collection('dashboards')
+          .doc(_dashboard_id)
+          .collection('notes')
+          .doc(note_id)
+          .collection('note_items')
+          .doc(noteItemId)
+          .update({"title": newTitle}).then((value) => setState(() {
+                _noteItemsFuture = getNoteItems();
+              }));
+    }
   }
 
   Future<void> deleteNoteItem(noteItemId) async {
     if (_role != 'guest') {
-    db
-        .collection('dashboards')
-        .doc(_dashboard_id)
-        .collection('notes')
-        .doc(note_id)
-        .collection('note_items')
-        .doc(noteItemId)
-        .delete()
-        .then(
-          (doc) => log("Document deleted"),
-          onError: (e) => log("Error updating document $e"),
-        );
+      db
+          .collection('dashboards')
+          .doc(_dashboard_id)
+          .collection('notes')
+          .doc(note_id)
+          .collection('note_items')
+          .doc(noteItemId)
+          .delete()
+          .then(
+            (doc) => log("Document deleted"),
+            onError: (e) => log("Error updating document $e"),
+          );
 
-    setState(() {
-      _noteItemsFuture = getNoteItems();
-      getProgress();
-    });
-  }
+      setState(() {
+        _noteItemsFuture = getNoteItems();
+        getProgress();
+      });
+    }
   }
 
   getProgress() async {
@@ -275,13 +272,11 @@ class _NoteListViewState extends State<NoteListView> {
                                                 ),
                                                 Text(
                                                   '${noteItems.title}',
-                                                 
                                                   style: const TextStyle(
                                                     fontSize: 20,
                                                     fontFamily: 'Poppins',
                                                   ),
                                                 ),
-                                                 
                                                 Flex(
                                                     direction: Axis.horizontal,
                                                     children: [
@@ -290,7 +285,6 @@ class _NoteListViewState extends State<NoteListView> {
                                                             const EdgeInsets
                                                                     .fromLTRB(
                                                                 0, 0, 10, 0),
-                                                                
                                                         child: IconButton(
                                                           onPressed: () {
                                                             showDialog<String>(
@@ -383,8 +377,9 @@ class _NoteListViewState extends State<NoteListView> {
                                                                             Radius.circular(30))),
                                                                 scrollable:
                                                                     true,
-                                                                title: const Text(
-                                                                    'Edit'),
+                                                                title:
+                                                                    const Text(
+                                                                        'Edit'),
                                                                 content:
                                                                     Padding(
                                                                   padding:
@@ -416,9 +411,9 @@ class _NoteListViewState extends State<NoteListView> {
                                                                             ElevatedButton(
                                                                               onPressed: () {
                                                                                 editNoteItem(noteItems.noteItemId);
-                                                
+
                                                                                 Navigator.pop(context);
-                                                                                _new_title_controller.clear(); 
+                                                                                _new_title_controller.clear();
                                                                               },
                                                                               style: ElevatedButton.styleFrom(
                                                                                 backgroundColor: const Color.fromARGB(255, 104, 57, 223),

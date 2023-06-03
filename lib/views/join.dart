@@ -17,7 +17,7 @@ class _JoinState extends State<Join> {
   final TextEditingController _dashboardIdController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  var fcmToken='';
+  var fcmToken = '';
 
   bool isLoading = false;
 
@@ -28,7 +28,8 @@ class _JoinState extends State<Join> {
       return;
     }
 
-    setState(() { // new
+    setState(() {
+      // new
       isLoading = true;
     });
     fcmToken = (await FirebaseMessaging.instance.getToken())!;
@@ -46,19 +47,19 @@ class _JoinState extends State<Join> {
         ),
       );
 
-       setState(() { // new
+      setState(() {
+        // new
         isLoading = false;
       });
       return;
     }
-    
 
     try {
-       final pass_salt = "\$2b\$06\$.KIqkgeXOwwL1kDqbN/SSO";
-      
-      final hashedPassword = await FlutterBcrypt.hashPw(
-          password: password, salt: pass_salt);
-      
+      final pass_salt = "\$2b\$06\$.KIqkgeXOwwL1kDqbN/SSO";
+
+      final hashedPassword =
+          await FlutterBcrypt.hashPw(password: password, salt: pass_salt);
+
       // Join dashboard and add user to members collection
       final userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -70,7 +71,7 @@ class _JoinState extends State<Join> {
           .collection('dashboards')
           .doc(dashboardId)
           .collection('members');
-      final idToken= await user.getIdToken();
+      final idToken = await user.getIdToken();
       await membersRef.doc(user.uid).set({
         'email': email,
         'password': password,
@@ -80,7 +81,7 @@ class _JoinState extends State<Join> {
         'fcmToken': fcmToken,
         'idToken': idToken,
         "password": hashedPassword,
-        "salt" : pass_salt
+        "salt": pass_salt
       });
       prefs.setString('dashboard_id', dashboardId);
       prefs.setString('userId', user.uid);
@@ -92,8 +93,8 @@ class _JoinState extends State<Join> {
         ),
       );
       _formKey.currentState!.reset();
-      
-       Navigator.pushReplacementNamed(context, '/main_view');
+
+      Navigator.pushReplacementNamed(context, '/main_view');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         showDialog(
@@ -120,7 +121,8 @@ class _JoinState extends State<Join> {
           ),
         );
       }
-       setState(() { // new
+      setState(() {
+        // new
         isLoading = false;
       });
     } catch (e) {
@@ -129,7 +131,8 @@ class _JoinState extends State<Join> {
           content: Text('Error occurred. Please try again later.'),
         ),
       );
-     setState(() { // new
+      setState(() {
+        // new
         isLoading = false;
       });
     }
@@ -288,20 +291,26 @@ class _JoinState extends State<Join> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Center(
-                                          child: isLoading ? const CircularProgressIndicator() : ElevatedButton(
-                                            onPressed: isLoading ? null : _joinDashboard,
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Color.fromARGB(
-                                                  255, 94, 91, 255),
-                                              fixedSize: Size(170, 50),
-                                            ),
-                                            child: const Text(
-                                              "Join",
-                                              style: TextStyle(
-                                                fontSize: 20,
-                                              ),
-                                            ),
-                                          ),
+                                          child: isLoading
+                                              ? const CircularProgressIndicator()
+                                              : ElevatedButton(
+                                                  onPressed: isLoading
+                                                      ? null
+                                                      : _joinDashboard,
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        Color.fromARGB(
+                                                            255, 94, 91, 255),
+                                                    fixedSize: Size(170, 50),
+                                                  ),
+                                                  child: const Text(
+                                                    "Join",
+                                                    style: TextStyle(
+                                                      fontSize: 20,
+                                                    ),
+                                                  ),
+                                                ),
                                         )
                                       ],
                                     )),

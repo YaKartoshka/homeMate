@@ -45,7 +45,11 @@ class _WardrobeState extends State<Wardrobe> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 149, 152, 229),
       appBar: AppBar(
-        title: Text('Wardrobe'),
+        title: Text("Wardrobe",
+            style: TextStyle(fontFamily: 'Poppins', fontSize: 24)),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        backgroundColor: Color.fromARGB(255, 149, 152, 229),
       ),
       body: Container(
         padding: EdgeInsets.all(16),
@@ -103,8 +107,10 @@ class _WardrobeState extends State<Wardrobe> {
                             showDialog(
                               context: context,
                               builder: (context) {
-                                String modifiedCategory = wardrobeItems[index].category;
-                                String modifiedDescription = wardrobeItems[index].description;
+                                String modifiedCategory =
+                                    wardrobeItems[index].category;
+                                String modifiedDescription =
+                                    wardrobeItems[index].description;
 
                                 return AlertDialog(
                                   title: Text('Modify Item'),
@@ -145,7 +151,8 @@ class _WardrobeState extends State<Wardrobe> {
                                     ),
                                     TextButton(
                                       onPressed: () {
-                                        modifyItem(index, modifiedCategory, modifiedDescription);
+                                        modifyItem(index, modifiedCategory,
+                                            modifiedDescription);
                                         Navigator.pop(context);
                                       },
                                       child: Text('Save'),

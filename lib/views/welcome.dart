@@ -2,16 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'dart:developer' as developer;
+
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
-  
+
   @override
   State<Welcome> createState() => _WelcomeState();
 }
 
 class _WelcomeState extends State<Welcome> {
-  FirebaseFirestore db=FirebaseFirestore.instance;
-  
+  FirebaseFirestore db = FirebaseFirestore.instance;
+
   static const colorizeColors = [
     Colors.white,
     Colors.purple,
@@ -140,7 +141,7 @@ class _WelcomeState extends State<Welcome> {
               ),
               ElevatedButton(
                   onPressed: () {
-                     Navigator.pushNamed(context, '/join');
+                    Navigator.pushNamed(context, '/join');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -168,7 +169,7 @@ class _WelcomeState extends State<Welcome> {
               ),
               GestureDetector(
                 onTap: () {
-                   Navigator.pushNamed(context, '/login');
+                  Navigator.pushNamed(context, '/login');
                 },
                 child: const Text(
                   'Already have an account?',

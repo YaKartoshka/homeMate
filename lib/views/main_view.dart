@@ -66,65 +66,64 @@ class _Main_ViewState extends State<Main_View> {
     final adaptive_size = MediaQuery.of(context).size;
 
     return Container(
-      decoration: _weather_state
-          ? const BoxDecoration(
-              image: DecorationImage(
-                  image: AssetImage("assets/background.png"),
-                  fit: BoxFit.fill,
-                  colorFilter: ColorFilter.mode(
-                      Color.fromARGB(255, 149, 152, 229), BlendMode.overlay)),
-            )
-          : const BoxDecoration(
-              color: Color.fromARGB(255, 104, 57, 223),
-            ),
-      child: OverflowBox(
-minHeight: 0,
-      
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          backgroundColor: Colors.transparent,
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(MediaQuery.of(context).padding.top),
-            child: SizedBox(
-              height: MediaQuery.of(context).padding.top,
-            ),
-          ),
-          body: _buildBody(),
-          bottomNavigationBar: Container(
-            child: BottomNavigationBar(
-              items: const <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.checkroom),
-                  label: 'Wardrobe',
-                  backgroundColor: Color.fromARGB(255, 104, 57, 223),
+        decoration: _weather_state
+            ? const BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage("assets/background.png"),
+                    fit: BoxFit.fill,
+                    colorFilter: ColorFilter.mode(
+                        Color.fromARGB(255, 149, 152, 229), BlendMode.overlay)),
+              )
+            : const BoxDecoration(
+                color: Color.fromARGB(255, 104, 57, 223),
+              ),
+        child: OverflowBox(
+          minHeight: 0,
+          child: Scaffold(
+              resizeToAvoidBottomInset: false,
+              backgroundColor: Colors.transparent,
+              appBar: PreferredSize(
+                preferredSize:
+                    Size.fromHeight(MediaQuery.of(context).padding.top),
+                child: SizedBox(
+                  height: MediaQuery.of(context).padding.top,
                 ),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.wb_sunny),
-                    label: 'Weather',
-                    backgroundColor: Color.fromRGBO(162, 131, 242, 0.6)),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.event),
-                  label: 'Notes',
-                  backgroundColor: Color.fromARGB(255, 104, 57, 223),
+              ),
+              body: _buildBody(),
+              bottomNavigationBar: Container(
+                child: BottomNavigationBar(
+                  items: const <BottomNavigationBarItem>[
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.checkroom),
+                      label: 'Wardrobe',
+                      backgroundColor: Color.fromARGB(255, 104, 57, 223),
+                    ),
+                    BottomNavigationBarItem(
+                        icon: Icon(Icons.wb_sunny),
+                        label: 'Weather',
+                        backgroundColor: Color.fromRGBO(162, 131, 242, 0.6)),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.event),
+                      label: 'Notes',
+                      backgroundColor: Color.fromARGB(255, 104, 57, 223),
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.notifications),
+                      label: 'Notifications',
+                      backgroundColor: Color.fromARGB(255, 104, 57, 223),
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.settings),
+                      label: 'Settings',
+                      backgroundColor: Color.fromARGB(255, 104, 57, 223),
+                    ),
+                  ],
+                  currentIndex: _selectedIndex,
+                  selectedItemColor: Colors.white,
+                  unselectedItemColor: const Color.fromARGB(255, 225, 220, 220),
+                  onTap: _onItemTapped,
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.notifications),
-                  label: 'Notifications',
-                  backgroundColor: Color.fromARGB(255, 104, 57, 223),
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.settings),
-                  label: 'Settings',
-                  backgroundColor: Color.fromARGB(255, 104, 57, 223),
-                ),
-              ],
-              currentIndex: _selectedIndex,
-              selectedItemColor: Colors.white,
-              unselectedItemColor: const Color.fromARGB(255, 225, 220, 220),
-              onTap: _onItemTapped,
-            ),
-          )),
-      )
-    );
+              )),
+        ));
   }
 }

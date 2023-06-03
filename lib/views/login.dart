@@ -326,7 +326,9 @@ class _LoginState extends State<Login> {
 
   Future<User?> _handleGoogleSignIn() async {
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn().catchError((onError) => log('error:' +onError));
+      final GoogleSignInAccount? googleUser = await GoogleSignIn()
+          .signIn()
+          .catchError((onError) => log('error:' + onError));
       if (googleUser == null) return null;
       final GoogleSignInAuthentication googleAuth =
           await googleUser!.authentication;
@@ -376,7 +378,7 @@ class _LoginState extends State<Login> {
     } catch (e) {
       log('${e}');
       throw e;
-  }
+    }
   }
 
   void guestmode() async {
@@ -451,7 +453,6 @@ class _LoginState extends State<Login> {
     }
   }
 
-  
   void signInWithMicrosoft() async {
     try {
       MicrosoftAuthProvider microsoftProvider = MicrosoftAuthProvider();

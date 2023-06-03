@@ -4,8 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:home_mate/appLocalization';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bcrypt/flutter_bcrypt.dart';
+
+import '../control/localProvider.dart';
 
 class CreatePanel extends StatefulWidget {
   const CreatePanel({super.key});
@@ -37,11 +42,14 @@ class _JoinState extends State<CreatePanel> {
     final String email = _email_field.text.trim();
     final String plainPassword = _password_field.text.trim();
     final String repeatedPassword = _repeated_password_field.text.trim();
-
+    final languageCode = prefs.getString('language');
+    log('${languageCode}');
+    final appTranslations = AppTranslations
+        .translations['${languageCode}']!;
     // Check if passwords match
     if (plainPassword != repeatedPassword) {
-      _showErrorDialog("Passwords don't match",
-          "Please make sure both passwords are the same.");
+      _showErrorDialog(Intl.message(appTranslations['dont_match']!),
+          Intl.message(appTranslations['dont_match_msg']!));
       setState(() {
         isLoading = false;
       });
@@ -51,7 +59,7 @@ class _JoinState extends State<CreatePanel> {
     // Validate email format
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(email)) {
-      _showErrorDialog("Invalid email", "Please enter a valid email address.");
+      _showErrorDialog(Intl.message(appTranslations['invalid_email']!), Intl.message(appTranslations['invalid_email_msg']!));
       setState(() {
         isLoading = false;
       });
@@ -116,11 +124,11 @@ class _JoinState extends State<CreatePanel> {
       });
 
       if (e.code == 'weak-password') {
-        _showErrorDialog("Weak password",
-            "The password provided is too weak. Please choose a stronger password and try again.");
+        _showErrorDialog(Intl.message(appTranslations['weak_password']!),
+            "");
       } else if (e.code == 'email-already-in-use') {
-        _showErrorDialog("Account already exists",
-            "An account already exists for $email. Please sign in or use a different email address.");
+        _showErrorDialog(Intl.message(appTranslations['already_exists']!),
+           " ");
       } else {
         _showErrorDialog("Error", "An error occurred: ${e.toString()}");
       }
@@ -175,6 +183,11 @@ class _JoinState extends State<CreatePanel> {
 
   @override
   Widget build(BuildContext context) {
+       final localeProvider = Provider.of<LocaleProvider>(context);
+    final currentLocale = localeProvider.locale;
+    
+    final appTranslations = AppTranslations
+        .translations['${currentLocale}']!;
     final ButtonStyle style =
         ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
     return Scaffold(
@@ -214,7 +227,7 @@ class _JoinState extends State<CreatePanel> {
               ),
               const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 Text(
-                  "HomeMate",
+                  "Home Mate",
                   style: TextStyle(
                     fontSize: 45,
                     fontFamily: 'Poppins',
@@ -245,9 +258,9 @@ class _JoinState extends State<CreatePanel> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Create a panel",
-                            style: TextStyle(
+                           Text(
+                            Intl.message(appTranslations['create_panel']!),
+                            style: const TextStyle(
                               fontSize: 25,
                               fontFamily: 'Poppins',
                             ),
@@ -265,9 +278,9 @@ class _JoinState extends State<CreatePanel> {
                                     width: 250,
                                     child: TextFormField(
                                         controller: _dashboard_name_field,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Enter your Dashboard Name',
-                                          labelText: 'Dashboard Name',
+                                        decoration:  InputDecoration(
+                                          hintText: Intl.message(appTranslations['enter_dashboard_name']!),
+                                          labelText: Intl.message(appTranslations['dashboard_name']!),
                                         ))),
                                 const SizedBox(
                                   height: 10,
@@ -276,9 +289,9 @@ class _JoinState extends State<CreatePanel> {
                                     width: 250,
                                     child: TextFormField(
                                         controller: _email_field,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Enter your email',
-                                          labelText: 'Email',
+                                        decoration:  InputDecoration(
+                                          hintText: Intl.message(appTranslations['enter_your_email']!),
+                                          labelText: Intl.message(appTranslations['email']!),
                                         ))),
                                 const SizedBox(
                                   height: 10,
@@ -287,9 +300,9 @@ class _JoinState extends State<CreatePanel> {
                                     width: 250,
                                     child: TextFormField(
                                         controller: _password_field,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Enter your password',
-                                          labelText: 'Password',
+                                        decoration:  InputDecoration(
+                                          hintText: Intl.message(appTranslations['enter_password']!),
+                                          labelText: Intl.message(appTranslations['password']!),
                                         ))),
                                 const SizedBox(
                                   height: 25,
@@ -298,9 +311,9 @@ class _JoinState extends State<CreatePanel> {
                                     width: 250,
                                     child: TextFormField(
                                         controller: _repeated_password_field,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Enter your password',
-                                          labelText: 'Repeat a password',
+                                        decoration:  InputDecoration(
+                                          hintText: Intl.message(appTranslations['enter_password']!),
+                                          labelText: Intl.message(appTranslations['repeat_password']!),
                                         ))),
                                 const SizedBox(
                                   height: 45,
@@ -326,9 +339,9 @@ class _JoinState extends State<CreatePanel> {
                                                     fixedSize:
                                                         const Size(170, 50),
                                                   ),
-                                                  child: const Text(
-                                                    "Create",
-                                                    style: TextStyle(
+                                                  child:  Text(
+                                                    Intl.message(appTranslations['create']!),
+                                                    style: const TextStyle(
                                                       fontSize: 20,
                                                     ),
                                                   ),

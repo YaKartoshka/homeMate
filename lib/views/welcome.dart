@@ -1,7 +1,14 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'dart:developer' as developer;
+import 'package:intl/intl.dart';
+import 'package:home_mate/appLocalization';
+import 'package:provider/provider.dart';
+
+import '../control/localProvider.dart';
 
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
@@ -22,6 +29,11 @@ class _WelcomeState extends State<Welcome> {
 
   @override
   Widget build(BuildContext context) {
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final currentLocale = localeProvider.locale;
+    
+    final appTranslations = AppTranslations
+        .translations['${currentLocale}']!;
     final ButtonStyle style =
         ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
     return Scaffold(
@@ -52,7 +64,7 @@ class _WelcomeState extends State<Welcome> {
                   repeatForever: true,
                   animatedTexts: [
                     ColorizeAnimatedText(
-                      'Home Mate',
+                      "Home Mate",
                       speed: const Duration(milliseconds: 700),
                       textStyle: const TextStyle(
                         fontSize: 60,
@@ -70,9 +82,9 @@ class _WelcomeState extends State<Welcome> {
                   ],
                 ),
               ]),
-              const GradientText(
-                "or",
-                style: TextStyle(
+              GradientText(
+                Intl.message(appTranslations['or']!),
+                style: const TextStyle(
                     fontSize: 20,
                     fontFamily: 'Poppins',
                     shadows: <Shadow>[
@@ -81,7 +93,7 @@ class _WelcomeState extends State<Welcome> {
                           blurRadius: 4.0,
                           color: Color.fromARGB(10, 0, 0, 0)),
                     ]),
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [
                     Color.fromARGB(200, 251, 23, 242),
                     Color.fromARGB(220, 248, 67, 239),
@@ -90,8 +102,9 @@ class _WelcomeState extends State<Welcome> {
                   transform: GradientRotation(36),
                 ),
               ),
-              const GradientText("just add some comfort",
-                  style: TextStyle(
+              GradientText(
+                  Intl.message(appTranslations['just_add_some_comfort']!),
+                  style: const TextStyle(
                       fontSize: 20,
                       fontFamily: 'Poppins',
                       shadows: <Shadow>[
@@ -100,7 +113,7 @@ class _WelcomeState extends State<Welcome> {
                             blurRadius: 4.0,
                             color: Color.fromARGB(10, 0, 0, 0)),
                       ]),
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [
                       Color.fromARGB(200, 251, 23, 242),
                       Color.fromARGB(220, 253, 112, 247),
@@ -122,9 +135,9 @@ class _WelcomeState extends State<Welcome> {
                       borderRadius: BorderRadius.circular(30.0),
                     ),
                   ),
-                  child: const Text(
-                    "CREATE A PANEL",
-                    style: TextStyle(
+                  child: Text(
+                    Intl.message(appTranslations['create_panel_in_welcome']!),
+                    style: const TextStyle(
                       fontSize: 20,
                       fontFamily: 'Poppins',
                       color: Color.fromARGB(255, 69, 5, 173),
@@ -150,9 +163,9 @@ class _WelcomeState extends State<Welcome> {
                       borderRadius: BorderRadius.circular(30.0),
                     ),
                   ),
-                  child: const Text(
-                    "JOIN",
-                    style: TextStyle(
+                  child: Text(
+                    Intl.message(appTranslations['join']!),
+                    style: const TextStyle(
                       fontSize: 20,
                       fontFamily: 'Poppins',
                       color: Color.fromARGB(255, 69, 5, 173),
@@ -171,9 +184,9 @@ class _WelcomeState extends State<Welcome> {
                 onTap: () {
                   Navigator.pushNamed(context, '/login');
                 },
-                child: const Text(
-                  'Already have an account?',
-                  style: TextStyle(
+                child: Text(
+                  Intl.message(appTranslations['already_have_account']!),
+                  style: const TextStyle(
                     fontSize: 16,
                     fontFamily: 'Poppins',
                     color: Color.fromARGB(255, 69, 5, 173),

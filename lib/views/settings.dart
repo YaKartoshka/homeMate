@@ -68,9 +68,7 @@ class _SettingsViewState extends State<SettingsView> {
         if (response.statusCode == 200) {
           log('User deleted successfully');
           memberDoc.delete();
-          setState(() {
-            _membersFuture = getMembers();
-          });
+        
         } else {
           print('Failed to delete user. Error: ${response.body}');
         }

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:home_mate/views/welcome.dart';
@@ -323,9 +324,10 @@ class _LoginState extends State<Login> {
             ])));
   }
 
-  Future<UserCredential?> _handleGoogleSignIn() async {
+  Future<User?> _handleGoogleSignIn() async {
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn().catchError((onError) => log('error:' +onError));
+      if (googleUser == null) return null;
       final GoogleSignInAuthentication googleAuth =
           await googleUser!.authentication;
 
@@ -337,6 +339,7 @@ class _LoginState extends State<Login> {
       final UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
       final User? user = userCredential.user;
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (user != null) {
         // User is signed in
@@ -346,7 +349,7 @@ class _LoginState extends State<Login> {
                 .collection("dashboards")
                 .doc(doc.id)
                 .collection('members')
-                .where("email", isEqualTo: user.email)
+                .where("email", isEqualTo: user.providerData[0].email)
                 .get()
                 .then((memberQuerySnapshot) {
               for (var memberDocSnapshot in memberQuerySnapshot.docs) {
@@ -371,8 +374,9 @@ class _LoginState extends State<Login> {
         });
       }
     } catch (e) {
-      log('Error signing in with Google: $e');
-    }
+      log('${e}');
+      throw e;
+  }
   }
 
   void guestmode() async {
@@ -447,6 +451,7 @@ class _LoginState extends State<Login> {
     }
   }
 
+  
   void signInWithMicrosoft() async {
     try {
       MicrosoftAuthProvider microsoftProvider = MicrosoftAuthProvider();

@@ -42,7 +42,9 @@ void main() async {
 
   FirebaseMessagingService messagingService = FirebaseMessagingService();
   messagingService.initialize();
+  final startRoute=prefs.getString('dashboard_id')!=null ? '/main_view' : '/';
 
+  log('${prefs.getString('dashboard_id')}');
   runApp(ChangeNotifierProvider<LocaleProvider>(
       create: (_) => LocaleProvider(),
       child: MaterialApp(
@@ -73,7 +75,8 @@ void main() async {
           prefs.setString('language', '${selectedLocale.languageCode}');
           return selectedLocale;
         },
-        initialRoute: '/',
+        
+        initialRoute: startRoute,
         routes: {
           '/': (context) => const Welcome(),
           '/join': (context) => const Join(),

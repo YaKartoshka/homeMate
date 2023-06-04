@@ -44,11 +44,10 @@ class _LoginState extends State<Login> {
   GoogleSignInAccount? _currentUser;
   bool _isAuthorized = false; // has granted permissions?
   String _contactText = '';
-//   final GoogleSignIn _googleSignIn = GoogleSignIn(
-//   serverClientId: '963528077159-5rntvf2c7b8sftdd7pu6he57mvsp4oid.apps.googleusercontent.com',
-//   scopes: ['email'],
-// );
-  bool isLoading = false;
+
+  bool isSignInLoading = false;
+  bool isSocialLoading = false;
+  bool isGuestLoading = false;
   @override
   void initState() {
     super.initState();
@@ -212,11 +211,11 @@ class _LoginState extends State<Login> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Center(
-                                          child: isLoading
+                                          child: isSignInLoading
                                               ? const CircularProgressIndicator()
                                               : ElevatedButton(
                                                   onPressed:
-                                                      isLoading ? null : signIn,
+                                                      isSignInLoading ? null : signIn,
                                                   style:
                                                       ElevatedButton.styleFrom(
                                                     backgroundColor:
@@ -252,7 +251,7 @@ class _LoginState extends State<Login> {
                                           MainAxisAlignment.spaceAround,
                                       children: [
                                         Center(
-                                          child: isLoading
+                                          child: isSocialLoading
                                               ? const CircularProgressIndicator()
                                               : ElevatedButton(
                                                   onPressed: () {
@@ -272,7 +271,7 @@ class _LoginState extends State<Login> {
                                         ),
                                         SizedBox(height: 10),
                                         Center(
-                                          child: isLoading
+                                          child: isSocialLoading
                                               ? const CircularProgressIndicator()
                                               : ElevatedButton(
                                                   onPressed: () {
@@ -292,7 +291,7 @@ class _LoginState extends State<Login> {
                                         ),
                                         SizedBox(height: 10),
                                         Center(
-                                          child: isLoading
+                                          child: isSocialLoading
                                               ? const CircularProgressIndicator()
                                               : ElevatedButton(
                                                   onPressed: () {
@@ -315,7 +314,7 @@ class _LoginState extends State<Login> {
                                 Container(
                                   width: 250,
                                   child: Center(
-                                    child: isLoading
+                                    child: isGuestLoading
                                         ? const CircularProgressIndicator()
                                         : ElevatedButton(
                                             onPressed: () {
@@ -404,7 +403,7 @@ class _LoginState extends State<Login> {
 
   void guestmode() async {
     setState(() {
-      isLoading = true;
+      isGuestLoading = true;
     });
     final guest_email = "guest";
     await Firebase.initializeApp();
@@ -528,7 +527,7 @@ class _LoginState extends State<Login> {
 
   void signIn() async {
     setState(() {
-      isLoading = true;
+      isSignInLoading = true;
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final languageCode = prefs.getString('language');
@@ -591,7 +590,7 @@ class _LoginState extends State<Login> {
       }
     } finally {
       setState(() {
-        isLoading = false;
+        isSignInLoading = false;
       });
       setState(() {});
     }

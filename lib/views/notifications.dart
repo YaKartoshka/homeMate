@@ -3,9 +3,14 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:home_mate/appLocalization';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../control/localProvider.dart';
 
 class Notifications extends StatefulWidget {
   const Notifications({super.key});
@@ -117,18 +122,22 @@ class _Notifications_State extends State<Notifications> {
 
     final notifications =
         snapshot.docs.map((doc) => Notification.fromMap(doc.data())).toList();
-    log('${notifications}');
     return notifications;
   }
 
   @override
   Widget build(BuildContext context) {
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final currentLocale = localeProvider.locale;
+    
+    final appTranslations = AppTranslations
+        .translations['${currentLocale}']!;
     final ButtonStyle style =
         ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 149, 152, 229),
       appBar: AppBar(
-        title: Text("Notifications",
+        title: Text(Intl.message(appTranslations['notifications']!),
             style: TextStyle(fontFamily: 'Poppins', fontSize: 24)),
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -209,7 +218,7 @@ class _Notifications_State extends State<Notifications> {
             shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(30))),
             scrollable: true,
-            title: const Text('New notification'),
+            title:  Text(Intl.message(appTranslations['new_notification']!)),
             content: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Form(
@@ -217,17 +226,17 @@ class _Notifications_State extends State<Notifications> {
                   children: <Widget>[
                     TextFormField(
                       controller: _title_controller,
-                      decoration: const InputDecoration(
-                        labelText: 'Title',
-                        hintText: 'Type a title',
+                      decoration:  InputDecoration(
+                        labelText: Intl.message(appTranslations['title']!),
+                        hintText: Intl.message(appTranslations['type_title']!),
                         icon: Icon(Icons.title_outlined,
                             color: Color.fromARGB(255, 104, 57, 223)),
                       ),
                     ),
                     TextFormField(
                       controller: _description_controller,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
+                      decoration:  InputDecoration(
+                        labelText: Intl.message(appTranslations['description']!),
                         icon: Icon(Icons.message_outlined,
                             color: Color.fromARGB(255, 104, 57, 223)),
                       ),
@@ -245,15 +254,15 @@ class _Notifications_State extends State<Notifications> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromARGB(255, 104, 57, 223),
                           ),
-                          child: const Text('Create'),
+                          child:  Text(Intl.message(appTranslations['create']!)),
                         ),
                         const SizedBox(width: 10),
                         TextButton(
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            child: const Text(
-                              'Cancel',
+                            child:  Text(
+                              Intl.message(appTranslations['cancel']!),
                               style: TextStyle(
                                 color: Color.fromARGB(255, 104, 57, 223),
                               ),

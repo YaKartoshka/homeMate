@@ -3,7 +3,12 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:home_mate/views/notes.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../appLocalization';
+import '../control/localProvider.dart';
 
 class NoteListView extends StatefulWidget {
   final Note arguments;
@@ -176,6 +181,11 @@ class _NoteListViewState extends State<NoteListView> {
 
   @override
   Widget build(BuildContext context) {
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final currentLocale = localeProvider.locale;
+    
+    final appTranslations = AppTranslations
+        .translations['${currentLocale}']!;
     final adaptive_size = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -306,8 +316,8 @@ class _NoteListViewState extends State<NoteListView> {
                                                                 scrollable:
                                                                     true,
                                                                 title:
-                                                                    const Text(
-                                                                  'Are you sure?',
+                                                                     Text(
+                                                                  Intl.message(appTranslations['are_you_sure']!),
                                                                   textAlign:
                                                                       TextAlign
                                                                           .center,
@@ -326,15 +336,15 @@ class _NoteListViewState extends State<NoteListView> {
                                                                                 onPressed: () {
                                                                                   Navigator.pop(context);
                                                                                 },
-                                                                                style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.purple, shadowColor: Colors.red, fixedSize: const Size(80, 40)),
-                                                                                child: const Text("Cancel")),
+                                                                                style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.purple, shadowColor: Colors.red, fixedSize: const Size(90, 40)),
+                                                                                child:  Text(Intl.message(appTranslations['cancel']!))),
                                                                             ElevatedButton(
                                                                                 onPressed: () {
                                                                                   deleteNoteItem(noteItems.noteItemId);
                                                                                   Navigator.pop(context);
                                                                                 },
-                                                                                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, fixedSize: const Size(80, 40)),
-                                                                                child: const Text("Delete"))
+                                                                                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, fixedSize: const Size(90, 40)),
+                                                                                child: Text(Intl.message(appTranslations['delete']!)))
                                                                           ],
                                                                         )),
                                                               ),
@@ -378,8 +388,8 @@ class _NoteListViewState extends State<NoteListView> {
                                                                 scrollable:
                                                                     true,
                                                                 title:
-                                                                    const Text(
-                                                                        'Edit'),
+                                                                     Text(
+                                                                        Intl.message(appTranslations['edit']!)),
                                                                 content:
                                                                     Padding(
                                                                   padding:
@@ -394,11 +404,11 @@ class _NoteListViewState extends State<NoteListView> {
                                                                           controller:
                                                                               _new_title_controller,
                                                                           decoration:
-                                                                              const InputDecoration(
+                                                                               InputDecoration(
                                                                             labelText:
-                                                                                'New title',
+                                                                                Intl.message(appTranslations['new_title']!),
                                                                             hintText:
-                                                                                'Type a title',
+                                                                                Intl.message(appTranslations['type_title']!),
                                                                             icon:
                                                                                 Icon(Icons.title_outlined, color: Color.fromARGB(255, 104, 57, 223)),
                                                                           ),
@@ -418,15 +428,15 @@ class _NoteListViewState extends State<NoteListView> {
                                                                               style: ElevatedButton.styleFrom(
                                                                                 backgroundColor: const Color.fromARGB(255, 104, 57, 223),
                                                                               ),
-                                                                              child: const Text('Save'),
+                                                                              child:  Text(Intl.message(appTranslations['save']!)),
                                                                             ),
                                                                             const SizedBox(width: 10),
                                                                             TextButton(
                                                                                 onPressed: () {
                                                                                   Navigator.pop(context);
                                                                                 },
-                                                                                child: const Text(
-                                                                                  'Cancel',
+                                                                                child:  Text(
+                                                                                  Intl.message(appTranslations['cancel']!),
                                                                                   style: TextStyle(
                                                                                     color: Color.fromARGB(255, 104, 57, 223),
                                                                                   ),
@@ -471,7 +481,7 @@ class _NoteListViewState extends State<NoteListView> {
                             borderRadius:
                                 BorderRadius.all(Radius.circular(30))),
                         scrollable: true,
-                        title: const Text('New note item'),
+                        title:  Text(Intl.message(appTranslations['new_note_item']!)),
                         content: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Form(
@@ -479,9 +489,9 @@ class _NoteListViewState extends State<NoteListView> {
                               children: <Widget>[
                                 TextFormField(
                                   controller: _title_controller,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Title',
-                                    hintText: 'Type a title',
+                                  decoration: InputDecoration(
+                                    labelText: Intl.message(appTranslations['title']!),
+                                    hintText: Intl.message(appTranslations['type_title']!),
                                     icon: Icon(Icons.title_outlined,
                                         color:
                                             Color.fromARGB(255, 104, 57, 223)),
@@ -500,15 +510,15 @@ class _NoteListViewState extends State<NoteListView> {
                                         backgroundColor: const Color.fromARGB(
                                             255, 104, 57, 223),
                                       ),
-                                      child: const Text('Create'),
+                                      child:  Text(Intl.message(appTranslations['create']!)),
                                     ),
                                     const SizedBox(width: 10),
                                     TextButton(
                                         onPressed: () {
                                           Navigator.pop(context);
                                         },
-                                        child: const Text(
-                                          'Cancel',
+                                        child:  Text(
+                                          Intl.message(appTranslations['cancel']!),
                                           style: TextStyle(
                                             color: Color.fromARGB(
                                                 255, 104, 57, 223),
@@ -523,7 +533,7 @@ class _NoteListViewState extends State<NoteListView> {
                       ),
                     );
                   },
-                  child: const Text('Add Item'),
+                  child:  Text(Intl.message(appTranslations['add_item']!)),
                   style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 104, 57, 223),
                       fixedSize: const Size(200, 30)),

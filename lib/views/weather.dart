@@ -3,6 +3,11 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+import '../appLocalization';
+import '../control/localProvider.dart';
 
 class Weather extends StatefulWidget {
   const Weather({super.key});
@@ -13,8 +18,8 @@ class Weather extends StatefulWidget {
 
 class WeatherData {
   String? title;
-
-  WeatherData(this.title);
+  IconData? icon_type;
+  WeatherData(this.title, this.icon_type);
 }
 
 class WeatherService {
@@ -38,11 +43,11 @@ class _WeatherState extends State<Weather> {
 
   String _selectedCity = 'Astana'; // Set a default city
   List<WeatherData> weather_data = [
-    WeatherData('Temperature'),
-    WeatherData("Wind"),
-    WeatherData("Humidity"),
-    WeatherData("Sky"),
-    WeatherData("Clouds"),
+    WeatherData('temperature', Icons.thermostat),
+    WeatherData("wind", Icons.wind_power),
+    WeatherData("humidity", Icons.water_drop),
+    WeatherData("sky", Icons.sunny),
+    WeatherData("clouds", Icons.cloud),
   ];
   Future<void> _fetchWeatherData(String city) async {
     try {
@@ -65,7 +70,9 @@ class _WeatherState extends State<Weather> {
   @override
   Widget build(BuildContext context) {
     final adaptive_size = MediaQuery.of(context).size;
-
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final currentLocale = localeProvider.locale;
+    final appTranslations = AppTranslations.translations['${currentLocale}']!;
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(MediaQuery.of(context).padding.top),
@@ -87,12 +94,12 @@ class _WeatherState extends State<Weather> {
             const SizedBox(
               height: 10,
             ),
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "Weather",
+                  Intl.message(appTranslations['weather']!),
                   style: TextStyle(
                       fontSize: 24,
                       fontFamily: 'Poppins',
@@ -137,11 +144,11 @@ class _WeatherState extends State<Weather> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Min",
+                        Intl.message(appTranslations['min']!),
                         style: TextStyle(
                             fontSize: 30,
                             fontFamily: 'JoseficSans',
@@ -151,7 +158,7 @@ class _WeatherState extends State<Weather> {
                         height: 15,
                       ),
                       Text(
-                        'Max',
+                        Intl.message(appTranslations['max']!),
                         style: TextStyle(
                             fontSize: 30,
                             fontFamily: 'JoseficSans',
@@ -164,7 +171,7 @@ class _WeatherState extends State<Weather> {
                     children: [
                       _weatherData != null
                           ? Text(
-                              '${_weatherData['main']['temp_min']}°C',
+                              '${_weatherData['main']['temp_min'].ceil()}°C',
                               style: const TextStyle(
                                   fontSize: 30,
                                   fontFamily: 'JoseficSans',
@@ -176,7 +183,7 @@ class _WeatherState extends State<Weather> {
                       ),
                       _weatherData != null
                           ? Text(
-                              '${_weatherData['main']['temp_max']}°C',
+                              '${_weatherData['main']['temp_max'].ceil()}°C',
                               style: const TextStyle(
                                   fontSize: 30,
                                   fontFamily: 'JoseficSans',
@@ -202,7 +209,7 @@ class _WeatherState extends State<Weather> {
                         itemCount: 5,
                         itemBuilder: (context, index) {
                           var temperature =
-                              _weatherData['main']['temp'].toString();
+                              _weatherData['main']['temp'].ceil().toString();
                           var wind = _weatherData['wind']['speed'].toString();
                           var humidity =
                               _weatherData['main']['humidity'].toString();
@@ -239,10 +246,10 @@ class _WeatherState extends State<Weather> {
                                         child: Center(
                                           heightFactor: 1.4,
                                           child: Text(
-                                            '${weather_data[index].title}',
+                                            Intl.message(appTranslations[
+                                                weather_data[index].title]!),
                                             style: const TextStyle(
                                                 fontSize: 20,
-                                                fontFamily: 'Poppins',
                                                 fontWeight: FontWeight.w600),
                                           ),
                                         )),
@@ -264,7 +271,9 @@ class _WeatherState extends State<Weather> {
                                           child: Column(
                                             children: [
                                               const SizedBox(height: 15),
-                                              const Icon(Icons.sunny, size: 40),
+                                              Icon(
+                                                  weather_data[index].icon_type,
+                                                  size: 40),
                                               const SizedBox(height: 10),
                                               Text(
                                                 '${weather_array[index]}',

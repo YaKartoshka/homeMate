@@ -2,9 +2,13 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:home_mate/appLocalization';
 import 'package:home_mate/views/note_list_view.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../control/localProvider.dart';
 import 'main_view.dart';
 
 class Notes extends StatefulWidget {
@@ -105,10 +109,14 @@ class _NotesState extends State<Notes> {
     final ButtonStyle style =
         ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
     final adaptiveSize = MediaQuery.of(context).size;
-
+     final localeProvider = Provider.of<LocaleProvider>(context);
+    final currentLocale = localeProvider.locale;
+    
+    final appTranslations = AppTranslations
+        .translations['${currentLocale}']!;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Notes",
+        title: Text(Intl.message(appTranslations['notes']!),
             style: TextStyle(fontFamily: 'Poppins', fontSize: 24)),
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -212,8 +220,8 @@ class _NotesState extends State<Notes> {
                                                                           Radius.circular(
                                                                               30))),
                                                               scrollable: true,
-                                                              title: const Text(
-                                                                  'Note editor'),
+                                                              title: Text(
+                                                                  Intl.message(appTranslations['note_editor']!)),
                                                               content: Padding(
                                                                 padding:
                                                                     const EdgeInsets
@@ -226,11 +234,11 @@ class _NotesState extends State<Notes> {
                                                                         controller:
                                                                             _new_title_controller,
                                                                         decoration:
-                                                                            const InputDecoration(
+                                                                             InputDecoration(
                                                                           labelText:
-                                                                              'New Title',
+                                                                              Intl.message(appTranslations['new_title']!),
                                                                           hintText:
-                                                                              'Type a title',
+                                                                              Intl.message(appTranslations['type_title']!),
                                                                           icon: Icon(
                                                                               Icons.title_outlined,
                                                                               color: Color.fromARGB(255, 104, 57, 223)),
@@ -252,11 +260,11 @@ class _NotesState extends State<Notes> {
                                                                             },
                                                                             style:
                                                                                 ElevatedButton.styleFrom(
-                                                                              fixedSize: Size(100, 40),
+                                                                              fixedSize: Size(110, 40),
                                                                               backgroundColor: Color.fromARGB(255, 104, 57, 223),
                                                                             ),
                                                                             child:
-                                                                                const Text('Save'),
+                                                                                Text(Intl.message(appTranslations['save']!)),
                                                                           ),
                                                                           const SizedBox(
                                                                               width: 10),
@@ -266,10 +274,10 @@ class _NotesState extends State<Notes> {
                                                                               },
                                                                               style: ElevatedButton.styleFrom(
                                                                                 backgroundColor: Colors.white,
-                                                                                fixedSize: Size(100, 40),
+                                                                                fixedSize: Size(110, 40),
                                                                               ),
-                                                                              child: const Text(
-                                                                                'Cancel',
+                                                                              child:  Text(
+                                                                                Intl.message(appTranslations['cancel']!),
                                                                                 style: TextStyle(
                                                                                   color: Color.fromARGB(255, 104, 57, 223),
                                                                                 ),
@@ -289,9 +297,9 @@ class _NotesState extends State<Notes> {
                                                                               style: ElevatedButton.styleFrom(
                                                                                 backgroundColor: Colors.red,
                                                                                 foregroundColor: Colors.white,
-                                                                                fixedSize: Size(220, 40),
+                                                                                fixedSize: Size(230, 40),
                                                                               ),
-                                                                              child: Text("Delete"))
+                                                                              child: Text(Intl.message(appTranslations['delete']!)))
                                                                         ],
                                                                       )
                                                                     ],
@@ -377,7 +385,7 @@ class _NotesState extends State<Notes> {
             shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(30))),
             scrollable: true,
-            title: const Text('New note'),
+            title:  Text(Intl.message(appTranslations['new_note']!)),
             content: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Form(
@@ -385,9 +393,9 @@ class _NotesState extends State<Notes> {
                   children: <Widget>[
                     TextFormField(
                       controller: _title_controller,
-                      decoration: const InputDecoration(
-                        labelText: 'Title',
-                        hintText: 'Type a title',
+                      decoration:  InputDecoration(
+                        labelText: Intl.message(appTranslations['title']!),
+                        hintText: Intl.message(appTranslations['type_title']!),
                         icon: Icon(Icons.title_outlined,
                             color: Color.fromARGB(255, 104, 57, 223)),
                       ),
@@ -405,15 +413,15 @@ class _NotesState extends State<Notes> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromARGB(255, 104, 57, 223),
                           ),
-                          child: const Text('Create'),
+                          child: Text(Intl.message(appTranslations['create']!)),
                         ),
                         const SizedBox(width: 10),
                         TextButton(
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            child: const Text(
-                              'Cancel',
+                            child: Text(
+                              Intl.message(appTranslations['cancel']!),
                               style: TextStyle(
                                 color: Color.fromARGB(255, 104, 57, 223),
                               ),

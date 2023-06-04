@@ -2,12 +2,16 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:home_mate/control/localProvider.dart';
 import 'package:home_mate/views/notes.dart';
 import 'package:home_mate/views/notifications.dart';
 import 'package:home_mate/views/settings.dart';
 import 'package:home_mate/views/wardrobe.dart';
 import 'package:home_mate/views/weather.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../appLocalization';
 
 // final jsonString = '[{"id": "1", "name": "John Doe", "age": 30}, {"id": "2", "name": "Jane Smith", "age": 25}]';
 // final jsonData = json.decode(jsonString);
@@ -61,6 +65,11 @@ class _Main_ViewState extends State<Main_View> {
 
   @override
   Widget build(BuildContext context) {
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final currentLocale = localeProvider.locale;
+    
+    final appTranslations = AppTranslations
+        .translations['${currentLocale}']!;
     final ButtonStyle style =
         ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
     final adaptive_size = MediaQuery.of(context).size;

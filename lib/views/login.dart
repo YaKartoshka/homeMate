@@ -7,9 +7,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:home_mate/appLocalization';
 import 'package:home_mate/views/welcome.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../control/localProvider.dart';
 import 'notifications.dart';
 
 class Login extends StatefulWidget {
@@ -61,6 +65,10 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
+    final localeProvider = Provider.of<LocaleProvider>(context);
+    final currentLocale = localeProvider.locale;
+
+    final appTranslations = AppTranslations.translations['${currentLocale}']!;
     final adaptiveSize = MediaQuery.of(context).size;
     return Scaffold(
         resizeToAvoidBottomInset: false,
@@ -130,11 +138,10 @@ class _LoginState extends State<Login> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Login",
+                          Text(
+                            Intl.message(appTranslations['login']!),
                             style: TextStyle(
                               fontSize: 25,
-                              fontFamily: 'Poppins',
                             ),
                           ),
                           Form(
@@ -150,9 +157,12 @@ class _LoginState extends State<Login> {
                                     width: 250,
                                     child: TextFormField(
                                         controller: emailController,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Enter your email',
-                                          labelText: 'Email',
+                                        decoration: InputDecoration(
+                                          hintText: Intl.message(
+                                              appTranslations[
+                                                  'enter_your_email']!),
+                                          labelText: Intl.message(
+                                              appTranslations['email']!),
                                         ))),
                                 const SizedBox(
                                   height: 30,
@@ -161,9 +171,12 @@ class _LoginState extends State<Login> {
                                     width: 250,
                                     child: TextFormField(
                                         controller: passwordController,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Enter your password',
-                                          labelText: 'Password',
+                                        decoration: InputDecoration(
+                                          hintText: Intl.message(
+                                              appTranslations[
+                                                  'enter_password']!),
+                                          labelText: Intl.message(
+                                              appTranslations['password']!),
                                         ))),
                                 const SizedBox(
                                   height: 10,
@@ -173,11 +186,11 @@ class _LoginState extends State<Login> {
                                     Navigator.pushNamed(
                                         context, '/reset_password');
                                   },
-                                  child: const Text(
-                                    'Forget a password?',
-                                    style: TextStyle(
+                                  child: Text(
+                                    Intl.message(
+                                        appTranslations['forget_password']!),
+                                    style: const TextStyle(
                                       fontSize: 16,
-                                      fontFamily: 'Poppins',
                                       color: Color.fromARGB(255, 69, 5, 173),
                                       shadows: <Shadow>[
                                         Shadow(
@@ -212,8 +225,10 @@ class _LoginState extends State<Login> {
                                                     fixedSize:
                                                         const Size(170, 50),
                                                   ),
-                                                  child: const Text(
-                                                    "Login",
+                                                  child: Text(
+                                                    Intl.message(
+                                                        appTranslations[
+                                                            'login']!),
                                                     style: TextStyle(
                                                       fontSize: 20,
                                                     ),
@@ -226,7 +241,8 @@ class _LoginState extends State<Login> {
                                     margin: EdgeInsets.only(top: 10),
                                     width: 250,
                                     child: Center(
-                                      child: Text("or"),
+                                      child: Text(
+                                          Intl.message(appTranslations['or']!)),
                                     )),
                                 Container(
                                     margin: EdgeInsets.only(top: 10),
@@ -308,7 +324,8 @@ class _LoginState extends State<Login> {
                                             style: ElevatedButton.styleFrom(
                                                 backgroundColor: Color.fromARGB(
                                                     255, 94, 91, 255)),
-                                            child: Text("Guest"),
+                                            child: Text(Intl.message(
+                                                appTranslations['guest']!)),
                                           ),
                                   ),
                                 )
@@ -343,6 +360,8 @@ class _LoginState extends State<Login> {
       final User? user = userCredential.user;
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
+      final languageCode = prefs.getString('language');
+      final appTranslations = AppTranslations.translations['${languageCode}']!;
       if (user != null) {
         // User is signed in
         db.collection('dashboards').get().then((querySnapshot) {
@@ -365,9 +384,11 @@ class _LoginState extends State<Login> {
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return const AlertDialog(
-                            title: Text('Not found'),
-                            content: Text('No user found for that email.'));
+                        return AlertDialog(
+                            title: Text(
+                                Intl.message(appTranslations['not_found']!)),
+                            content: Text(Intl.message(
+                                appTranslations['not_found_msg']!)));
                       });
                 }
               }
@@ -417,6 +438,8 @@ class _LoginState extends State<Login> {
           await FirebaseAuth.instance.signInWithProvider(githubProvider);
       final user = res.user!.providerData[0];
       SharedPreferences prefs = await SharedPreferences.getInstance();
+      final languageCode = prefs.getString('language');
+      final appTranslations = AppTranslations.translations['${languageCode}']!;
       if (user.email != null) {
         db.collection('dashboards').get().then((querySnapshot) {
           for (var doc in querySnapshot.docs) {
@@ -438,9 +461,11 @@ class _LoginState extends State<Login> {
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return const AlertDialog(
-                            title: Text('Not found'),
-                            content: Text('No user found for that email.'));
+                        return AlertDialog(
+                            title: Text(
+                                Intl.message(appTranslations['not_found']!)),
+                            content: Text(Intl.message(
+                                appTranslations['not_found_msg']!)));
                       });
                 }
               }
@@ -460,6 +485,8 @@ class _LoginState extends State<Login> {
           await FirebaseAuth.instance.signInWithProvider(microsoftProvider);
       final user = res.user!.providerData[0];
       SharedPreferences prefs = await SharedPreferences.getInstance();
+      final languageCode = prefs.getString('language');
+      final appTranslations = AppTranslations.translations['${languageCode}']!;
       log('${user}');
       if (user.email != null) {
         db.collection('dashboards').get().then((querySnapshot) {
@@ -482,9 +509,11 @@ class _LoginState extends State<Login> {
                   showDialog(
                       context: context,
                       builder: (BuildContext context) {
-                        return const AlertDialog(
-                            title: Text('Not found'),
-                            content: Text('No user found for that email.'));
+                        return AlertDialog(
+                            title: Text(
+                                Intl.message(appTranslations['not_found']!)),
+                            content: Text(Intl.message(
+                                appTranslations['not_found_msg']!)));
                       });
                 }
               }
@@ -501,7 +530,9 @@ class _LoginState extends State<Login> {
     setState(() {
       isLoading = true;
     });
-
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final languageCode = prefs.getString('language');
+    final appTranslations = AppTranslations.translations['${languageCode}']!;
     try {
       await Firebase.initializeApp();
       final pass_salt = "\$2b\$06\$.KIqkgeXOwwL1kDqbN/SSO";
@@ -517,7 +548,6 @@ class _LoginState extends State<Login> {
       User? user = userCredential.user;
 
       if (user != null) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
         var dashboards =
             db.collection('dashboards').get().then((querySnapshot) {
           for (var doc in querySnapshot.docs) {
@@ -544,17 +574,19 @@ class _LoginState extends State<Login> {
         showDialog(
             context: context,
             builder: (BuildContext context) {
-              return const AlertDialog(
-                  title: Text('Not found'),
-                  content: Text('No user found for that email.'));
+              return AlertDialog(
+                  title: Text(Intl.message(appTranslations['not_found']!)),
+                  content:
+                      Text(Intl.message(appTranslations['not_found_msg']!)));
             });
       } else if (e.code == 'wrong-password') {
         showDialog(
             context: context,
             builder: (BuildContext context) {
-              return const AlertDialog(
-                  title: Text('Wrong'),
-                  content: Text('Wrong password provided for that user'));
+              return AlertDialog(
+                  title: Text(Intl.message(appTranslations['wrong_password']!)),
+                  content: Text(
+                      Intl.message(appTranslations['wrong_password_msg']!)));
             });
       }
     } finally {

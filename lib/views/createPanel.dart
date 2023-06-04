@@ -262,7 +262,7 @@ class _JoinState extends State<CreatePanel> {
                             Intl.message(appTranslations['create_panel']!),
                             style: const TextStyle(
                               fontSize: 25,
-                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w400,
                             ),
                           ),
                           Form(

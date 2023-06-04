@@ -2,8 +2,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:home_mate/appLocalization';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bcrypt/flutter_bcrypt.dart';
+
+import '../control/localProvider.dart';
 
 class Join extends StatefulWidget {
   const Join({super.key});
@@ -37,13 +42,16 @@ class _JoinState extends State<Join> {
     final email = _emailController.text;
     final password = _passwordController.text;
 
-    // Check if dashboard exists
+    final languageCode = prefs.getString('language');
+
+    final appTranslations = AppTranslations
+        .translations['${languageCode}']!;
     final dashboardSnapshot =
         await _firestore.collection('dashboards').doc(dashboardId).get();
     if (!dashboardSnapshot.exists) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid dashboard ID'),
+         SnackBar(
+          content: Text(Intl.message(appTranslations['invalid_dashboard_id']!)),
         ),
       );
 
@@ -88,8 +96,8 @@ class _JoinState extends State<Join> {
       prefs.setString('role', 'member');
       // Show success message and clear form
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Joined dashboard successfully'),
+         SnackBar(
+          content: Text(Intl.message(appTranslations['joined_dashboard']!)),
         ),
       );
       _formKey.currentState!.reset();
@@ -101,14 +109,14 @@ class _JoinState extends State<Join> {
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Text('Error'),
-              content: const Text('The email address is already in use.'),
+              title:  Text(Intl.message(appTranslations['error']!)),
+              content:  Text(Intl.message(appTranslations['already_exists']!)),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Text('OK'),
+                  child:  Text(Intl.message(appTranslations['ok']!)),
                 ),
               ],
             );
@@ -116,8 +124,8 @@ class _JoinState extends State<Join> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error occurred. Please try again later.'),
+           SnackBar(
+            content: Text(Intl.message(appTranslations['error']!)),
           ),
         );
       }
@@ -127,8 +135,8 @@ class _JoinState extends State<Join> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error occurred. Please try again later.'),
+         SnackBar(
+          content: Text(Intl.message(appTranslations['error']!)),
         ),
       );
       setState(() {
@@ -143,6 +151,11 @@ class _JoinState extends State<Join> {
   Widget build(BuildContext context) {
     final ButtonStyle style =
         ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
+           final localeProvider = Provider.of<LocaleProvider>(context);
+    final currentLocale = localeProvider.locale;
+    
+    final appTranslations = AppTranslations
+        .translations['${currentLocale}']!;
     return Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: const Color.fromARGB(255, 149, 152, 229),
@@ -211,11 +224,11 @@ class _JoinState extends State<Join> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "Join",
+                           Text(
+                            Intl.message(appTranslations['join']!),
                             style: TextStyle(
                               fontSize: 25,
-                              fontFamily: 'Poppins',
+                          
                             ),
                           ),
                           Form(
@@ -231,13 +244,13 @@ class _JoinState extends State<Join> {
                                   width: 250,
                                   child: TextFormField(
                                     controller: _dashboardIdController,
-                                    decoration: const InputDecoration(
-                                      hintText: 'Enter your Dashboard ID',
-                                      labelText: 'Dashboard ID',
+                                    decoration:  InputDecoration(
+                                      hintText: Intl.message(appTranslations['enter_dashboard_id']!),
+                                      labelText: Intl.message(appTranslations['dashboard_id']!),
                                     ),
                                     validator: (value) {
                                       if (value!.isEmpty) {
-                                        return 'Please enter a dashboard ID';
+                                        return Intl.message(appTranslations['enter_dashboard_id']!);
                                       }
                                       return null;
                                     },
@@ -250,13 +263,13 @@ class _JoinState extends State<Join> {
                                   width: 250,
                                   child: TextFormField(
                                     controller: _emailController,
-                                    decoration: const InputDecoration(
-                                      hintText: 'Enter your email',
-                                      labelText: 'Email',
+                                    decoration:  InputDecoration(
+                                      hintText: Intl.message(appTranslations['enter_your_email']!),
+                                      labelText: Intl.message(appTranslations['email']!),
                                     ),
                                     validator: (value) {
                                       if (value!.isEmpty) {
-                                        return 'Please enter an email';
+                                        return Intl.message(appTranslations['enter_your_email']!);
                                       }
                                       return null;
                                     },
@@ -269,13 +282,13 @@ class _JoinState extends State<Join> {
                                   width: 250,
                                   child: TextFormField(
                                     controller: _passwordController,
-                                    decoration: const InputDecoration(
-                                      hintText: 'Enter your password',
-                                      labelText: 'Password',
+                                    decoration:  InputDecoration(
+                                      hintText: Intl.message(appTranslations['enter_password']!),
+                                      labelText: Intl.message(appTranslations['password']!),
                                     ),
                                     validator: (value) {
                                       if (value!.isEmpty) {
-                                        return 'Please enter a password';
+                                        return Intl.message(appTranslations['enter_password']!);
                                       }
                                       return null;
                                     },
@@ -304,8 +317,8 @@ class _JoinState extends State<Join> {
                                                             255, 94, 91, 255),
                                                     fixedSize: Size(170, 50),
                                                   ),
-                                                  child: const Text(
-                                                    "Join",
+                                                  child:  Text(
+                                                    Intl.message(appTranslations['join']!),
                                                     style: TextStyle(
                                                       fontSize: 20,
                                                     ),

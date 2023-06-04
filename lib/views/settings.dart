@@ -73,7 +73,6 @@ class _SettingsViewState extends State<SettingsView> {
         );
 
         if (response.statusCode == 200) {
-          log('User deleted successfully');
           memberDoc.delete();
         } else {
           print('Failed to delete user. Error: ${response.body}');
@@ -118,7 +117,7 @@ class _SettingsViewState extends State<SettingsView> {
 
   void handleClick(String value) async {
     SharedPreferences? prefs = await SharedPreferences.getInstance();
-    if (value == "Logout") {
+    if (value == "Logout" || value=='Выйти' || value=="Шығу") {
       prefs.remove('dashboard_id');
       prefs.remove('role');
       prefs.remove('userId');
@@ -150,7 +149,7 @@ class _SettingsViewState extends State<SettingsView> {
               PopupMenuButton<String>(
                 onSelected: handleClick,
                 itemBuilder: (BuildContext context) {
-                  return {'Logout'}.map((String choice) {
+                  return {Intl.message(appTranslations['logout']!)}.map((String choice) {
                     return PopupMenuItem<String>(
                       value: choice,
                       child: Text(choice),
@@ -184,13 +183,13 @@ class _SettingsViewState extends State<SettingsView> {
                               padding:
                                   const EdgeInsets.fromLTRB(20, 20, 20, 20),
                               child: Column(children: [
-                                const Row(
+                                Row(
                                   children: [
                                     Padding(
                                       padding:
                                           EdgeInsets.fromLTRB(10, 10, 0, 0),
                                       child: Text(
-                                        "Dashboard",
+                                        Intl.message(appTranslations['dashboard']!),
                                         style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.w500),
@@ -213,11 +212,11 @@ class _SettingsViewState extends State<SettingsView> {
                                                 controller: dashboard_id_input,
                                                 readOnly: true,
                                                 decoration:
-                                                    const InputDecoration(
+                                                     InputDecoration(
                                                         border:
                                                             OutlineInputBorder(),
                                                         labelText:
-                                                            'Dashboard ID',
+                                                            Intl.message(appTranslations['dashboard_id']!),
                                                         labelStyle: TextStyle(
                                                             fontSize: 15)),
                                               ),
@@ -247,9 +246,9 @@ class _SettingsViewState extends State<SettingsView> {
                                                     dashboard_name_input,
                                                 readOnly: true,
                                                 decoration:
-                                                    const InputDecoration(
+                                                     InputDecoration(
                                                   border: OutlineInputBorder(),
-                                                  labelText: 'Dashboard Name',
+                                                  labelText: Intl.message(appTranslations['dashboard_name']!),
                                                 ),
                                               ),
                                             )),
@@ -269,16 +268,22 @@ class _SettingsViewState extends State<SettingsView> {
                                             });
                                           },
                                         ),
-                                        const Text(
-                                          "Dark Theme",
+                                         Text(
+                                          Intl.message(appTranslations['dark_theme']!),
                                           style: TextStyle(
                                               fontSize: 20,
-                                              fontFamily: 'Poppins'),
+                                              fontWeight: FontWeight.w400),
                                         ),
                                       ],
                                     ),
-                                    Center(
-                                      child: DropdownButton<Locale>(
+                                    Padding(padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      
+                                      children: [
+                                        Icon(Icons.language, size: 30,),
+                                        SizedBox(width: 20,),
+                                        DropdownButton<Locale>(
                                         value: currentLocale,
                                         onChanged: (locale) {
                                           localeProvider.setLocale(locale!);
@@ -298,14 +303,16 @@ class _SettingsViewState extends State<SettingsView> {
                                             child: Text('English'),
                                           ),
                                         ],
-                                      ),
+                                      )
+                                      ],
                                     ),
-                                    const Row(children: [
+                                    ),
+                                    Row(children: [
                                       Padding(
                                           padding: EdgeInsets.fromLTRB(
                                               10, 10, 0, 10),
                                           child: Text(
-                                            "Users",
+                                            Intl.message(appTranslations['users']!),
                                             style: TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.w500),
@@ -429,11 +436,11 @@ class _SettingsViewState extends State<SettingsView> {
                                                   fixedSize:
                                                       const Size(200, 50)),
                                               onPressed: saveSettings,
-                                              child: const Text(
-                                                "Save",
+                                              child:  Text(
+                                                Intl.message(appTranslations['save']!),
                                                 style: TextStyle(
                                                     fontSize: 24,
-                                                    fontFamily: 'Poppins'),
+                                                    fontWeight: FontWeight.w400),
                                               ))
                                         ],
                                       ),

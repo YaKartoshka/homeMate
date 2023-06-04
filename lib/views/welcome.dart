@@ -86,7 +86,7 @@ class _WelcomeState extends State<Welcome> {
                 Intl.message(appTranslations['or']!),
                 style: const TextStyle(
                     fontSize: 20,
-                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w400,
                     shadows: <Shadow>[
                       Shadow(
                           offset: Offset(0, 4.0),
@@ -106,7 +106,7 @@ class _WelcomeState extends State<Welcome> {
                   Intl.message(appTranslations['just_add_some_comfort']!),
                   style: const TextStyle(
                       fontSize: 20,
-                      fontFamily: 'Poppins',
+                 
                       shadows: <Shadow>[
                         Shadow(
                             offset: Offset(0, 4.0),
@@ -115,9 +115,9 @@ class _WelcomeState extends State<Welcome> {
                       ]),
                   gradient: const LinearGradient(
                     colors: [
-                      Color.fromARGB(200, 251, 23, 242),
-                      Color.fromARGB(220, 253, 112, 247),
-                      Color.fromARGB(255, 148, 81, 132),
+                      Color.fromARGB(199, 240, 6, 232),
+                      Color.fromARGB(220, 244, 79, 208),
+                      Color.fromARGB(255, 221, 25, 175),
                     ],
                     transform: GradientRotation(36),
                   )),
@@ -139,7 +139,7 @@ class _WelcomeState extends State<Welcome> {
                     Intl.message(appTranslations['create_panel_in_welcome']!),
                     style: const TextStyle(
                       fontSize: 20,
-                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w400,
                       color: Color.fromARGB(255, 69, 5, 173),
                       shadows: <Shadow>[
                         Shadow(
@@ -164,10 +164,10 @@ class _WelcomeState extends State<Welcome> {
                     ),
                   ),
                   child: Text(
-                    Intl.message(appTranslations['join']!),
+                    Intl.message(appTranslations['join_in_welcome']!),
                     style: const TextStyle(
                       fontSize: 20,
-                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w400,
                       color: Color.fromARGB(255, 69, 5, 173),
                       shadows: <Shadow>[
                         Shadow(
@@ -188,7 +188,7 @@ class _WelcomeState extends State<Welcome> {
                   Intl.message(appTranslations['already_have_account']!),
                   style: const TextStyle(
                     fontSize: 16,
-                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w400,
                     color: Color.fromARGB(255, 69, 5, 173),
                     shadows: <Shadow>[
                       Shadow(

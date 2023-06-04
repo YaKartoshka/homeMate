@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:home_mate/control/localProvider.dart';
 import 'package:home_mate/views/notes.dart';
 import 'package:home_mate/views/notifications.dart';
@@ -73,7 +74,13 @@ class _Main_ViewState extends State<Main_View> {
     final ButtonStyle style =
         ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
     final adaptive_size = MediaQuery.of(context).size;
+    Future<bool> _onClickBack() {
+ 
+    SystemNavigator.pop();
 
+
+    return Future.value(true);
+  }
     return Container(
         decoration: _weather_state
             ? const BoxDecoration(
@@ -88,7 +95,8 @@ class _Main_ViewState extends State<Main_View> {
               ),
         child: OverflowBox(
           minHeight: 0,
-          child: Scaffold(
+          child: WillPopScope(onWillPop: _onClickBack, child: 
+          Scaffold(
               resizeToAvoidBottomInset: false,
               backgroundColor: Colors.transparent,
               appBar: PreferredSize(
@@ -132,7 +140,8 @@ class _Main_ViewState extends State<Main_View> {
                   unselectedItemColor: const Color.fromARGB(255, 225, 220, 220),
                   onTap: _onItemTapped,
                 ),
-              )),
+              ))
+              )
         ));
   }
 }

@@ -76,7 +76,7 @@ void main() async {
           return selectedLocale;
         },
         
-        initialRoute: startRoute,
+        initialRoute: '/main_view',
         routes: {
           '/': (context) => const Welcome(),
           '/join': (context) => const Join(),

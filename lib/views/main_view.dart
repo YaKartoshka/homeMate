@@ -9,6 +9,7 @@ import 'package:home_mate/views/notifications.dart';
 import 'package:home_mate/views/settings.dart';
 import 'package:home_mate/views/wardrobe.dart';
 import 'package:home_mate/views/weather.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -133,7 +134,7 @@ class _Main_ViewState extends State<Main_View> {
                     ),
                     BottomNavigationBarItem(
                         icon: Icon(Icons.wb_sunny),
-                        label: 'Weather',
+                        label: Intl.message(appTranslations['weather']),
                         backgroundColor: theme == 'dark'
                 ? Color.fromARGB(255, 36, 36, 36)
                 : theme == 'light'
@@ -142,7 +143,7 @@ class _Main_ViewState extends State<Main_View> {
                         ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.event),
-                      label: 'Notes',
+                      label: Intl.message(appTranslations['notes']),
                       backgroundColor: theme == 'dark'
                 ? Color.fromARGB(255, 36, 36, 36)
                 : theme == 'light'
@@ -151,7 +152,7 @@ class _Main_ViewState extends State<Main_View> {
                     ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.notifications),
-                      label: 'Notifications',
+                      label: Intl.message(appTranslations['notifications']),
                       backgroundColor: theme == 'dark'
                 ? Color.fromARGB(255, 36, 36, 36)
                 : theme == 'light'
@@ -160,7 +161,7 @@ class _Main_ViewState extends State<Main_View> {
                     ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.settings),
-                      label: 'Settings',
+                      label: Intl.message(appTranslations['settings']),
                       backgroundColor: theme == 'dark'
                 ? Color.fromARGB(255, 36, 36, 36)
                 : theme == 'light'

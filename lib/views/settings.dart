@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 import '../control/localProvider.dart';
+import '../control/themeProvider.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
@@ -42,7 +43,6 @@ class _SettingsViewState extends State<SettingsView> {
   final dashboard_name_input = TextEditingController();
   bool theme = true;
 
-  
   @override
   void initState() {
     super.initState();
@@ -117,7 +117,7 @@ class _SettingsViewState extends State<SettingsView> {
 
   void handleClick(String value) async {
     SharedPreferences? prefs = await SharedPreferences.getInstance();
-    if (value == "Logout" || value=='Выйти' || value=="Шығу") {
+    if (value == "Logout" || value == 'Выйти' || value == "Шығу") {
       prefs.remove('dashboard_id');
       prefs.remove('role');
       prefs.remove('userId');
@@ -132,24 +132,40 @@ class _SettingsViewState extends State<SettingsView> {
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context);
     final currentLocale = localeProvider.locale;
-    final appTranslations = AppTranslations
-        .translations['${currentLocale}']!;
-    
+    final appTranslations = AppTranslations.translations['${currentLocale}']!;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    themeProvider.fetchTheme();
     final adaptiveSize = MediaQuery.of(context).size;
-    return Consumer<LocaleProvider>(builder: (context, localeProvider, _) {
+
+    return Consumer2<LocaleProvider, ThemeProvider>(
+        builder: (context, localeProvider, themeProvider, _) {
+      final theme = themeProvider.theme;
       return Scaffold(
           resizeToAvoidBottomInset: false,
-          backgroundColor: const Color.fromARGB(255, 149, 152, 229),
+          backgroundColor: theme == 'dark'
+              ? Colors.black
+              : theme == 'light'
+                  ? Colors.white
+                  : Color.fromARGB(255, 149, 152, 229),
           appBar: AppBar(
             title: Text(Intl.message(appTranslations['settings']!),
-                style: TextStyle(fontFamily: 'Poppins', fontSize: 24)),
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 24,
+                  color: theme == 'dark'
+              ? Colors.white
+              : theme == 'light'
+                  ? Colors.black
+                  : Colors.white,
+                )),
             centerTitle: true,
             automaticallyImplyLeading: false,
             actions: <Widget>[
               PopupMenuButton<String>(
                 onSelected: handleClick,
                 itemBuilder: (BuildContext context) {
-                  return {Intl.message(appTranslations['logout']!)}.map((String choice) {
+                  return {Intl.message(appTranslations['logout']!)}
+                      .map((String choice) {
                     return PopupMenuItem<String>(
                       value: choice,
                       child: Text(choice),
@@ -158,7 +174,11 @@ class _SettingsViewState extends State<SettingsView> {
                 },
               ),
             ],
-            backgroundColor: const Color.fromARGB(255, 149, 152, 229),
+            backgroundColor: theme == 'dark'
+                ? Color.fromARGB(255, 36, 36, 36)
+                : theme == 'light'
+                    ? Color.fromARGB(255, 225, 220, 220)
+                    : Color.fromARGB(255, 149, 152, 229),
           ),
           body: Center(
             child: Container(
@@ -189,7 +209,8 @@ class _SettingsViewState extends State<SettingsView> {
                                       padding:
                                           EdgeInsets.fromLTRB(10, 10, 0, 0),
                                       child: Text(
-                                        Intl.message(appTranslations['dashboard']!),
+                                        Intl.message(
+                                            appTranslations['dashboard']!),
                                         style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.w500),
@@ -211,14 +232,14 @@ class _SettingsViewState extends State<SettingsView> {
                                               child: TextFormField(
                                                 controller: dashboard_id_input,
                                                 readOnly: true,
-                                                decoration:
-                                                     InputDecoration(
-                                                        border:
-                                                            OutlineInputBorder(),
-                                                        labelText:
-                                                            Intl.message(appTranslations['dashboard_id']!),
-                                                        labelStyle: TextStyle(
-                                                            fontSize: 15)),
+                                                decoration: InputDecoration(
+                                                    border:
+                                                        OutlineInputBorder(),
+                                                    labelText: Intl.message(
+                                                        appTranslations[
+                                                            'dashboard_id']!),
+                                                    labelStyle: TextStyle(
+                                                        fontSize: 15)),
                                               ),
                                             )),
                                         if (_role == 'admin')
@@ -245,10 +266,11 @@ class _SettingsViewState extends State<SettingsView> {
                                                 controller:
                                                     dashboard_name_input,
                                                 readOnly: true,
-                                                decoration:
-                                                     InputDecoration(
+                                                decoration: InputDecoration(
                                                   border: OutlineInputBorder(),
-                                                  labelText: Intl.message(appTranslations['dashboard_name']!),
+                                                  labelText: Intl.message(
+                                                      appTranslations[
+                                                          'dashboard_name']!),
                                                 ),
                                               ),
                                             )),
@@ -256,63 +278,99 @@ class _SettingsViewState extends State<SettingsView> {
                                     ),
                                     Row(
                                       children: [
-                                        Switch(
-                                          // This bool value toggles the switch.
-                                          value: theme,
-                                          activeColor: Colors.purple,
-                                          inactiveThumbColor: Colors.black,
-                                          onChanged: (bool value) {
-                                            // This is called when the user toggles the switch.
-                                            setState(() {
-                                              theme = value;
-                                            });
-                                          },
-                                        ),
-                                         Text(
-                                          Intl.message(appTranslations['dark_theme']!),
+                                        
+                                        Text(
+                                          Intl.message(
+                                              appTranslations['style_settings']!),
                                           style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.w400),
                                         ),
                                       ],
                                     ),
-                                    Padding(padding: EdgeInsets.fromLTRB(8, 0, 0, 0),
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      
-                                      children: [
-                                        Icon(Icons.language, size: 30,),
-                                        SizedBox(width: 20,),
-                                        DropdownButton<Locale>(
-                                        value: currentLocale,
-                                        onChanged: (locale) {
-                                          localeProvider.setLocale(locale!);
-                                            prefs!.setString('language', '${locale}');
-                                        },
-                                        items: const [
-                                          DropdownMenuItem<Locale>(
-                                            value: Locale('kk'),
-                                            child: Text('Kazakh'),
+                                    Padding(
+                                      padding: EdgeInsets.fromLTRB(8, 10, 0, 0),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.language,
+                                            size: 30,
                                           ),
-                                          DropdownMenuItem<Locale>(
-                                            value: Locale('ru'),
-                                            child: Text('Russian'),
+                                          SizedBox(
+                                            width: 20,
                                           ),
-                                          DropdownMenuItem<Locale>(
-                                            value: Locale('en'),
-                                            child: Text('English'),
-                                          ),
+                                          
+                                          DropdownButton<Locale>(
+                                            value: currentLocale,
+                                            onChanged: (locale) {
+                                           
+                                              localeProvider.setLocale(locale!);
+                                              prefs!.setString(
+                                                  'language', '${locale}');
+                                            },
+                                            items: const [
+                                              DropdownMenuItem<Locale>(
+                                                value: Locale('kk'),
+                                                child: Text('Kazakh'),
+                                              ),
+                                              DropdownMenuItem<Locale>(
+                                                value: Locale('ru'),
+                                                child: Text('Russian'),
+                                              ),
+                                              DropdownMenuItem<Locale>(
+                                                value: Locale('en'),
+                                                child: Text('English'),
+                                              ),
+                                            ],
+                                          )
                                         ],
-                                      )
-                                      ],
+                                      ),
                                     ),
+                                    Padding(padding: 
+                                    EdgeInsets.fromLTRB(8, 10, 0, 0),
+                                    child: Row(children: [
+                                        Icon(
+                                            Icons.invert_colors,
+                                            size: 30,
+                                          ),
+                                          SizedBox(
+                                            width: 20,
+                                          ),
+                                          
+                                      DropdownButton<String>(
+                                            value: theme,
+                                            onChanged: (theme) {
+                                              prefs?.setString(
+                                                  'theme', '${theme}');
+                                              themeProvider.fetchTheme();
+                                         
+                                            },
+                                            items: const [
+                                              DropdownMenuItem<String>(
+                                                value: 'default',
+                                                child: Text('Default'),
+                                              ),
+                                              DropdownMenuItem<String>(
+                                                value: 'light',
+                                                child: Text('Light'),
+                                              ),
+                                              DropdownMenuItem<String>(
+                                                value: 'dark',
+                                                child: Text('Dark'),
+                                              ),
+                                            ],
+                                          )
+                                    ]),
                                     ),
                                     Row(children: [
                                       Padding(
                                           padding: EdgeInsets.fromLTRB(
                                               10, 10, 0, 10),
                                           child: Text(
-                                            Intl.message(appTranslations['users']!),
+                                            Intl.message(
+                                                appTranslations['users']!),
                                             style: TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.w500),
@@ -400,7 +458,7 @@ class _SettingsViewState extends State<SettingsView> {
                                                                               deleteUser(members.userId);
                                                                             },
                                                                             icon:
-                                                                                const Icon(
+                                                                                Icon(
                                                                               color: Color.fromARGB(255, 207, 54, 43),
                                                                               Icons.delete,
                                                                               size: 30,
@@ -431,16 +489,25 @@ class _SettingsViewState extends State<SettingsView> {
                                           ElevatedButton(
                                               style: ElevatedButton.styleFrom(
                                                   backgroundColor:
-                                                      const Color.fromARGB(
-                                                          255, 104, 57, 223),
+                                                      theme == 'dark'
+                                                          ? Colors.black
+                                                          : theme == 'light'
+                                                              ? Colors.black
+                                                              : Color.fromARGB(
+                                                                  255,
+                                                                  104,
+                                                                  57,
+                                                                  223),
                                                   fixedSize:
                                                       const Size(200, 50)),
                                               onPressed: saveSettings,
-                                              child:  Text(
-                                                Intl.message(appTranslations['save']!),
+                                              child: Text(
+                                                Intl.message(
+                                                    appTranslations['save']!),
                                                 style: TextStyle(
                                                     fontSize: 24,
-                                                    fontWeight: FontWeight.w400),
+                                                    fontWeight:
+                                                        FontWeight.w400),
                                               ))
                                         ],
                                       ),

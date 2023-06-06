@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../appLocalization';
 import '../control/localProvider.dart';
+import '../control/themeProvider.dart';
 
 class NoteListView extends StatefulWidget {
   final Note arguments;
@@ -183,383 +184,468 @@ class _NoteListViewState extends State<NoteListView> {
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context);
     final currentLocale = localeProvider.locale;
-    
-    final appTranslations = AppTranslations
-        .translations['${currentLocale}']!;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    themeProvider.fetchTheme();
+
+    final appTranslations = AppTranslations.translations['${currentLocale}']!;
     final adaptive_size = MediaQuery.of(context).size;
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: const Color.fromRGBO(149, 152, 229, 1),
-      body: Container(
-        decoration: const BoxDecoration(),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          const SizedBox(
-            height: 30,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(20, 20, 0, 0),
-                          child:
-                              Image(image: AssetImage("assets/back_arrow.png")),
-                        )
-                      ])),
-            ],
-          ),
-          Container(
-            margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-            width: adaptive_size.width - 50,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Column(
+
+    return Consumer<ThemeProvider>(builder: (context, themeProvider, _) {
+      final theme = themeProvider.theme;
+
+      return Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: theme == 'dark'
+            ? Colors.black
+            : theme == 'light'
+                ? Colors.black45
+                : Color.fromARGB(255, 149, 152, 229),
+        body: Container(
+          decoration: const BoxDecoration(),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(
-                  height: 15,
+                  height: 30,
                 ),
-                Text(
-                  "${widget.arguments.title}",
-                  style: const TextStyle(
-                    fontSize: 35,
-                    fontFamily: 'Poppins',
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(20, 20, 0, 0),
+                                child: Image(
+                                    image: AssetImage("assets/back_arrow.png")),
+                              )
+                            ])),
+                  ],
+                ),
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                  width: adaptive_size.width - 50,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
                   ),
-                ),
-                SizedBox(
-                    width: adaptive_size.width - 20,
-                    height: adaptive_size.height - 300,
-                    child: Row(
-                      children: [
-                        Expanded(
-                            flex: 1,
-                            child: FutureBuilder<List<NoteItem>>(
-                                future: _noteItemsFuture,
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<List<NoteItem>> snapshot) {
-                                  if (snapshot.hasData) {
-                                    return ListView.builder(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(8, 8, 8, 5),
-                                      itemCount: snapshot.data!.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        final noteItems = snapshot.data![index];
-                                        return GestureDetector(
-                                            onTap:
-                                                () {}, // Handle your callback
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Transform.scale(
-                                                  scale: 1.2,
-                                                  child: Checkbox(
-                                                    value:
-                                                        noteItems.isCompleted,
-                                                    onChanged: (bool? value) {
-                                                      changeStatus(
-                                                          noteItems.noteItemId,
-                                                          noteItems
-                                                              .isCompleted);
-                                                    },
-                                                    activeColor: Colors.blue,
-                                                    checkColor: Colors.white,
-                                                    visualDensity:
-                                                        const VisualDensity(
-                                                            vertical: 3.0,
-                                                            horizontal: 3.0),
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '${noteItems.title}',
-                                                  style: const TextStyle(
-                                                    fontSize: 20,
-                                                    fontFamily: 'Poppins',
-                                                  ),
-                                                ),
-                                                Flex(
-                                                    direction: Axis.horizontal,
-                                                    children: [
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .fromLTRB(
-                                                                0, 0, 10, 0),
-                                                        child: IconButton(
-                                                          onPressed: () {
-                                                            showDialog<String>(
-                                                              context: context,
-                                                              builder: (BuildContext
-                                                                      context) =>
-                                                                  AlertDialog(
-                                                                shadowColor:
-                                                                    const Color
-                                                                            .fromARGB(
-                                                                        255,
-                                                                        104,
-                                                                        57,
-                                                                        223),
-                                                                shape: const RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius.all(
-                                                                            Radius.circular(20))),
-                                                                scrollable:
-                                                                    true,
-                                                                title:
-                                                                     Text(
-                                                                  Intl.message(appTranslations['are_you_sure']!),
-                                                                  textAlign:
-                                                                      TextAlign
-                                                                          .center,
-                                                                ),
-                                                                content:
-                                                                    Padding(
-                                                                        padding:
-                                                                            const EdgeInsets.all(
-                                                                                8.0),
-                                                                        child:
-                                                                            Row(
-                                                                          mainAxisAlignment:
-                                                                              MainAxisAlignment.spaceAround,
-                                                                          children: [
-                                                                            ElevatedButton(
-                                                                                onPressed: () {
-                                                                                  Navigator.pop(context);
-                                                                                },
-                                                                                style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.purple, shadowColor: Colors.red, fixedSize: const Size(90, 40)),
-                                                                                child:  Text(Intl.message(appTranslations['cancel']!))),
-                                                                            ElevatedButton(
-                                                                                onPressed: () {
-                                                                                  deleteNoteItem(noteItems.noteItemId);
-                                                                                  Navigator.pop(context);
-                                                                                },
-                                                                                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, fixedSize: const Size(90, 40)),
-                                                                                child: Text(Intl.message(appTranslations['delete']!)))
-                                                                          ],
-                                                                        )),
-                                                              ),
-                                                            );
-                                                          },
-                                                          icon: const Icon(
-                                                            color:
-                                                                Color.fromARGB(
-                                                                    255,
-                                                                    207,
-                                                                    54,
-                                                                    43),
-                                                            Icons.delete,
-                                                            size: 30,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .fromLTRB(
-                                                                0, 0, 10, 0),
-                                                        child: IconButton(
-                                                          onPressed: () {
-                                                            showDialog<String>(
-                                                              context: context,
-                                                              builder: (BuildContext
-                                                                      context) =>
-                                                                  AlertDialog(
-                                                                shadowColor:
-                                                                    const Color
-                                                                            .fromARGB(
-                                                                        255,
-                                                                        104,
-                                                                        57,
-                                                                        223),
-                                                                shape: const RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius.all(
-                                                                            Radius.circular(30))),
-                                                                scrollable:
-                                                                    true,
-                                                                title:
-                                                                     Text(
-                                                                        Intl.message(appTranslations['edit']!)),
-                                                                content:
-                                                                    Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                              .all(
-                                                                          8.0),
-                                                                  child: Form(
-                                                                    child:
-                                                                        Column(
-                                                                      children: <Widget>[
-                                                                        TextFormField(
-                                                                          controller:
-                                                                              _new_title_controller,
-                                                                          decoration:
-                                                                               InputDecoration(
-                                                                            labelText:
-                                                                                Intl.message(appTranslations['new_title']!),
-                                                                            hintText:
-                                                                                Intl.message(appTranslations['type_title']!),
-                                                                            icon:
-                                                                                Icon(Icons.title_outlined, color: Color.fromARGB(255, 104, 57, 223)),
-                                                                          ),
-                                                                        ),
-                                                                        const SizedBox(
-                                                                            height:
-                                                                                25),
-                                                                        Row(
-                                                                          children: [
-                                                                            ElevatedButton(
-                                                                              onPressed: () {
-                                                                                editNoteItem(noteItems.noteItemId);
-
-                                                                                Navigator.pop(context);
-                                                                                _new_title_controller.clear();
-                                                                              },
-                                                                              style: ElevatedButton.styleFrom(
-                                                                                backgroundColor: const Color.fromARGB(255, 104, 57, 223),
-                                                                              ),
-                                                                              child:  Text(Intl.message(appTranslations['save']!)),
-                                                                            ),
-                                                                            const SizedBox(width: 10),
-                                                                            TextButton(
-                                                                                onPressed: () {
-                                                                                  Navigator.pop(context);
-                                                                                },
-                                                                                child:  Text(
-                                                                                  Intl.message(appTranslations['cancel']!),
-                                                                                  style: TextStyle(
-                                                                                    color: Color.fromARGB(255, 104, 57, 223),
-                                                                                  ),
-                                                                                ))
-                                                                          ],
-                                                                        )
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            );
-                                                          },
-                                                          icon: const Icon(
-                                                            Icons.edit,
-                                                            size: 30,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ])
-                                              ],
-                                            ));
-                                      },
-                                    );
-                                  } else if (snapshot.hasError) {
-                                    return Text('Error: ${snapshot.error}');
-                                  } else {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  }
-                                }))
-                      ],
-                    )),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    showDialog<String>(
-                      context: context,
-                      builder: (BuildContext context) => AlertDialog(
-                        shadowColor: const Color.fromARGB(255, 104, 57, 223),
-                        shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(30))),
-                        scrollable: true,
-                        title:  Text(Intl.message(appTranslations['new_note_item']!)),
-                        content: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Form(
-                            child: Column(
-                              children: <Widget>[
-                                TextFormField(
-                                  controller: _title_controller,
-                                  decoration: InputDecoration(
-                                    labelText: Intl.message(appTranslations['title']!),
-                                    hintText: Intl.message(appTranslations['type_title']!),
-                                    icon: Icon(Icons.title_outlined,
-                                        color:
-                                            Color.fromARGB(255, 104, 57, 223)),
-                                  ),
-                                ),
-                                const SizedBox(height: 25),
-                                Row(
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        createNoteItem();
-                                        _title_controller.clear();
-                                        Navigator.pop(context);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color.fromARGB(
-                                            255, 104, 57, 223),
-                                      ),
-                                      child:  Text(Intl.message(appTranslations['create']!)),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child:  Text(
-                                          Intl.message(appTranslations['cancel']!),
-                                          style: TextStyle(
-                                            color: Color.fromARGB(
-                                                255, 104, 57, 223),
-                                          ),
-                                        ))
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
+                  child: Column(
+                    children: [
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Text(
+                        "${widget.arguments.title}",
+                        style: const TextStyle(
+                          fontSize: 35,
+                          fontFamily: 'Poppins',
                         ),
                       ),
-                    );
-                  },
-                  child:  Text(Intl.message(appTranslations['add_item']!)),
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 104, 57, 223),
-                      fixedSize: const Size(200, 30)),
+                      SizedBox(
+                          width: adaptive_size.width - 20,
+                          height: adaptive_size.height - 300,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  flex: 1,
+                                  child: FutureBuilder<List<NoteItem>>(
+                                      future: _noteItemsFuture,
+                                      builder: (BuildContext context,
+                                          AsyncSnapshot<List<NoteItem>>
+                                              snapshot) {
+                                        if (snapshot.hasData) {
+                                          return ListView.builder(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                8, 8, 8, 5),
+                                            itemCount: snapshot.data!.length,
+                                            itemBuilder: (BuildContext context,
+                                                int index) {
+                                              final noteItems =
+                                                  snapshot.data![index];
+                                              return GestureDetector(
+                                                  onTap:
+                                                      () {}, // Handle your callback
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Transform.scale(
+                                                        scale: 1.2,
+                                                        child: Checkbox(
+                                                          value: noteItems
+                                                              .isCompleted,
+                                                          onChanged:
+                                                              (bool? value) {
+                                                            changeStatus(
+                                                                noteItems
+                                                                    .noteItemId,
+                                                                noteItems
+                                                                    .isCompleted);
+                                                          },
+                                                          activeColor: theme ==
+                                                                  'dark'
+                                                              ? Colors.black
+                                                              : theme == 'light'
+                                                                  ? Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          225,
+                                                                          220,
+                                                                          220)
+                                                                  : Colors.blue,
+                                                          checkColor: theme ==
+                                                                  'dark'
+                                                              ? Colors.white
+                                                              : Colors.black,
+                                                          visualDensity:
+                                                              const VisualDensity(
+                                                                  vertical: 3.0,
+                                                                  horizontal:
+                                                                      3.0),
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        '${noteItems.title}',
+                                                        style: const TextStyle(
+                                                          fontSize: 20,
+                                                          fontFamily: 'Poppins',
+                                                        ),
+                                                      ),
+                                                      Flex(
+                                                          direction:
+                                                              Axis.horizontal,
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .fromLTRB(
+                                                                      0,
+                                                                      0,
+                                                                      10,
+                                                                      0),
+                                                              child: IconButton(
+                                                                onPressed: () {
+                                                                  showDialog<
+                                                                      String>(
+                                                                    context:
+                                                                        context,
+                                                                    builder: (BuildContext
+                                                                            context) =>
+                                                                        AlertDialog(
+                                                                      shadowColor: theme ==
+                                                                              'dark'
+                                                                          ? Colors
+                                                                              .white
+                                                                          : theme == 'light'
+                                                                              ? Colors.black
+                                                                              : Color.fromARGB(255, 104, 57, 223),
+                                                                      shape: const RoundedRectangleBorder(
+                                                                          borderRadius:
+                                                                              BorderRadius.all(Radius.circular(20))),
+                                                                      scrollable:
+                                                                          true,
+                                                                      title:
+                                                                          Text(
+                                                                        Intl.message(
+                                                                            appTranslations['are_you_sure']!),
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                      ),
+                                                                      content: Padding(
+                                                                          padding: const EdgeInsets.all(8.0),
+                                                                          child: Row(
+                                                                            mainAxisAlignment:
+                                                                                MainAxisAlignment.spaceAround,
+                                                                            children: [
+                                                                              ElevatedButton(
+                                                                                  onPressed: () {
+                                                                                    Navigator.pop(context);
+                                                                                  },
+                                                                                  style: ElevatedButton.styleFrom(
+                                                                                      backgroundColor: theme == 'dark'
+                                                                                          ? Colors.black
+                                                                                          : theme == 'light'
+                                                                                              ? Colors.black
+                                                                                              : Color.fromARGB(255, 104, 57, 223),
+                                                                                      foregroundColor: Colors.white,
+                                                                                      shadowColor: Colors.red,
+                                                                                      fixedSize: const Size(90, 40)),
+                                                                                  child: Text(Intl.message(appTranslations['cancel']!))),
+                                                                              ElevatedButton(
+                                                                                  onPressed: () {
+                                                                                    deleteNoteItem(noteItems.noteItemId);
+                                                                                    Navigator.pop(context);
+                                                                                  },
+                                                                                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red, fixedSize: const Size(90, 40)),
+                                                                                  child: Text(Intl.message(appTranslations['delete']!)))
+                                                                            ],
+                                                                          )),
+                                                                    ),
+                                                                  );
+                                                                },
+                                                                icon:
+                                                                    const Icon(
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          207,
+                                                                          54,
+                                                                          43),
+                                                                  Icons.delete,
+                                                                  size: 30,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .fromLTRB(
+                                                                      0,
+                                                                      0,
+                                                                      10,
+                                                                      0),
+                                                              child: IconButton(
+                                                                onPressed: () {
+                                                                  showDialog<
+                                                                      String>(
+                                                                    context:
+                                                                        context,
+                                                                    builder: (BuildContext
+                                                                            context) =>
+                                                                        AlertDialog(
+                                                                      shadowColor: theme ==
+                                                                              'dark'
+                                                                          ? Colors
+                                                                              .white
+                                                                          : theme == 'light'
+                                                                              ? Colors.black
+                                                                              : Color.fromARGB(255, 104, 57, 223),
+                                                                      shape: const RoundedRectangleBorder(
+                                                                          borderRadius:
+                                                                              BorderRadius.all(Radius.circular(30))),
+                                                                      scrollable:
+                                                                          true,
+                                                                      title: Text(
+                                                                          Intl.message(
+                                                                              appTranslations['edit']!)),
+                                                                      content:
+                                                                          Padding(
+                                                                        padding:
+                                                                            const EdgeInsets.all(8.0),
+                                                                        child:
+                                                                            Form(
+                                                                          child:
+                                                                              Column(
+                                                                            children: <Widget>[
+                                                                              TextFormField(
+                                                                                controller: _new_title_controller,
+                                                                                decoration: InputDecoration(
+                                                                                  labelText: Intl.message(appTranslations['new_title']!),
+                                                                                  hintText: Intl.message(appTranslations['type_title']!),
+                                                                                  icon: Icon(
+                                                                                    Icons.title_outlined,
+                                                                                    color: theme == 'dark'
+                                                                                        ? Colors.black
+                                                                                        : theme == 'light'
+                                                                                            ? Colors.black
+                                                                                            : Color.fromARGB(255, 104, 57, 223),
+                                                                                  ),
+                                                                                ),
+                                                                              ),
+                                                                              const SizedBox(height: 25),
+                                                                              Row(
+                                                                                children: [
+                                                                                  ElevatedButton(
+                                                                                    onPressed: () {
+                                                                                      editNoteItem(noteItems.noteItemId);
+
+                                                                                      Navigator.pop(context);
+                                                                                      _new_title_controller.clear();
+                                                                                    },
+                                                                                    style: ElevatedButton.styleFrom(
+                                                                                      backgroundColor: theme == 'dark'
+                                                                                          ? Colors.black
+                                                                                          : theme == 'light'
+                                                                                              ? Colors.black
+                                                                                              : Color.fromARGB(255, 104, 57, 223),
+                                                                                    ),
+                                                                                    child: Text(Intl.message(appTranslations['save']!)),
+                                                                                  ),
+                                                                                  const SizedBox(width: 10),
+                                                                                  TextButton(
+                                                                                      onPressed: () {
+                                                                                        Navigator.pop(context);
+                                                                                      },
+                                                                                      child: Text(
+                                                                                        Intl.message(appTranslations['cancel']!),
+                                                                                        style: TextStyle(
+                                                                                          color: theme == 'dark'
+                                                                                              ? Colors.black
+                                                                                              : theme == 'light'
+                                                                                                  ? Colors.black
+                                                                                                  : Color.fromARGB(255, 104, 57, 223),
+                                                                                        ),
+                                                                                      ))
+                                                                                ],
+                                                                              )
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                },
+                                                                icon:
+                                                                    const Icon(
+                                                                  Icons.edit,
+                                                                  size: 30,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ])
+                                                    ],
+                                                  ));
+                                            },
+                                          );
+                                        } else if (snapshot.hasError) {
+                                          return Text(
+                                              'Error: ${snapshot.error}');
+                                        } else {
+                                          return const Center(
+                                              child:
+                                                  CircularProgressIndicator());
+                                        }
+                                      }))
+                            ],
+                          )),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          showDialog<String>(
+                            context: context,
+                            builder: (BuildContext context) => AlertDialog(
+                              shadowColor: theme == 'dark'
+                                  ? Colors.white
+                                  : theme == 'light'
+                                      ? Colors.black
+                                      : Color.fromARGB(255, 104, 57, 223),
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(30))),
+                              scrollable: true,
+                              title: Text(Intl.message(
+                                  appTranslations['new_note_item']!)),
+                              content: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Form(
+                                  child: Column(
+                                    children: <Widget>[
+                                      TextFormField(
+                                        controller: _title_controller,
+                                        decoration: InputDecoration(
+                                          labelText: Intl.message(
+                                              appTranslations['title']!),
+                                          hintText: Intl.message(
+                                              appTranslations['type_title']!),
+                                          icon: Icon(Icons.title_outlined,
+                                              color: theme == 'dark'
+                                                  ? Colors.black
+                                                  : theme == 'light'
+                                                      ? Colors.black
+                                                      : Color.fromARGB(
+                                                          255, 104, 57, 223)),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 25),
+                                      Row(
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              createNoteItem();
+                                              _title_controller.clear();
+                                              Navigator.pop(context);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor: theme == 'dark'
+                                                    ? Colors.black
+                                                    : theme == 'light'
+                                                        ? Colors.black
+                                                        : Color.fromARGB(
+                                                            255, 104, 57, 223)),
+                                            child: Text(Intl.message(
+                                                appTranslations['create']!)),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text(
+                                                Intl.message(
+                                                    appTranslations['cancel']!),
+                                                style: TextStyle(
+                                                    color: theme == 'dark'
+                                                        ? Colors.black
+                                                        : theme == 'light'
+                                                            ? Colors.black
+                                                            : Color.fromARGB(
+                                                                255,
+                                                                104,
+                                                                57,
+                                                                223)),
+                                              ))
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text(Intl.message(appTranslations['add_item']!)),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: theme == 'dark'
+                                ? Colors.black
+                                : theme == 'light'
+                                    ? Colors.black
+                                    : Color.fromARGB(255, 104, 57, 223),
+                            fixedSize: const Size(200, 30)),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 10),
-              ],
-            ),
-          ),
-          const SizedBox(height: 15),
-          SizedBox(
-              width: adaptive_size.width - 50,
-              child: Column(
-                children: [
-                  Text(
-                    _progressBarPercentage,
-                    style: const TextStyle(fontSize: 25, color: Colors.white),
-                  ),
-                  LinearProgressIndicator(
-                    value: _progressBar,
-                    color: const Color.fromARGB(255, 104, 57, 223),
-                    minHeight: 15,
-                  ),
-                ],
-              ))
-        ]),
-      ),
-    );
+                const SizedBox(height: 15),
+                SizedBox(
+                    width: adaptive_size.width - 50,
+                    child: Column(
+                      children: [
+                        Text(
+                          _progressBarPercentage,
+                          style: const TextStyle(
+                              fontSize: 25, color: Colors.white),
+                        ),
+                        LinearProgressIndicator(
+                          value: _progressBar,
+                          color: theme == 'dark'
+                              ? Colors.white
+                              : theme == 'light'
+                                  ? Colors.white
+                                  : Color.fromARGB(255, 104, 57, 223),
+                          minHeight: 15,
+                        ),
+                      ],
+                    ))
+              ]),
+        ),
+      );
+    });
   }
 }

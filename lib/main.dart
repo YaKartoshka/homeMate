@@ -20,6 +20,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'control/localProvider.dart';
+import 'control/themeProvider.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,9 +47,18 @@ void main() async {
   final startRoute=prefs.getString('dashboard_id')!=null ? '/main_view' : '/';
 
   log('${prefs.getString('dashboard_id')}');
-  runApp(ChangeNotifierProvider<LocaleProvider>(
+  runApp( MultiProvider(providers: 
+  [
+ChangeNotifierProvider<LocaleProvider>(
       create: (_) => LocaleProvider(),
-      child: MaterialApp(
+     ),
+        ChangeNotifierProvider<ThemeProvider>(
+      create: (context) => ThemeProvider(),
+    
+    ),
+
+  ],
+  child: MaterialApp(
         theme: ThemeData(
           primaryColor: Colors.black,
         ),
@@ -73,10 +84,11 @@ void main() async {
         
           selectedLocale ??= supportedLocales.first;
           prefs.setString('language', '${selectedLocale.languageCode}');
+          prefs.setString('theme', 'default');
           return selectedLocale;
         },
         
-        initialRoute: '/main_view',
+        initialRoute: startRoute,
         routes: {
           '/': (context) => const Welcome(),
           '/join': (context) => const Join(),
@@ -91,7 +103,8 @@ void main() async {
         },
 
         // rename Login to Join or Welcome to open other views
-      )));
+      ),
+  ));
 }
 
 

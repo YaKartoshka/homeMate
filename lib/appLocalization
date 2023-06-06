@@ -64,7 +64,8 @@ class AppTranslations {
       'add_item': 'Add an item',
       'edit': 'Edit',
       'are_you_sure': 'Are you sure?',
-      'new_note_item': 'New note item' 
+      'new_note_item': 'New note item',
+      'style_settings': 'Style settings' 
 
     },
     'kk': {
@@ -131,7 +132,8 @@ class AppTranslations {
       'add_item': 'Қосу',
       'edit': 'Өзгерту',
       'are_you_sure': 'Сіз сенімдісіз бе?',
-      'new_note_item': 'Жаңа жазба элементі' 
+      'new_note_item': 'Жаңа жазба элементі',
+      'style_settings': 'Стиль параметрлері' 
 
     },
     'ru': {
@@ -198,7 +200,8 @@ class AppTranslations {
       'add_item': 'Добавить',
       'edit': 'Изменить',
       'are_you_sure': 'Вы уверены?',
-      'new_note_item': 'Новый элемент заметки'  
+      'new_note_item': 'Новый элемент заметки',
+      'style_settings': 'Параметры стиля'  
        
     },
   };

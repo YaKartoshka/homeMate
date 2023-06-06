@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../appLocalization';
+import '../control/themeProvider.dart';
 
 // final jsonString = '[{"id": "1", "name": "John Doe", "age": 30}, {"id": "2", "name": "Jane Smith", "age": 25}]';
 // final jsonData = json.decode(jsonString);
@@ -68,6 +69,8 @@ class _Main_ViewState extends State<Main_View> {
   Widget build(BuildContext context) {
     final localeProvider = Provider.of<LocaleProvider>(context);
     final currentLocale = localeProvider.locale;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    themeProvider.fetchTheme();
     
     final appTranslations = AppTranslations
         .translations['${currentLocale}']!;
@@ -81,6 +84,10 @@ class _Main_ViewState extends State<Main_View> {
 
     return Future.value(true);
   }
+
+  return Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+      final theme = themeProvider.theme;
     return Container(
         decoration: _weather_state
             ? const BoxDecoration(
@@ -90,8 +97,12 @@ class _Main_ViewState extends State<Main_View> {
                     colorFilter: ColorFilter.mode(
                         Color.fromARGB(255, 149, 152, 229), BlendMode.overlay)),
               )
-            : const BoxDecoration(
-                color: Color.fromARGB(255, 104, 57, 223),
+            :  BoxDecoration(
+                color: theme == 'dark'
+                ? Colors.black
+                : theme == 'light'
+                    ? Color.fromARGB(255, 225, 220, 220)
+                    : Color.fromARGB(255, 149, 152, 229),
               ),
         child: OverflowBox(
           minHeight: 0,
@@ -109,39 +120,70 @@ class _Main_ViewState extends State<Main_View> {
               body: _buildBody(),
               bottomNavigationBar: Container(
                 child: BottomNavigationBar(
-                  items: const <BottomNavigationBarItem>[
+                  items: <BottomNavigationBarItem>[
                     BottomNavigationBarItem(
                       icon: Icon(Icons.checkroom),
                       label: 'Wardrobe',
-                      backgroundColor: Color.fromARGB(255, 104, 57, 223),
+                      backgroundColor: 
+                      theme == 'dark'
+                ? Color.fromARGB(255, 36, 36, 36)
+                : theme == 'light'
+                    ? Color.fromARGB(255, 225, 220, 220)
+                    : Color.fromARGB(255, 104, 57, 223),
                     ),
                     BottomNavigationBarItem(
                         icon: Icon(Icons.wb_sunny),
                         label: 'Weather',
-                        backgroundColor: Color.fromRGBO(162, 131, 242, 0.6)),
+                        backgroundColor: theme == 'dark'
+                ? Color.fromARGB(255, 36, 36, 36)
+                : theme == 'light'
+                    ? Color.fromRGBO(162, 131, 242, 0.6)
+                    : Color.fromRGBO(162, 131, 242, 0.6),
+                        ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.event),
                       label: 'Notes',
-                      backgroundColor: Color.fromARGB(255, 104, 57, 223),
+                      backgroundColor: theme == 'dark'
+                ? Color.fromARGB(255, 36, 36, 36)
+                : theme == 'light'
+                    ? Color.fromARGB(255, 225, 220, 220)
+                    : Color.fromARGB(255, 104, 57, 223),
                     ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.notifications),
                       label: 'Notifications',
-                      backgroundColor: Color.fromARGB(255, 104, 57, 223),
+                      backgroundColor: theme == 'dark'
+                ? Color.fromARGB(255, 36, 36, 36)
+                : theme == 'light'
+                    ? Color.fromARGB(255, 225, 220, 220)
+                    : Color.fromARGB(255, 104, 57, 223),
                     ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.settings),
                       label: 'Settings',
-                      backgroundColor: Color.fromARGB(255, 104, 57, 223),
+                      backgroundColor: theme == 'dark'
+                ? Color.fromARGB(255, 36, 36, 36)
+                : theme == 'light'
+                    ? Color.fromARGB(255, 225, 220, 220)
+                    : Color.fromARGB(255, 104, 57, 223),
                     ),
                   ],
                   currentIndex: _selectedIndex,
-                  selectedItemColor: Colors.white,
-                  unselectedItemColor: const Color.fromARGB(255, 225, 220, 220),
+                  selectedItemColor: theme == 'dark'
+                ? Colors.white
+                : theme == 'light'
+                    ? Colors.white
+                    : Colors.white,
+                  unselectedItemColor:  theme == 'dark'
+                ? Colors.white
+                : theme == 'light'
+                    ? Colors.black
+                    : Color.fromARGB(255, 225, 220, 220),
                   onTap: _onItemTapped,
                 ),
               ))
               )
         ));
+  });
   }
 }

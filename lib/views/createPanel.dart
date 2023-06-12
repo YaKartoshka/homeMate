@@ -44,8 +44,7 @@ class _JoinState extends State<CreatePanel> {
     final String repeatedPassword = _repeated_password_field.text.trim();
     final languageCode = prefs.getString('language');
     log('${languageCode}');
-    final appTranslations = AppTranslations
-        .translations['${languageCode}']!;
+    final appTranslations = AppTranslations.translations['${languageCode}']!;
     // Check if passwords match
     if (plainPassword != repeatedPassword) {
       _showErrorDialog(Intl.message(appTranslations['dont_match']!),
@@ -59,7 +58,8 @@ class _JoinState extends State<CreatePanel> {
     // Validate email format
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(email)) {
-      _showErrorDialog(Intl.message(appTranslations['invalid_email']!), Intl.message(appTranslations['invalid_email_msg']!));
+      _showErrorDialog(Intl.message(appTranslations['invalid_email']!),
+          Intl.message(appTranslations['invalid_email_msg']!));
       setState(() {
         isLoading = false;
       });
@@ -75,9 +75,9 @@ class _JoinState extends State<CreatePanel> {
 
     try {
       final pass_salt = "\$2b\$06\$.KIqkgeXOwwL1kDqbN/SSO";
-      
-      final hashedPassword = await FlutterBcrypt.hashPw(
-          password: plainPassword, salt: pass_salt);
+
+      final hashedPassword =
+          await FlutterBcrypt.hashPw(password: plainPassword, salt: pass_salt);
 
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
@@ -91,25 +91,21 @@ class _JoinState extends State<CreatePanel> {
         "email": '$email',
         "dashboard_id": created_dashboard.id
       };
+      final idToken = await user.getIdToken();
       await created_dashboard.set(data);
       var created_user = await dashboardsCollection
           .doc(created_dashboard.id)
           .collection("members")
-          .doc();
-
-      final userData = {
+          .doc(user.uid)
+          .set({
         "userId": user.uid,
         "email": email,
         "role": "admin",
         "dashboard_id": created_dashboard.id,
         "fcmToken": fcmToken,
         "password": hashedPassword,
-        "salt" : pass_salt
-      };
-      await dashboardsCollection
-          .doc(created_dashboard.id)
-          .collection("members")
-          .add(userData);
+        "salt": pass_salt
+      });
 
       setState(() {
         isLoading = false;
@@ -124,11 +120,9 @@ class _JoinState extends State<CreatePanel> {
       });
 
       if (e.code == 'weak-password') {
-        _showErrorDialog(Intl.message(appTranslations['weak_password']!),
-            "");
+        _showErrorDialog(Intl.message(appTranslations['weak_password']!), "");
       } else if (e.code == 'email-already-in-use') {
-        _showErrorDialog(Intl.message(appTranslations['already_exists']!),
-           " ");
+        _showErrorDialog(Intl.message(appTranslations['already_exists']!), " ");
       } else {
         _showErrorDialog("Error", "An error occurred: ${e.toString()}");
       }
@@ -183,11 +177,10 @@ class _JoinState extends State<CreatePanel> {
 
   @override
   Widget build(BuildContext context) {
-       final localeProvider = Provider.of<LocaleProvider>(context);
+    final localeProvider = Provider.of<LocaleProvider>(context);
     final currentLocale = localeProvider.locale;
-    
-    final appTranslations = AppTranslations
-        .translations['${currentLocale}']!;
+
+    final appTranslations = AppTranslations.translations['${currentLocale}']!;
     final ButtonStyle style =
         ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
     return Scaffold(
@@ -258,7 +251,7 @@ class _JoinState extends State<CreatePanel> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                           Text(
+                          Text(
                             Intl.message(appTranslations['create_panel']!),
                             style: const TextStyle(
                               fontSize: 25,
@@ -278,9 +271,13 @@ class _JoinState extends State<CreatePanel> {
                                     width: 250,
                                     child: TextFormField(
                                         controller: _dashboard_name_field,
-                                        decoration:  InputDecoration(
-                                          hintText: Intl.message(appTranslations['enter_dashboard_name']!),
-                                          labelText: Intl.message(appTranslations['dashboard_name']!),
+                                        decoration: InputDecoration(
+                                          hintText: Intl.message(
+                                              appTranslations[
+                                                  'enter_dashboard_name']!),
+                                          labelText: Intl.message(
+                                              appTranslations[
+                                                  'dashboard_name']!),
                                         ))),
                                 const SizedBox(
                                   height: 10,
@@ -289,9 +286,12 @@ class _JoinState extends State<CreatePanel> {
                                     width: 250,
                                     child: TextFormField(
                                         controller: _email_field,
-                                        decoration:  InputDecoration(
-                                          hintText: Intl.message(appTranslations['enter_your_email']!),
-                                          labelText: Intl.message(appTranslations['email']!),
+                                        decoration: InputDecoration(
+                                          hintText: Intl.message(
+                                              appTranslations[
+                                                  'enter_your_email']!),
+                                          labelText: Intl.message(
+                                              appTranslations['email']!),
                                         ))),
                                 const SizedBox(
                                   height: 10,
@@ -300,9 +300,12 @@ class _JoinState extends State<CreatePanel> {
                                     width: 250,
                                     child: TextFormField(
                                         controller: _password_field,
-                                        decoration:  InputDecoration(
-                                          hintText: Intl.message(appTranslations['enter_password']!),
-                                          labelText: Intl.message(appTranslations['password']!),
+                                        decoration: InputDecoration(
+                                          hintText: Intl.message(
+                                              appTranslations[
+                                                  'enter_password']!),
+                                          labelText: Intl.message(
+                                              appTranslations['password']!),
                                         ))),
                                 const SizedBox(
                                   height: 25,
@@ -311,9 +314,13 @@ class _JoinState extends State<CreatePanel> {
                                     width: 250,
                                     child: TextFormField(
                                         controller: _repeated_password_field,
-                                        decoration:  InputDecoration(
-                                          hintText: Intl.message(appTranslations['enter_password']!),
-                                          labelText: Intl.message(appTranslations['repeat_password']!),
+                                        decoration: InputDecoration(
+                                          hintText: Intl.message(
+                                              appTranslations[
+                                                  'enter_password']!),
+                                          labelText: Intl.message(
+                                              appTranslations[
+                                                  'repeat_password']!),
                                         ))),
                                 const SizedBox(
                                   height: 45,
@@ -339,8 +346,10 @@ class _JoinState extends State<CreatePanel> {
                                                     fixedSize:
                                                         const Size(170, 50),
                                                   ),
-                                                  child:  Text(
-                                                    Intl.message(appTranslations['create']!),
+                                                  child: Text(
+                                                    Intl.message(
+                                                        appTranslations[
+                                                            'create']!),
                                                     style: const TextStyle(
                                                       fontSize: 20,
                                                     ),

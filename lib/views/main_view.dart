@@ -4,10 +4,10 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:home_mate/control/localProvider.dart';
+import 'package:home_mate/views/localNotes.dart';
 import 'package:home_mate/views/notes.dart';
 import 'package:home_mate/views/notifications.dart';
 import 'package:home_mate/views/settings.dart';
-import 'package:home_mate/views/wardrobe.dart';
 import 'package:home_mate/views/weather.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -33,7 +33,7 @@ class _Main_ViewState extends State<Main_View> {
   Widget _buildBody() {
     switch (_selectedIndex) {
       case 0:
-        return Wardrobe();
+        return LocalNotes();
 
       case 1:
         return Weather();
@@ -124,7 +124,7 @@ class _Main_ViewState extends State<Main_View> {
                   items: <BottomNavigationBarItem>[
                     BottomNavigationBarItem(
                       icon: Icon(Icons.checkroom),
-                      label: 'Wardrobe',
+                      label: 'My notes',
                       backgroundColor: 
                       theme == 'dark'
                 ? Color.fromARGB(255, 36, 36, 36)

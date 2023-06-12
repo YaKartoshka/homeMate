@@ -36,6 +36,8 @@ class NoteItem {
 }
 
 class _NoteListViewState extends State<NoteListView> {
+  final int _characterLimit = 12;
+  bool _showErrorMessage = false;
   String _role = '';
   String _progressBarPercentage = '';
   var _progressBar = 0.0;
@@ -53,6 +55,12 @@ class _NoteListViewState extends State<NoteListView> {
     super.initState();
     _noteItemsFuture = getNoteItems();
     getProgress();
+  }
+
+  void _checkInput() {
+    setState(() {
+      _showErrorMessage = _new_title_controller.text.length > _characterLimit;
+    });
   }
 
   Future<List<NoteItem>> getNoteItems() async {
@@ -445,6 +453,8 @@ class _NoteListViewState extends State<NoteListView> {
                                                                             children: <Widget>[
                                                                               TextFormField(
                                                                                 controller: _new_title_controller,
+                                                                                onChanged: (_) => _checkInput(),
+                                                                                maxLength: _characterLimit,
                                                                                 decoration: InputDecoration(
                                                                                   labelText: Intl.message(appTranslations['new_title']!),
                                                                                   hintText: Intl.message(appTranslations['type_title']!),
@@ -458,6 +468,11 @@ class _NoteListViewState extends State<NoteListView> {
                                                                                   ),
                                                                                 ),
                                                                               ),
+                                                                              if (_showErrorMessage)
+                                                                                Text(
+                                                                                  'Maximum characters allowed - $_characterLimit',
+                                                                                  style: TextStyle(color: Colors.red),
+                                                                                ),
                                                                               const SizedBox(height: 25),
                                                                               Row(
                                                                                 children: [
@@ -548,6 +563,8 @@ class _NoteListViewState extends State<NoteListView> {
                                     children: <Widget>[
                                       TextFormField(
                                         controller: _title_controller,
+                                        onChanged: (_) => _checkInput(),
+                                        maxLength: _characterLimit,
                                         decoration: InputDecoration(
                                           labelText: Intl.message(
                                               appTranslations['title']!),
@@ -562,6 +579,11 @@ class _NoteListViewState extends State<NoteListView> {
                                                           255, 104, 57, 223)),
                                         ),
                                       ),
+                                      if (_showErrorMessage)
+                                        Text(
+                                          'Maximum characters allowed - $_characterLimit',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
                                       const SizedBox(height: 25),
                                       Row(
                                         children: [

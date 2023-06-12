@@ -27,6 +27,8 @@ class Note {
 }
 
 class _NotesState extends State<Notes> {
+  final int _characterLimit = 12;
+  bool _showErrorMessage = false;
   FirebaseFirestore db = FirebaseFirestore.instance;
   String _role = '';
   final _title_controller = TextEditingController();
@@ -41,6 +43,12 @@ class _NotesState extends State<Notes> {
   void initState() {
     super.initState();
     _notesFuture = getNotes();
+  }
+
+  void _checkInput() {
+    setState(() {
+      _showErrorMessage = _new_title_controller.text.length > _characterLimit;
+    });
   }
 
   Future<void> createNote() async {
@@ -298,6 +306,10 @@ class _NotesState extends State<Notes> {
                                                                         TextFormField(
                                                                           controller:
                                                                               _new_title_controller,
+                                                                          onChanged: (_) =>
+                                                                              _checkInput(),
+                                                                          maxLength:
+                                                                              _characterLimit,
                                                                           decoration:
                                                                               InputDecoration(
                                                                             labelText:
@@ -312,6 +324,12 @@ class _NotesState extends State<Notes> {
                                                                                         : Color.fromARGB(255, 104, 57, 223)),
                                                                           ),
                                                                         ),
+                                                                        if (_showErrorMessage)
+                                                                          Text(
+                                                                            'Maximum characters allowed - $_characterLimit',
+                                                                            style:
+                                                                                TextStyle(color: Colors.red),
+                                                                          ),
                                                                         const SizedBox(
                                                                             height:
                                                                                 25),
@@ -510,6 +528,8 @@ class _NotesState extends State<Notes> {
                     children: <Widget>[
                       TextFormField(
                         controller: _title_controller,
+                        onChanged: (_) => _checkInput(),
+                        maxLength: _characterLimit,
                         decoration: InputDecoration(
                           labelText: Intl.message(appTranslations['title']!),
                           hintText:
@@ -522,6 +542,11 @@ class _NotesState extends State<Notes> {
                                       : Color.fromARGB(255, 104, 57, 223)),
                         ),
                       ),
+                      if (_showErrorMessage)
+                        Text(
+                          'Maximum characters allowed - $_characterLimit',
+                          style: TextStyle(color: Colors.red),
+                        ),
                       const SizedBox(height: 25),
                       Row(
                         children: [

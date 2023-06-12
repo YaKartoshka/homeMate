@@ -47,7 +47,7 @@ class _MyNoteListViewState extends State<MyNoteListView> {
   final _description_controller = TextEditingController();
   String _dashboard_id = '';
   String note_id = '';
-
+  String _user_id= '';
   @override
   void initState() {
     super.initState();
@@ -59,12 +59,13 @@ class _MyNoteListViewState extends State<MyNoteListView> {
     SharedPreferences? prefs = await SharedPreferences.getInstance();
     _dashboard_id = prefs!.getString("dashboard_id")!;
     _role = prefs.getString("role")!;
+    _user_id=prefs.getString('userId')!;
     note_id = widget.arguments.noteId!;
 
     final snapshot = await db
         .collection('dashboards')
         .doc(_dashboard_id)
-        .collection('notes')
+        .collection('members').doc(_user_id).collection('notes')
         .doc(note_id)
         .collection('note_items')
         .get();
@@ -77,12 +78,15 @@ class _MyNoteListViewState extends State<MyNoteListView> {
 
   Future<void> createNoteItem() async {
     note_id = widget.arguments.noteId!;
+    SharedPreferences? prefs = await SharedPreferences.getInstance();
     String? newTitle = _title_controller.text;
+    log(newTitle);
+    _user_id=prefs.getString('userId')!;
     if (_role != 'guest') {
       var noteItemsCollection = db
           .collection('dashboards')
           .doc(_dashboard_id)
-          .collection('notes')
+          .collection('members').doc(_user_id).collection('notes')
           .doc(note_id)
           .collection('note_items');
 
@@ -97,16 +101,19 @@ class _MyNoteListViewState extends State<MyNoteListView> {
                         }))
                   });
     }
+    _title_controller.clear();
   }
 
   Future<void> editNoteItem(noteItemId) async {
+       SharedPreferences? prefs = await SharedPreferences.getInstance();
     String? newTitle = _new_title_controller.text;
+     _user_id=prefs.getString('userId')!;
     log(newTitle);
     if (_role != 'guest') {
       db
           .collection('dashboards')
           .doc(_dashboard_id)
-          .collection('notes')
+          .collection('members').doc(_user_id).collection('notes')
           .doc(note_id)
           .collection('note_items')
           .doc(noteItemId)
@@ -117,11 +124,13 @@ class _MyNoteListViewState extends State<MyNoteListView> {
   }
 
   Future<void> deleteNoteItem(noteItemId) async {
+     SharedPreferences? prefs = await SharedPreferences.getInstance();
+     _user_id=prefs.getString('userId')!;
     if (_role != 'guest') {
       db
           .collection('dashboards')
           .doc(_dashboard_id)
-          .collection('notes')
+          .collection('members').doc(_user_id).collection('notes')
           .doc(note_id)
           .collection('note_items')
           .doc(noteItemId)
@@ -140,13 +149,15 @@ class _MyNoteListViewState extends State<MyNoteListView> {
 
   getProgress() async {
     prefs = await SharedPreferences.getInstance();
+  
+     _user_id=prefs!.getString('userId')!;
     _dashboard_id = prefs!.getString("dashboard_id")!;
     note_id = widget.arguments.noteId!;
 
     final snapshot = await db
         .collection('dashboards')
         .doc(_dashboard_id)
-        .collection('notes')
+        .collection('members').doc(_user_id).collection('notes')
         .doc(note_id)
         .collection('note_items')
         .get();
@@ -568,7 +579,7 @@ class _MyNoteListViewState extends State<MyNoteListView> {
                                           ElevatedButton(
                                             onPressed: () {
                                               createNoteItem();
-                                              _title_controller.clear();
+                                              
                                               Navigator.pop(context);
                                             },
                                             style: ElevatedButton.styleFrom(

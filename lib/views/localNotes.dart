@@ -50,6 +50,8 @@ class _LocalNotesState extends State<LocalNotes> {
     SharedPreferences? prefs = await SharedPreferences.getInstance();
     _user_id = prefs.getString('userId')!;
     log(_user_id);
+    
+
     db
         .collection('dashboards')
         .doc(_dashboard_id)
@@ -109,6 +111,7 @@ class _LocalNotesState extends State<LocalNotes> {
     _dashboard_id = prefs.getString("dashboard_id")!;
     _user_id = prefs.getString('userId')!;
     _role = prefs.getString("role")!;
+    
     var note_user_id = '';
     final snapshot = await FirebaseFirestore.instance
         .collection('dashboards')
@@ -152,8 +155,8 @@ class _LocalNotesState extends State<LocalNotes> {
       final theme = themeProvider.theme;
       return Scaffold(
         appBar: AppBar(
-          title: Text(Intl.message(appTranslations['notes']!),
-              style: TextStyle(fontFamily: 'Poppins', fontSize: 24)),
+          title: Text(Intl.message(appTranslations['my_notes']!),
+              style: TextStyle( fontSize: 24)),
           centerTitle: true,
           automaticallyImplyLeading: false,
           backgroundColor: theme == 'dark'
@@ -212,7 +215,7 @@ class _LocalNotesState extends State<LocalNotes> {
                                               20, 0, 20, 0),
                                           margin: const EdgeInsets.fromLTRB(
                                               0, 10, 0, 10),
-                                          height: 170,
+                                          height: 80,
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(30),
@@ -405,60 +408,7 @@ class _LocalNotesState extends State<LocalNotes> {
                                               SizedBox(
                                                 height: 12,
                                               ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Container(
-                                                    height: 70,
-                                                    width: adaptiveSize.width /
-                                                        1.8,
-                                                    decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                            color: theme ==
-                                                                    'dark'
-                                                                ? Colors.black
-                                                                : theme ==
-                                                                        'light'
-                                                                    ? Colors
-                                                                        .white
-                                                                    : Color
-                                                                        .fromARGB(
-                                                                            255,
-                                                                            104,
-                                                                            57,
-                                                                            223),
-                                                            width: 2),
-                                                        color: Color.fromARGB(
-                                                            255, 226, 224, 224),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20)),
-                                                    child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceAround,
-                                                        children: [
-                                                          Container(
-                                                            child: Row(
-                                                                children: [
-                                                                  Icon(Icons
-                                                                      .check_circle_outline),
-                                                                  Text('3/5')
-                                                                ]),
-                                                          ),
-                                                          Container(
-                                                            child: Row(
-                                                                children: [
-                                                                  Icon(Icons
-                                                                      .comment),
-                                                                  Text('3/5')
-                                                                ]),
-                                                          )
-                                                        ]),
-                                                  )
-                                                ],
-                                              )
+                                              
                                             ],
                                           )),
                                     );

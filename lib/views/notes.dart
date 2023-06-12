@@ -105,6 +105,22 @@ class _NotesState extends State<Notes> {
     return notes;
   }
 
+  int getBirdCount(QuerySnapshot snapshot) {
+    return snapshot.docs.length;
+  }
+
+  Future<int> fetchBirdCount(note_id) async {
+    final QuerySnapshot snapshot = await db
+        .collection("dashboards")
+        .doc(_dashboard_id)
+        .collection('notes')
+        .doc(note_id)
+        .collection('note_items')
+        .get();
+
+    return snapshot.docs.length;
+  }
+
   @override
   Widget build(BuildContext context) {
     final ButtonStyle style =
@@ -161,6 +177,7 @@ class _NotesState extends State<Notes> {
                                   itemBuilder:
                                       (BuildContext context, int index) {
                                     final notes = snapshot.data![index];
+
                                     return GestureDetector(
                                       onTap: () {
                                         Navigator.push(
@@ -410,20 +427,49 @@ class _NotesState extends State<Notes> {
                                                         children: [
                                                           Container(
                                                             child: Row(
+                                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                                mainAxisAlignment: MainAxisAlignment.center,
                                                                 children: [
+                                                                  
                                                                   Icon(Icons
-                                                                      .check_circle_outline),
-                                                                  Text('3/5')
+                                                                      .comment, size: 30,),
+                                                                  Container(
+                                                                    margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                                                    width: 30,
+                                                                    height: 30,
+                                                                    child:
+                                                                        FutureBuilder<
+                                                                            int>(
+                                                                      future: fetchBirdCount(
+                                                                          notes
+                                                                              .noteId),
+                                                                      builder: (BuildContext
+                                                                              context,
+                                                                          AsyncSnapshot<int>
+                                                                              snapshot) {
+                                                                        log('${snapshot.data}');
+                                                                        if (snapshot.data ==
+                                                                            null) {
+                                                                          return Text(
+                                                                              '0'); // Show a loading indicator while count is being fetched
+                                                                        }
+                                                                        if (snapshot
+                                                                            .hasError) {
+                                                                          return Text(
+                                                                              'Error: ${snapshot.error}'); // Show an error message if count retrieval fails
+                                                                        }
+                                                                        final birdCount =
+                                                                            snapshot.data ??
+                                                                                0; // Retrieve the count from the snapshot
+                                                                        return Text(
+                                                                            '${birdCount}', style: TextStyle(
+                                                                              fontSize: 25
+                                                                            ),);
+                                                                      },
+                                                                    ),
+                                                                  )
                                                                 ]),
                                                           ),
-                                                          Container(
-                                                            child: Row(
-                                                                children: [
-                                                                  Icon(Icons
-                                                                      .comment),
-                                                                  Text('3/5')
-                                                                ]),
-                                                          )
                                                         ]),
                                                   )
                                                 ],
@@ -505,11 +551,10 @@ class _NotesState extends State<Notes> {
                                 Intl.message(appTranslations['cancel']!),
                                 style: TextStyle(
                                   color: theme == 'dark'
-                                        ? Colors.black
-                                        : theme == 'light'
-                                            ? Colors.black
-                                            : Color.fromARGB(
-                                                255, 104, 57, 223),
+                                      ? Colors.black
+                                      : theme == 'light'
+                                          ? Colors.black
+                                          : Color.fromARGB(255, 104, 57, 223),
                                 ),
                               ))
                         ],

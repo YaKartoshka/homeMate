@@ -183,11 +183,14 @@ class _MyNoteListViewState extends State<MyNoteListView> {
     });
   }
 
-  void changeStatus(noteItemId, noteItemStatus) {
+  void changeStatus(noteItemId, noteItemStatus) async {
+    prefs = await SharedPreferences.getInstance();
+  
+     _user_id=prefs!.getString('userId')!;
     db
         .collection('dashboards')
         .doc(_dashboard_id)
-        .collection('notes')
+        .collection('members').doc(_user_id).collection('notes')
         .doc(note_id)
         .collection("note_items")
         .doc(noteItemId)

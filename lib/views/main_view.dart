@@ -123,8 +123,8 @@ class _Main_ViewState extends State<Main_View> {
                 child: BottomNavigationBar(
                   items: <BottomNavigationBarItem>[
                     BottomNavigationBarItem(
-                      icon: Icon(Icons.checkroom),
-                      label: 'My notes',
+                      icon: Icon(Icons.description),
+                      label: Intl.message(appTranslations['my_notes']),
                       backgroundColor: 
                       theme == 'dark'
                 ? Color.fromARGB(255, 36, 36, 36)
